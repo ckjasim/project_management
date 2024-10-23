@@ -1,5 +1,6 @@
 import IEmployee from './IEmployee';
 import IOtp from './IOtp';
+import IRefreshToken from './IRefreshToken';
 
 export interface IEmployeeInteractor {
   createUser(data: Partial<IEmployee>): Promise<IEmployee>; 
@@ -8,5 +9,8 @@ export interface IEmployeeInteractor {
   saveOtp(data:Partial<IOtp>):Promise<IOtp>; 
   getOtp(email:string):Promise<IOtp>
   compareOtp(otp:string,hashOtp:string):Promise<boolean>; 
+  createRefreshToken(data: Partial<IRefreshToken>): Promise<IRefreshToken>; 
 
+  execute(refreshToken: string): Promise<string>
 }
+     

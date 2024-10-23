@@ -1,8 +1,10 @@
+import refreshTokenRepository from "../../database/repositories/refreshTokenRepository"
 
 
 const INTERFACE_TYPES = {
   UserRepository:Symbol.for('UserRepository'),
   UserInteractor:Symbol.for('UserInteractor'),
+  
 
   AdminInteractor:Symbol.for('AdminInteractor'),
 
@@ -10,7 +12,11 @@ const INTERFACE_TYPES = {
   EmployeeInteractor:Symbol.for('EmployeeInteractor'),
 
   UserController:Symbol.for('UserController'),
+  GoogleAuthService:Symbol.for('GoogleAuthService'),
   EmployeeController:Symbol.for('EmployeeController'),
+  AdminController:Symbol.for('AdminController'),
+
+  RefreshTokenRepository:Symbol.for('RefreshTokenRepository'),
 
   OtpRepository:Symbol.for('OtpRepository'),
   jwt:Symbol.for('jwt'),

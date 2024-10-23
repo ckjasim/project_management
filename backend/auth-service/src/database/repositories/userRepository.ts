@@ -14,6 +14,9 @@ constructor(){
 async findByEmail(email:String){
   return await this.db.findOne({email})
 }
+async findById(id:String){
+  return await this.db.findOne({id})
+}
 async create(data:IUser){
   return await this.db.create(data)
 }

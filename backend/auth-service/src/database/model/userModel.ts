@@ -1,14 +1,17 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import IUser from "../../infrastructure/interfaces/IUser";
 import bcrypt from 'bcryptjs'
 
 
-const userSchema = new mongoose.Schema<IUser>({
+const userSchema = new Schema<IUser>({
   name: { type: String, required: [true, "name is required"] },
   email: { type: String, required: [true, "email is required"], unique: true },
   password: { type: String, required: [true, "password is required"] },
   role: { type: String, required: true },
-  isBlock: { type: Boolean, default: false, required: true },
+  isBlock: { type: Boolean, default: false, required: true }
+}, 
+{
+  timestamps: true 
 });
 
 

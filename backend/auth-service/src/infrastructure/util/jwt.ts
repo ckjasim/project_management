@@ -8,16 +8,31 @@ config();
 @injectable()
 export default class Jwt implements IJwt {
   private readonly secret: string;
+  private readonly refreshSecret: string;
+
   constructor() {
     this.secret = process.env.JWT_SECRET || '';
+    this.refreshSecret = process.env.REFRESH_TOKEN_SECRET || '';
+    if (!this.secret) {
+      throw new Error('JWT_SECRET is not defined in environment variables');
+    }
   }
-  generateToken(id: string): string {
-    return jwt.sign({ id }, this.secret, {
-      expiresIn: '30h',
-    });
+  generateToken(data: object | string, expiresIn: string = '15m'): string {
+    return jwt.sign(
+      typeof data === 'string' ? { id: data } : data,
+      this.secret,
+      { expiresIn }
+    );
   }
+  generateRefreshToken(user: string) {
+    return jwt.sign(user, this.refreshSecret, { expiresIn: '1d' });
+  }
+
   async verifyToken(token: string): Promise<JwtPayload> {
-    const secret = new TextEncoder().encode(this.secret) as any;
-    return (await jwt.verify(token, secret)) as JwtPayload;
+    return (await jwt.verify(token, this.secret)) as JwtPayload;
   }
+  async verifyRefreshToken(token: string): Promise<JwtPayload> {
+    return (await jwt.verify(token, this.refreshSecret)) as JwtPayload;
+  }
+
 }

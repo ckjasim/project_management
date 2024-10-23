@@ -23,18 +23,28 @@ import EmployeeAuthController from "../../controllers/employeeAuthController"
 import IEmployeeController from "../interfaces/IEmployeeController"
 import { IAdminInteractor } from "../interfaces/IAdminInteractors"
 import AdminInteractor from "../../interactors/adminInteractor"
+import { IEmployeeInteractor } from "../interfaces/IEmployeeInteractors"
+import { GoogleAuthService } from "./passport"
+import IGoogleAuthService from "../interfaces/IGoogleAuthService"
+import IRefreshTokenRepository from "../interfaces/IRefreshTokenRepository"
+import refreshTokenRepository from "../../database/repositories/refreshTokenRepository"
+import IAdminController from "../interfaces/IAdminController"
+import adminAuthController from "../../controllers/adminAuthController"
 
 const container = new Container()
 
 container.bind<IUserRepository>(INTERFACE_TYPES.UserRepository).to(UserRepository)
 container.bind<IEmployeeRepository>(INTERFACE_TYPES.EmployeeRepository).to(EmployeeRepository)
+container.bind<IRefreshTokenRepository>(INTERFACE_TYPES.RefreshTokenRepository).to(refreshTokenRepository)
 
 container.bind<IUserInteractor>(INTERFACE_TYPES.UserInteractor).to(UserInteractors)
 container.bind<IAdminInteractor>(INTERFACE_TYPES.AdminInteractor).to(AdminInteractor)
-container.bind<IUserInteractor>(INTERFACE_TYPES.EmployeeInteractor).to(EmployeeInteractor)
+container.bind<IEmployeeInteractor>(INTERFACE_TYPES.EmployeeInteractor).to(EmployeeInteractor)
 
 container.bind<IUserController>(INTERFACE_TYPES.UserController).to(userAuthController);
+container.bind<IGoogleAuthService>(INTERFACE_TYPES.GoogleAuthService).to(GoogleAuthService);
 container.bind<IEmployeeController>(INTERFACE_TYPES.EmployeeController).to(EmployeeAuthController);
+container.bind<IAdminController>(INTERFACE_TYPES.AdminController).to(adminAuthController);
 
 container.bind<IOtpRepository>(INTERFACE_TYPES.OtpRepository).to(OtpRepository)
 container.bind<IJwt>(INTERFACE_TYPES.jwt).to(Jwt)

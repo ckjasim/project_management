@@ -8,6 +8,7 @@ import IEmailService from '../infrastructure/interfaces/IEmailService';
 import { SessionData } from 'express-session';
 import IAdminController from '../infrastructure/interfaces/IAdminController';
 import { IAdminInteractor } from '../infrastructure/interfaces/IAdminInteractors';
+import { validationResult } from 'express-validator';
 
 @injectable()
 class adminAuthController implements IAdminController {
@@ -24,6 +25,15 @@ class adminAuthController implements IAdminController {
 
   async loginHandler(req: Request, res: Response, next: NextFunction) {
     try {
+
+      const errors = validationResult(req);
+      console.log(errors)
+      console.log(errors.array())
+      if (!errors.isEmpty()) {
+        res.status(400)
+        .json({ message: 'validation error',  errors:errors.array() })
+      }
+
       const { email, password } = req.body;
       const adminEmail = process.env.ADMIN_EMAIL;
       const adminPassword = process.env.ADMIN_PASSWORD;
