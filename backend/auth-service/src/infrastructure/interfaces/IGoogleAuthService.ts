@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { RequestHandler } from "express";
 
 export default interface IGoogleAuthService {
-    googleAuth(req: Request, res: Response, next: NextFunction): void;
-    googleCallback(req: Request, res: Response, next: NextFunction): void;
+    googleAuth(): RequestHandler; // Updated to return RequestHandler
+    googleCallback(): RequestHandler; // Updated to return RequestHandler
 }

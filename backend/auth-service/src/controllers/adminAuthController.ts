@@ -35,8 +35,11 @@ class adminAuthController implements IAdminController {
       }
 
       const { email, password } = req.body;
+      console.log(email,password)
       const adminEmail = process.env.ADMIN_EMAIL;
       const adminPassword = process.env.ADMIN_PASSWORD;
+      console.log(adminEmail)
+      console.log(password)
       if (email === adminEmail && password === adminPassword) {
         const token = this.jwt.generateToken(email as string);
         res.cookie('jwt', token, {

@@ -20,6 +20,8 @@ class userAuthController implements IUserController {
     @inject(INTERFACE_TYPES.jwt) jwt: IJwt,
     @inject(INTERFACE_TYPES.NodeMailerService) emailServ: IEmailService
   ) {
+  
+
     this.interactor = userInter;
     this.jwt = jwt;
     this.emailService = emailServ;
@@ -27,53 +29,44 @@ class userAuthController implements IUserController {
 
   async loginHandler(req: Request, res: Response, next: NextFunction) {
     try {
+    
       console.log(req.body);
-
-      const errors = validationResult(req);
-      console.log(errors);
-      console.log(errors.array());
-      if (!errors.isEmpty()) {
-        res
-          .status(400)
-          .json({ message: 'validation error', errors: errors.array() });
-      }
-
+  
       const { email, password } = req.body;
       const user = await this.interactor.findUserByEmail(email);
       if (!user) {
-        res.status(400);
-        throw new Error('User not found , Please create an account');
+        return res.status(400).json({ message: 'User not found, please create an account' });
       }
-      const comparePassword = await this.interactor.comparePassword(
-        password,
-        user.password
-      );
-      console.log(comparePassword);
+  
+      const comparePassword = await this.interactor.comparePassword(password, user.password);
       if (!comparePassword) {
-        res.status(400);
-        throw new Error('invalid password');
+        return res.status(400).json({ message: 'Invalid password' });
       }
-
+  
       const token = this.jwt.generateToken(user.email as string);
       const refreshToken = this.jwt.generateRefreshToken(user.email as string);
       const expiresAt = new Date();
-      const refreshData = {
+      expiresAt.setDate(expiresAt.getDate() + 30);
+  
+      const refreshData = {   
         email,
         token: refreshToken,
         expiresAt,
       };
-      const refresh = await this.interactor.createRefreshToken(refreshData);
-
+      await this.interactor.createRefreshToken(refreshData);
+  
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
         maxAge: COOKIE_MAXAGE,
         path: '/',
       });
-      res.status(200).json({ message: 'succefully logged In', data: user });
+  
+      res.status(200).json({ message: 'Successfully logged in', data: { user, token } });
     } catch (error) {
       next(error);
     }
   }
+  
   async registerHandler(
     req: Request,
     res: Response,

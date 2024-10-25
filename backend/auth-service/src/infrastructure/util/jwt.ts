@@ -16,7 +16,11 @@ export default class Jwt implements IJwt {
     if (!this.secret) {
       throw new Error('JWT_SECRET is not defined in environment variables');
     }
+    if (!this.refreshSecret) {
+      throw new Error('REFRESH_TOKEN_SECRET is not defined in environment variables');
+    }
   }
+
   generateToken(data: object | string, expiresIn: string = '15m'): string {
     return jwt.sign(
       typeof data === 'string' ? { id: data } : data,
@@ -24,15 +28,17 @@ export default class Jwt implements IJwt {
       { expiresIn }
     );
   }
+
   generateRefreshToken(user: string) {
-    return jwt.sign(user, this.refreshSecret, { expiresIn: '1d' });
+    const payload = { email: user };
+    return jwt.sign(payload, this.refreshSecret, { expiresIn: '1d' });
   }
 
   async verifyToken(token: string): Promise<JwtPayload> {
     return (await jwt.verify(token, this.secret)) as JwtPayload;
   }
+
   async verifyRefreshToken(token: string): Promise<JwtPayload> {
     return (await jwt.verify(token, this.refreshSecret)) as JwtPayload;
   }
-
 }

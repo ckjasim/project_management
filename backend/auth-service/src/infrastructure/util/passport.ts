@@ -1,21 +1,27 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { inject, injectable } from "inversify";
 import dotenv from "dotenv";
 import INTERFACE_TYPES from "../constants/inversify";
 import { IUserInteractor } from "../interfaces/IUserInteractors";
+import { COOKIE_MAXAGE } from "../constants/timeAndDuration";
+import IGoogleAuthService from "../interfaces/IGoogleAuthService";
 
 dotenv.config();
 
 @injectable()
-export class GoogleAuthService {
+export class GoogleAuthService implements IGoogleAuthService {
   private interactor: IUserInteractor;
+  private jwtService: any; 
 
-  constructor(@inject(INTERFACE_TYPES.UserInteractor) userInteractor: IUserInteractor) {
+  constructor(
+    @inject(INTERFACE_TYPES.UserInteractor) userInteractor: IUserInteractor,
+    @inject(INTERFACE_TYPES.jwt) jwtService: any 
+  ) {
     this.interactor = userInteractor;
+    this.jwtService = jwtService;
     this.setupPassport();
-    console.log('111111111111111111111111')
   }
 
   private setupPassport() {
@@ -24,25 +30,27 @@ export class GoogleAuthService {
         {
           clientID: process.env.CLIENT_ID as string,
           clientSecret: process.env.CLIENT_SECRET as string,
-          callbackURL: "https://localhost:3000/auth/google/callback",
+          callbackURL:"http://localhost:3000/api/google/callback",
         },
         async (accessToken: string, refreshToken: string, profile: any, done: Function) => {
           try {
-            const { id, email, displayName: name } = profile;
-            console.log(profile);
-
+            const { id, emails, displayName: name } = profile;
+            const email = emails[0].value;
             let user = await this.interactor.findUserByEmail(email);
+
+            // Create a new user if not found
             if (!user) {
               user = await this.interactor.createUser({
                 id,
                 email,
                 name,
-                password: id, // Consider using a secure hash instead of the Google ID as the password
-          
+                password: id, // Use id as a dummy password
               });
             }
 
-            return done(null, user);
+            // Generate JWT token
+            const token = this.jwtService.generateToken(email);
+            return done(null, { user, token });
           } catch (error) {
             console.error("Error during Google authentication:", error);
             return done(error, null);
@@ -52,37 +60,43 @@ export class GoogleAuthService {
     );
   }
 
-  public initializePassport() {
-    passport.serializeUser((user: any, done: (err: any, id?: any) => void) => {
-      done(null, user.id);
-    });
-
-    passport.deserializeUser(async (id: string, done: (err: any, user?: any) => void) => {
-      try {
-        const user = await this.interactor.findUserById(id);
-        done(null, user);
-      } catch (error) {
-        done(error, null);
-      }
-    });
-  }
-
-  public googleAuth() {
+  public googleAuth(): RequestHandler {
     return passport.authenticate("google", { scope: ["profile", "email"] });
   }
 
-  public googleCallback() {
-    return passport.authenticate("google", {
-      failureRedirect: "/api/userLogin",
-    });
-  }
+  public googleCallback(): RequestHandler {
+    return (req: Request, res: Response, next: NextFunction) => {
+      passport.authenticate("google", async (err: any, user: { token: string; user: { email: string; }; }, info: any) => {
+        if (err) {
+          return res.status(500).send("Authentication error");
+        }
+        if (!user) {
+          return res.status(401).redirect("/api/userLogin");
+        }
+        console.log(user)
+        const token = user.token;
+        const refreshToken = this.jwtService.generateRefreshToken(user.user.email);
 
-  public setupSession(req: Request, res: Response, next: NextFunction): void {
-    if (req.isAuthenticated()) {
-      // Optionally store user information in session
-      // req.session.user_id = req.user?.id;
-      console.log('User authenticated:', req.user);
-    }
-    res.redirect("/");
+        try {
+          await this.interactor.createRefreshToken({
+            email: user.user.email,
+            token: refreshToken,
+            expiresAt: new Date(new Date().setDate(new Date().getDate() + 30)),
+          });
+
+          res.cookie('jwt', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: COOKIE_MAXAGE,
+            path: '/',
+          });
+
+          return res.redirect("http://localhost:5173/auth/userLogin"); 
+        } catch (error) {
+          console.error("Error saving refresh token:", error);
+          return res.status(500).send("Internal server error");
+        }
+      })(req, res, next);
+    };
   }
 }
