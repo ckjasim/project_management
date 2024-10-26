@@ -140,13 +140,32 @@ class userAuthController implements IUserController {
       const data = { email, name, password, role, isBlock };
       await this.interactor.createUser(data);
 
-      const userToken = this.jwt.generateToken(email);
-      res.cookie('jwt', userToken, {
+
+   
+      const refreshToken = this.jwt.generateRefreshToken(email as string);
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+  
+      const refreshData = {   
+        email,
+        token: refreshToken,
+        expiresAt,
+      };
+      await this.interactor.createRefreshToken(refreshData);
+  
+      res.cookie('jwt', refreshToken, {
         httpOnly: true,
         maxAge: COOKIE_MAXAGE,
         path: '/',
-        sameSite: 'lax',
       });
+
+      // const userToken = this.jwt.generateToken(email);
+      // res.cookie('jwt', userToken, {
+      //   httpOnly: true,
+      //   maxAge: COOKIE_MAXAGE,
+      //   path: '/',
+      //   sameSite: 'lax',
+      // });
 
       return res.status(201).json({ message: 'User created successfully' });
     } catch (error) {

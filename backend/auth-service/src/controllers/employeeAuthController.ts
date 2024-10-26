@@ -43,6 +43,7 @@ class EmployeeAuthController implements IEmployeeController {
         res.status(400);
         throw new Error('User not found , Please create an account');
       }
+
       const comparePassword = await this.interactor.comparePassword(
         password,
         user.password
@@ -52,22 +53,33 @@ class EmployeeAuthController implements IEmployeeController {
         res.status(400);
         throw new Error('invalid password');
       }
-
-      const token = this.jwt.generateToken(user.email as string);
-      const refreshToken = this.jwt.generateRefreshToken(user.email as string);
+      const projectCodeSample=['11111','22222','33333']
+      if(!projectCodeSample.includes(projectCode)){
+        res.status(400);
+        throw new Error('invalid project code');
+      }
+      const tokenData = {
+        email:user.email,
+        projectCode,
+      };
+      const token = this.jwt.generateToken(tokenData);
+      const refreshToken = this.jwt.generateRefreshToken(tokenData);
       const expiresAt = new Date();
-      const refreshData = {
+      expiresAt.setDate(expiresAt.getDate() + 30);
+  
+      const refreshData = {   
         email,
         token: refreshToken,
         expiresAt,
       };
-      const refresh = await this.interactor.createRefreshToken(refreshData);
-
+      await this.interactor.createRefreshToken(refreshData);
+  
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
         maxAge: COOKIE_MAXAGE,
         path: '/',
       });
+      res.status(200).json({ message: 'Successfully logged in', data: { user, token } });
     } catch (error) {
       next(error);
     }
@@ -90,6 +102,11 @@ class EmployeeAuthController implements IEmployeeController {
       if (user) {
        res.status(400);
         throw new Error('already have an account please login');
+      }
+      const projectCodeSample=['11111','22222','33333']
+      if(!projectCodeSample.includes(projectCode)){
+        res.status(400);
+        throw new Error('invalid project code');
       }
 
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -168,13 +185,25 @@ class EmployeeAuthController implements IEmployeeController {
       };
 
       await this.interactor.createUser(data);
-
-      const userToken = this.jwt.generateToken(email);
-      res.cookie('jwt', userToken, {
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+      const tokenData = {
+        email,
+        projectCode,
+      };
+      
+      const refreshToken = this.jwt.generateRefreshToken(tokenData);
+      const refreshData = {   
+        email,
+        token: refreshToken,
+        expiresAt,
+      };
+      await this.interactor.createRefreshToken(refreshData);
+  
+      res.cookie('jwt', refreshToken, {
         httpOnly: true,
         maxAge: COOKIE_MAXAGE,
         path: '/',
-        sameSite: 'lax',
       });
 
       res

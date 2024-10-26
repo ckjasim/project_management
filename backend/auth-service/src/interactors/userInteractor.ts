@@ -34,7 +34,7 @@ export default class UserInteractor implements IUserInteractor {
     const decoded = await this.jwt.verifyRefreshToken(refreshToken);
     const newAccessToken = await this.jwt.generateToken(decoded.email);
     return newAccessToken;
-  }
+      }
 
   async findUserByEmail(email: string): Promise<IUser | null> {
     try {

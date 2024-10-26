@@ -41,13 +41,24 @@ class adminAuthController implements IAdminController {
       console.log(adminEmail)
       console.log(password)
       if (email === adminEmail && password === adminPassword) {
-        const token = this.jwt.generateToken(email as string);
-        res.cookie('jwt', token, {
+        const token = this.jwt.generateToken(adminEmail as string);
+        const refreshToken = this.jwt.generateRefreshToken(adminEmail as string);
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30);
+    
+        const refreshData = {   
+          email,
+          token: refreshToken,
+          expiresAt,
+        };
+        await this.interactor.createRefreshToken(refreshData);
+    
+        res.cookie('jwt', refreshToken, {
           httpOnly: true,
           maxAge: COOKIE_MAXAGE,
           path: '/',
         });
-        res.status(200).json({ message: 'succefully logged In' });
+    
       } else {
         res.status(400);
         throw new Error('invalid email or password');
