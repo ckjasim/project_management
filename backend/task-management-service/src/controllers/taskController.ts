@@ -1,87 +1,153 @@
 import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import INTERFACE_TYPES from '../infrastructure/constants/inversify';
-// import IJwt from '../infrastructure/interfaces/IJwt';
-// import { COOKIE_MAXAGE } from '../infrastructure/constants/timeAndDuration';
 import ITaskController from '../infrastructure/interfaces/ITaskController';
 import { ITaskInteractor } from '../infrastructure/interfaces/ITaskInteractors';
 import IJwt from '../infrastructure/interfaces/IJwt';
 
 @injectable()
-class taskController implements ITaskController {
+class TaskController implements ITaskController {
   private interactor: ITaskInteractor;
   private jwt: IJwt;
 
   constructor(
     @inject(INTERFACE_TYPES.TaskInteractor) taskInter: ITaskInteractor,
-    @inject(INTERFACE_TYPES.jwt) jwt: IJwt,
+    @inject(INTERFACE_TYPES.jwt) jwt: IJwt
   ) {
     this.interactor = taskInter;
     this.jwt = jwt;
   }
-  getTasksByProjectIdHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+  updateTaskHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
     throw new Error('Method not implemented.');
   }
 
-   async createTaskHandler(req:Request,res:Response,next:NextFunction){
+  getTasksByProjectIdHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  async createTaskHandler(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log(req.body)
-      const {topic , summary, description,dueDate,status}=req.body
+      const {
+        title: topic,
+        summary,
+        description,
+        dueDate,
+        status,
+      } = req.body.data;
       const token = req.cookies['jwt'];
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
       }
-      const decodedData = await this.jwt.verifyToken(token);
-      const { projectCode } = decodedData;
-      const data={
+
+      let decodedData;
+      try {
+        decodedData = await this.jwt.verifyRefreshToken(token);
+      } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+      }
+      const { projectCode, email } = decodedData.user;
+      const data = {
         projectCode,
-        topic ,
+        topic,
         summary,
         description,
         dueDate,
-        status
-      }
-      const alreadyTask =await this.interactor.getTaskByProjectCode(projectCode)
-      if(alreadyTask){
-        this.interactor.addTask(data)
-      }else{
-        const newTask= this.interactor.createTask(data)
+        status,
+      };
+      // const alreadyTask = await this.interactor.getTaskByProjectCode(projectCode);
+      // console.log(alreadyTask,'mmmmmmmmmmmmmmmmmmmm')
+      // if (alreadyTask && alreadyTask.length > 0) {
+      //  const addedTask= await this.interactor.addTask(projectCode,data);
+      //  console.log(addedTask,'iiiiiiiiiiiiiiiiiiiiiii')
+      // } else {
+      const createdTask = await this.interactor.createTask(data);
+      console.log(createdTask, 'ppppppppppppppppppppppppppppp');
+      // }
 
-      }
+      res
+        .status(201)
+        .json({ message: 'Task created successfully', createdTask });
     } catch (error) {
       next(error);
     }
- }
-  async getTasksByProjectCodeHandler(req: Request, res: Response, next: NextFunction): Promise<any> {
+  }
+
+  async getTasksByProjectCodeHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
     try {
-    const token = req.cookies['jwt'];
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-    const decodedData = await this.jwt.verifyToken(token);
-    const { projectCode } = decodedData;
-    const tasks=await this.interactor.getTaskByProjectCode(projectCode)
-      res.status(200).send({message:'task successfull found',tasks:tasks})
-      // console.log('eeeeeeeeeeeeeee')
-      // res.status(200).send({message:'task successfull found'})
+      const token = req.cookies['jwt'];
+      console.log(token);
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
+
+      let decodedData;
+      try {
+        decodedData = await this.jwt.verifyRefreshToken(token);
+      } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+      }
+
+      const { user } = decodedData;
+      const projectCode = user.projectCode;
+
+      const tasks = await this.interactor.getTaskByProjectCode(projectCode);
+      res.status(200).send({ message: 'Tasks successfully found', tasks });
     } catch (error) {
       next(error);
     }
   }
-  getTaskByIdHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
-    throw new Error('Method not implemented.');
+  async updateTaskStatusHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      console.log(req.body)
+      const { taskId, status } = req.body;
+console.log(taskId,status.status,'dddddddddddddddddddddddddd')
+      const tasks = await this.interactor.updateTaskStatus(taskId, status.status);
+     
+      res.status(200).send({ message: 'Tasks successfully updataed'});
+    } catch (error) {
+      next(error);
+    }
   }
-  updateTaskHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-  deleteTaskHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-  changeTaskStatusHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+
+  getTaskByIdHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
+  deleteTaskHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 
+  changeTaskStatusHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 }
 
-export default taskController;
+export default TaskController;

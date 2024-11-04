@@ -4,6 +4,8 @@ import { TaskModel } from '../model/taskModel';
 import { Model } from 'mongoose';
 import { injectable } from 'inversify';
 
+import { ObjectId } from 'mongodb'
+
 @injectable()
 export default class TaskRepository implements ITaskRepository {
   private readonly db: Model<ITask>;
@@ -11,6 +13,7 @@ export default class TaskRepository implements ITaskRepository {
   constructor() {
     this.db = TaskModel;
   }
+ 
 
   async create(data: ITask) {
     return await this.db.create(data);
@@ -27,6 +30,19 @@ export default class TaskRepository implements ITaskRepository {
     return await this.db.findById(id);
   }
 
+  async updateTaskStatus(taskId: string, status: string) {
+    const objectId = new ObjectId(taskId);
+    console.log(objectId,'llllllllllllllll')
+    
+    return await this.db.findByIdAndUpdate(
+      { _id: objectId }, 
+      { $set: { status } },
+      { new: true }
+    );
+  }
+  
+  
+  
   async update(id: string, data: Partial<ITask>) {
     return await this.db.findByIdAndUpdate(id, data, { new: true });
   }
@@ -35,11 +51,5 @@ export default class TaskRepository implements ITaskRepository {
     return await this.db.findByIdAndDelete(id);
   }
 
-  async changeStatus(id: string, status: string) {
-    return await this.db.findByIdAndUpdate(
-      id,
-      { $set: { status } },
-      { new: true }
-    );
-  }
+
 }

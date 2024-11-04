@@ -13,6 +13,7 @@ export default class Jwt implements IJwt {
   constructor() {
     this.secret = process.env.JWT_SECRET || '';
     this.refreshSecret = process.env.REFRESH_TOKEN_SECRET || '';
+    
     if (!this.secret) {
       throw new Error('JWT_SECRET is not defined in environment variables');
     }
@@ -22,10 +23,18 @@ export default class Jwt implements IJwt {
   }
 
   async verifyToken(token: string): Promise<JwtPayload> {
-    return (await jwt.verify(token, this.secret)) as JwtPayload;
+    try {
+      return (await jwt.verify(token, this.secret)) as JwtPayload;
+    } catch (error) {
+      throw new Error('Invalid token');
+    }
   }
 
   async verifyRefreshToken(token: string): Promise<JwtPayload> {
-    return (await jwt.verify(token, this.refreshSecret)) as JwtPayload;
+    try {
+      return (await jwt.verify(token, this.refreshSecret)) as JwtPayload;
+    } catch (error) {
+      throw new Error('Invalid refresh token');
+    }
   }
 }

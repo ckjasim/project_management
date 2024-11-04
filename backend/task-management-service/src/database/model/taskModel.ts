@@ -11,7 +11,7 @@ const taskSchema = new mongoose.Schema<ITask>({
   photo: { type: Buffer },
   dueDate: { type: Date, required: [true, "Due date is required"] },
   createdAt: { type: Date, default: Date.now },
-  status: { type: String, required: true, enum: ['Pending', 'In Progress', 'Completed','Review'], default: 'Pending' },
+  status: { type: String, required: true, enum: ['pending', 'progressing', 'completed','review'], default: 'pending' },
 });
 
 export const TaskModel = mongoose.model<ITask>("Task", taskSchema);

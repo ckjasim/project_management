@@ -4,8 +4,8 @@ export default interface ITask extends Document {
   topic: string;
   summary: string;
   description: string;
-  photo: Buffer;
+  photo?: Buffer;
   dueDate: Date;
-  createdAt: Date;
-  status: string;
+  createdAt?: Date;
+  status?: string;
 }
