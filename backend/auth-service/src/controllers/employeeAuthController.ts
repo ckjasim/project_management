@@ -59,7 +59,7 @@ class EmployeeAuthController implements IEmployeeController {
         throw new Error('invalid project code');
       }
       const tokenData = {
-        email:user.email,
+       email,
         projectCode,
       };
       const token = this.jwt.generateToken(tokenData);

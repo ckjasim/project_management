@@ -30,7 +30,7 @@ export default class Jwt implements IJwt {
   }
 
   generateRefreshToken(user: string) {
-    const payload = { email: user };
+    const payload = { user };
     return jwt.sign(payload, this.refreshSecret, { expiresIn: '1d' });
   }
 
