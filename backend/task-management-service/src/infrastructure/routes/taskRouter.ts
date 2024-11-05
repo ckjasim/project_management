@@ -10,5 +10,7 @@ const taskController = container.get<ITaskController>(INTERFACE_TYPES.TaskContro
 router.post('/task/createTask',taskController.createTaskHandler.bind(taskController))
 router.get('/task/getTask',taskController.getTasksByProjectCodeHandler.bind(taskController))
 router.patch('/task/updateStatus',taskController.updateTaskStatusHandler.bind(taskController))
+router.patch('/task/updateTask',taskController.updateTaskHandler.bind(taskController))
+router.patch('/task/deleteTask',taskController.deleteTaskHandler.bind(taskController))
 
 export default router

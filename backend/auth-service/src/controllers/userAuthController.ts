@@ -200,6 +200,28 @@ class userAuthController implements IUserController {
       next(error);
     }
   }
+  async logoutHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+   
+      const token = req.cookies.jwt;
+  
+      
+      if (!token) {
+        return res.status(401).json({ message: 'No active session found' });
+      }
+  
+   
+      res.clearCookie('jwt', {
+        httpOnly: true,
+        path: '/',
+      });
+  
+     
+      return res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+      next(error); 
+    }
+  }
 }
 
 export default userAuthController;

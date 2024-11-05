@@ -31,7 +31,6 @@ export default class TaskInteractor implements ITaskInteractor {
   }
   async updateTaskStatus(taskId: string,status:string): Promise<ITask[] | null> {
     try {
-      console.log('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh')
       return await this.repository.updateTaskStatus(taskId,status);
     } catch (error) {
       console.error('Error finding tasks by project code:', error);
@@ -58,11 +57,22 @@ export default class TaskInteractor implements ITaskInteractor {
 
 
 
-  findTaskByProject(projectCode: string): Promise<ITask | null> {
-    throw new Error('Method not implemented.');
+  async updateTask(id: string,data:Partial<ITask>): Promise<any> {
+    try {
+      console.log('0000000000000000000000000')
+      return await this.repository.update(id,data);
+    } catch (error) {
+      console.error('Error finding tasks by project code:', error);
+      throw error;
+    }
   }
 
-  changeStatus(projectCode: string): Promise<ITask | null> {
-    throw new Error('Method not implemented.');
+ async deleteTask(id: string): Promise<any> {
+    try {
+      return  await this.repository.delete(id);
+   } catch (error) {
+     console.error('Error finding tasks by project code:', error);
+     throw error;
+   }
   }
 }

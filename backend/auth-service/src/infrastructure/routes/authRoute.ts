@@ -23,6 +23,7 @@ router.post('/userRegister', registerValidation, userController.registerHandler.
 router.post('/otp', userController.verifyOtpHandler.bind(userController));
 router.post('/resendOtp', userController.resendOtp.bind(userController));
 router.post('/refresh', userController.refreshToken.bind(userController));
+router.post('/Logout', userController.logoutHandler.bind(userController));
 
 
 router.post('/employeeLogin', employeeLoginValidation, employeeController.loginHandler.bind(employeeController));

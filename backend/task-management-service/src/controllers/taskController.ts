@@ -17,13 +17,7 @@ class TaskController implements ITaskController {
     this.interactor = taskInter;
     this.jwt = jwt;
   }
-  updateTaskHandler(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> {
-    throw new Error('Method not implemented.');
-  }
+
 
   getTasksByProjectIdHandler(
     req: Request,
@@ -62,15 +56,10 @@ class TaskController implements ITaskController {
         dueDate,
         status,
       };
-      // const alreadyTask = await this.interactor.getTaskByProjectCode(projectCode);
-      // console.log(alreadyTask,'mmmmmmmmmmmmmmmmmmmm')
-      // if (alreadyTask && alreadyTask.length > 0) {
-      //  const addedTask= await this.interactor.addTask(projectCode,data);
-      //  console.log(addedTask,'iiiiiiiiiiiiiiiiiiiiiii')
-      // } else {
+  
       const createdTask = await this.interactor.createTask(data);
       console.log(createdTask, 'ppppppppppppppppppppppppppppp');
-      // }
+ 
 
       res
         .status(201)
@@ -125,28 +114,42 @@ console.log(taskId,status.status,'dddddddddddddddddddddddddd')
     }
   }
 
-  getTaskByIdHandler(
+ 
+
+  async deleteTaskHandler(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    throw new Error('Method not implemented.');
+    try {
+      console.log(req.body)
+      const { id } = req.body;
+console.log(id,'hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh')
+      const tasks = await this.interactor.deleteTask(id);
+     
+      res.status(200).send({ message: 'Tasks successfully deleted'});
+    } catch (error) {
+      next(error);
+    }
   }
 
-  deleteTaskHandler(
+ async updateTaskHandler(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  changeTaskStatusHandler(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    throw new Error('Method not implemented.');
+    try {
+      console.log(req.body)
+      const { id ,data} = req.body;
+console.log(id,'rrrrrrrrrrrrrrrrrrrrrrrr')
+const{title:topic,description,summary,dueDate}=data
+const task={topic,description,summary,dueDate}
+      const tasks = await this.interactor.updateTask(id,task);
+     
+      res.status(200).send({ message: 'Tasks successfully updated'});
+    } catch (error) {
+      next(error);
+    }
   }
 }
 

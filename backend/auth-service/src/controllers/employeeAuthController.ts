@@ -61,6 +61,7 @@ class EmployeeAuthController implements IEmployeeController {
       const tokenData = {
        email,
         projectCode,
+          role:'employee'
       };
       const token = this.jwt.generateToken(tokenData);
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
@@ -70,6 +71,7 @@ class EmployeeAuthController implements IEmployeeController {
       const refreshData = {   
         email,
         token: refreshToken,
+      
         expiresAt,
       };
       await this.interactor.createRefreshToken(refreshData);
@@ -190,6 +192,7 @@ class EmployeeAuthController implements IEmployeeController {
       const tokenData = {
         email,
         projectCode,
+        role:'employee'
       };
       
       const refreshToken = this.jwt.generateRefreshToken(tokenData);

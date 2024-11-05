@@ -26,14 +26,7 @@ class adminAuthController implements IAdminController {
   async loginHandler(req: Request, res: Response, next: NextFunction) {
     try {
 
-      const errors = validationResult(req);
-      console.log(errors)
-      console.log(errors.array())
-      if (!errors.isEmpty()) {
-        res.status(400)
-        .json({ message: 'validation error',  errors:errors.array() })
-      }
-
+      
       const { email, password } = req.body;
       console.log(email,password)
       const adminEmail = process.env.ADMIN_EMAIL;
@@ -41,24 +34,32 @@ class adminAuthController implements IAdminController {
       console.log(adminEmail)
       console.log(password)
       if (email === adminEmail && password === adminPassword) {
+        console.log('1111')
         const token = this.jwt.generateToken(adminEmail as string);
+        console.log('1122')
         const refreshToken = this.jwt.generateRefreshToken(adminEmail as string);
+        console.log('13')
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 30);
-    
+        
         const refreshData = {   
           email,
           token: refreshToken,
           expiresAt,
         };
+        console.log('14')
         await this.interactor.createRefreshToken(refreshData);
-    
+        
+        console.log('15')
         res.cookie('jwt', refreshToken, {
           httpOnly: true,
           maxAge: COOKIE_MAXAGE,
           path: '/',
         });
-    
+        
+        console.log('16')
+        res.status(200).json({ message: 'Successfully logged in'});
+        
       } else {
         res.status(400);
         throw new Error('invalid email or password');

@@ -32,7 +32,7 @@ export default class TaskRepository implements ITaskRepository {
 
   async updateTaskStatus(taskId: string, status: string) {
     const objectId = new ObjectId(taskId);
-    console.log(objectId,'llllllllllllllll')
+   
     
     return await this.db.findByIdAndUpdate(
       { _id: objectId }, 
@@ -44,10 +44,16 @@ export default class TaskRepository implements ITaskRepository {
   
   
   async update(id: string, data: Partial<ITask>) {
-    return await this.db.findByIdAndUpdate(id, data, { new: true });
+    try {
+      const updatedTask = await TaskModel.findByIdAndUpdate(id, data, { new: true });
+      return updatedTask;
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
   }
 
   async delete(id: string) {
+    const objectId = new ObjectId(id);
     return await this.db.findByIdAndDelete(id);
   }
 

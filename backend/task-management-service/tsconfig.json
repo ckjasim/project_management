@@ -1,23 +1,25 @@
-
 {
   "compilerOptions": {
-      "target": "ES6",
-      "module": "CommonJS",
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": false,
-      "forceConsistentCasingInFileNames": true,
-      "outDir": "./dist",
-      "rootDir": "./src",
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-      "typeRoots": ["./node_modules/@types", "./src/infrastructure/interfaces/isession"],
-      "types": ["node", "express"] 
+    "target": "ES6",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": false,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "typeRoots": [
+      "./node_modules/@types", 
+      "./src/infrastructure/interfaces" 
+    ],
+    "types": ["node", "express"]
   },
   "include": [
-      "src"
-, "src/@types/.ts"  ],
+    "src/**/*"
+  ],
   "exclude": [
-      "node_modules"
+    "node_modules"
   ]
 }

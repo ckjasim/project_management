@@ -6,5 +6,6 @@ export default interface IUserController {
     verifyOtpHandler(req: Request, res: Response,next:NextFunction): Promise<any>;
     refreshToken(req: Request, res: Response,next:NextFunction): Promise<any>;
     resendOtp(req: Request, res: Response,next:NextFunction): Promise<any>;
+    logoutHandler(req: Request, res: Response,next:NextFunction): Promise<any>;
 
 }

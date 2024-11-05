@@ -20,7 +20,7 @@ export default class AdminInteractor implements IAdminInteractor {
   private refreshRepo: IRefreshTokenRepository;
 
   constructor(
-    @inject(INTERFACE_TYPES.UserRepository) refreshRepo: IRefreshTokenRepository,
+    @inject(INTERFACE_TYPES.RefreshTokenRepository) refreshRepo: IRefreshTokenRepository,
     @inject(INTERFACE_TYPES.UserRepository) userRepo: IUserRepository,
     @inject(INTERFACE_TYPES.EmployeeRepository)
     employeeRepo: IEmployeeRepository

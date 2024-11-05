@@ -30,6 +30,7 @@ export default class Jwt implements IJwt {
     }
   }
 
+
   async verifyRefreshToken(token: string): Promise<JwtPayload> {
     try {
       return (await jwt.verify(token, this.refreshSecret)) as JwtPayload;
