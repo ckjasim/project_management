@@ -9,6 +9,7 @@ const employeeSchema = new mongoose.Schema<IEmployee>({
   password: { type: String, required: [true, "password is required"] },
   mobile:{type:Number},
   role: { type: String, required: true },
+  organization: { type: String, required: true },
   isBlock: { type: Boolean, default: false, required: true },
   jobRole: { type: String, required: true },
   projectCode:{ type: String, required: [true, "projectCode is required"] },

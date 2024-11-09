@@ -98,7 +98,7 @@ class EmployeeAuthController implements IEmployeeController {
           .status(400)
           .json({ message: 'validation error', errors: errors.array() });
       }
-      const { name, email, password, mobile, jobRole, projectCode, img } =
+      const { name, email, password, mobile, jobRole, projectCode, img ,organization} =
         req.body;
       const user = await this.interactor.findUserByEmail(email);
       if (user) {
@@ -120,6 +120,7 @@ class EmployeeAuthController implements IEmployeeController {
         email,
         otp,
       };
+      const org = organization.toLowerCase().replace(/\s+/g, '')
 
       const otpd = await this.interactor.saveOtp(otpData);
       const data = {
@@ -132,6 +133,7 @@ class EmployeeAuthController implements IEmployeeController {
         jobRole,
         projectCode,
         img,
+        organization:org
       };
 
       const tempToken = this.jwt.generateToken(data, '10m');
@@ -165,6 +167,7 @@ class EmployeeAuthController implements IEmployeeController {
         mobile,
         jobRole,
         projectCode,
+        organization,
         img,
       } = decodedData;
       const { otp } = req.body;
@@ -181,9 +184,10 @@ class EmployeeAuthController implements IEmployeeController {
         password,
         role,
         isBlock,
-        mobile,
+        mobile,  
         jobRole,
         projectCode,
+        organization
       };
 
       await this.interactor.createUser(data);

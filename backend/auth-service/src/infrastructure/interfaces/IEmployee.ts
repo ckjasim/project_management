@@ -9,5 +9,6 @@ export default interface IEmployee extends Document {
     isBlock?: boolean;
     jobRole:string
     projectCode:string
-    img?:string
+    img?:string;
+  organization:string
 }

@@ -20,53 +20,84 @@ class userAuthController implements IUserController {
     @inject(INTERFACE_TYPES.jwt) jwt: IJwt,
     @inject(INTERFACE_TYPES.NodeMailerService) emailServ: IEmailService
   ) {
-  
-
     this.interactor = userInter;
     this.jwt = jwt;
     this.emailService = emailServ;
   }
+ async authRole(req: Request, res: Response, next: NextFunction) {
+    try {
+      const token = req.cookies['jwt'];
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
+
+      const decodedData = await this.jwt.verifyToken(token);
+      const {  role } = decodedData;
+      console.log(role,'zzzzzzzzzzz')
+      console.log(decodedData,'eeeeeeeeee')
+      if (role) {
+        res.json({ role });
+    } else {
+        res.status(401).json({ message: 'Role not found' });
+    }
+    } catch (error) {
+      next(error)
+    }
+  }
 
   async loginHandler(req: Request, res: Response, next: NextFunction) {
     try {
-    
       console.log(req.body);
-  
       const { email, password } = req.body;
       const user = await this.interactor.findUserByEmail(email);
       if (!user) {
-        return res.status(400).json({ message: 'User not found, please create an account' });
+        return res
+          .status(400)
+          .json({ message: 'User not found, please create an account' });
       }
-  
-      const comparePassword = await this.interactor.comparePassword(password, user.password);
+
+      const comparePassword = await this.interactor.comparePassword(
+        password,
+        user.password
+      );
       if (!comparePassword) {
         return res.status(400).json({ message: 'Invalid password' });
       }
-  
-      const token = this.jwt.generateToken(user.email as string);
-      const refreshToken = this.jwt.generateRefreshToken(user.email as string);
+      const data = {
+        email:user?.email,
+        role:'user',
+        organization:user?.organization
+      }
+      const token = this.jwt.generateToken(data);
+
+      const refreshToken = this.jwt.generateRefreshToken(data);
+
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
-  
-      const refreshData = {   
-        email,
+
+      const refreshData = {
+        email: user.email,
         token: refreshToken,
         expiresAt,
       };
+
       await this.interactor.createRefreshToken(refreshData);
-  
+
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
         maxAge: COOKIE_MAXAGE,
         path: '/',
+        secure: process.env.NODE_ENV === 'production' || false,
       });
-  
-      res.status(200).json({ message: 'Successfully logged in', data: { user, token } });
+
+      res
+        .status(200)
+        .json({ message: 'Successfully logged in', data: { user, token } });
     } catch (error) {
       next(error);
     }
   }
-  
+
   async registerHandler(
     req: Request,
     res: Response,
@@ -81,7 +112,7 @@ class userAuthController implements IUserController {
         return;
       }
 
-      const { name, email, password } = req.body;
+      const { name, email, password,organization } = req.body;
       const user = await this.interactor.findUserByEmail(email);
       if (user) {
         res
@@ -96,12 +127,15 @@ class userAuthController implements IUserController {
       const otpData = { otp, email };
       await this.interactor.saveOtp(otpData);
 
+      const org = organization.toLowerCase().replace(/\s+/g, '')
+
       const data = {
         name,
         email,
         password,
         role: 'project manager',
         isBlock: false,
+        organization:org
       };
 
       const tempToken = this.jwt.generateToken(data, '10m');
@@ -125,7 +159,7 @@ class userAuthController implements IUserController {
       }
 
       const decodedData = await this.jwt.verifyToken(token);
-      const { email, name, password, role, isBlock } = decodedData;
+      const { email, name, password, role, isBlock ,organization} = decodedData;
 
       const { otp } = req.body;
       const storedOtp = await this.interactor.getOtp(email);
@@ -137,22 +171,25 @@ class userAuthController implements IUserController {
         return res.status(400).json({ message: 'Invalid OTP' });
       }
 
-      const data = { email, name, password, role, isBlock };
+      const data = { email, name, password, role, isBlock ,organization};
       await this.interactor.createUser(data);
 
-
-   
-      const refreshToken = this.jwt.generateRefreshToken(email as string);
+      const tokenData = {
+        email,
+       organization,
+        role:'user'
+      };
+      const refreshToken = this.jwt.generateRefreshToken(tokenData);
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
-  
-      const refreshData = {   
+
+      const refreshData = {
         email,
         token: refreshToken,
         expiresAt,
       };
       await this.interactor.createRefreshToken(refreshData);
-  
+
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
         maxAge: COOKIE_MAXAGE,
@@ -175,7 +212,14 @@ class userAuthController implements IUserController {
 
   async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log('jhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh');
       const { jwt: refreshToken } = req.cookies;
+      if (!refreshToken) {
+        return res
+          .status(401)
+          .json({ message: 'Refresh token is missing or invalid' });
+      }
+
       const accessToken = await this.interactor.execute(refreshToken);
       res.status(200).json({ accessToken });
     } catch (error) {
@@ -202,24 +246,20 @@ class userAuthController implements IUserController {
   }
   async logoutHandler(req: Request, res: Response, next: NextFunction) {
     try {
-   
       const token = req.cookies.jwt;
-  
-      
+
       if (!token) {
         return res.status(401).json({ message: 'No active session found' });
       }
-  
-   
+
       res.clearCookie('jwt', {
         httpOnly: true,
         path: '/',
       });
-  
-     
+
       return res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
-      next(error); 
+      next(error);
     }
   }
 }

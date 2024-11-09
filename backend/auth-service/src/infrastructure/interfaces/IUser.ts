@@ -6,5 +6,6 @@ export default interface IUser extends Document {
     password: string;  
     role: string; 
     isBlock?: boolean;
+    organization:string
     
 }
