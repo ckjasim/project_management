@@ -22,6 +22,7 @@ class adminAuthController implements IAdminController {
     this.interactor = adminInter;
     this.jwt = jwt;
   }
+ 
 
   async loginHandler(req: Request, res: Response, next: NextFunction) {
     try {
@@ -75,6 +76,7 @@ class adminAuthController implements IAdminController {
         res.status(400);
         throw new Error('no users found');
       }
+      console.log(users,'nnnnnnnnnnn')
       res.status(201).json({ message: 'users List', users });
     } catch (error) {
       next(error);
@@ -92,50 +94,34 @@ class adminAuthController implements IAdminController {
       next(error);
     }
   }
-  async blockUser(req: Request, res: Response, next: NextFunction) {
+  
+  async manageEmployee(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.body;
+      const { email } = req.body;
 
-      const blockedUser = await this.interactor.blockUser(id);
+      const employeeStatus = await this.interactor.manageEmployee(email);
 
-      res.status(201).json({ message: 'user Blocked', blockedUser });
+      res.status(201).json({ message: 'employee Blocked', employeeStatus });
     } catch (error) {
       next(error);
     }
   }
-  async blockEmployee(req: Request, res: Response, next: NextFunction) {
+  async manageUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.body;
+      const { email } = req.body;
+console.log(email)
 
-      const blockedEmployee = await this.interactor.blockEmployee(id);
+      console.log("employeeStatus")
+      const employeeStatus = await this.interactor.manageUser(email);
+      console.log("employeeStatus")
+      console.log(employeeStatus)
 
-      res.status(201).json({ message: 'employee Blocked', blockedEmployee });
+      res.status(201).json({ message: 'employee Blocked', employeeStatus });
     } catch (error) {
       next(error);
     }
   }
-  async unBlockEmployee(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.body;
-
-      const employee = await this.interactor.unBlockEmployee(id);
-
-      res.status(201).json({ message: 'employee unblocked', employee });
-    } catch (error) {
-      next(error);
-    }
-  }
-  async unBlockUser(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.body;
-
-      const user = await this.interactor.unBlockUser(id);
-
-      res.status(201).json({ message: 'user unblocked', user });
-    } catch (error) {
-      next(error);
-    }
-  }
+ 
 }
 
 export default adminAuthController;

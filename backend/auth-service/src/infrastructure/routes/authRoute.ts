@@ -33,7 +33,11 @@ router.post('/employeeOtp', employeeController.verifyOtpHandler.bind(employeeCon
 router.post('/resendEmpOtp', employeeController.resendOtp.bind(employeeController));
 
 
-router.post('/adminLogin', loginValidation, adminController.loginHandler.bind(adminController));
+router.post('/adminLogin', adminController.loginHandler.bind(adminController));
+router.get('/usersList', adminController.getAllUsers.bind(adminController));
+router.get('/employeesList', adminController.getAllEmployees.bind(adminController));
+router.post('/userManage', adminController.manageUser.bind(adminController));
+router.post('/employeeManage', adminController.manageEmployee.bind(adminController));
 
 
 router.get('/google', googleAuthService.googleAuth()); 

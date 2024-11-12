@@ -47,38 +47,23 @@ export default class AdminInteractor implements IAdminInteractor {
       throw error;
     }
   }
-  async blockEmployee(email:string): Promise<IEmployee | null> {
+  async manageEmployee(email:string): Promise<IEmployee | null> {
     try {
-      return await this.employeeRepo.block(email);
+      return await this.employeeRepo.blockOrUnblock(email);
     } catch (error) {
       console.error('Error finding user by email:', error);
       throw error;
     }
   }
-  async unBlockEmployee(email:string): Promise<IEmployee | null> {
+  async manageUser(email:string): Promise<IEmployee | null> {
     try {
-      return await this.employeeRepo.unBlock(email);
+      return await this.userRepo.blockOrUnblock(email);
     } catch (error) {
       console.error('Error finding user by email:', error);
       throw error;
     }
   }
-  async blockUser(email:string): Promise<IEmployee| null> {
-    try {
-      return await this.employeeRepo.block(email);
-    } catch (error) {
-      console.error('Error finding user by email:', error);
-      throw error;
-    }
-  }
-  async unBlockUser(email:string): Promise<IEmployee| null> {
-    try {
-      return await this.employeeRepo.unBlock(email);
-    } catch (error) {
-      console.error('Error finding user by email:', error);
-      throw error;
-    }
-  }
+ 
   async createRefreshToken(data: IRefreshToken): Promise<IRefreshToken> {
     try {
       return await this.refreshRepo.create(data);

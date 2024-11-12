@@ -27,6 +27,21 @@ async block(id:string){
 }
 async unBlock(id:string){
   return await this.db.findOneAndUpdate({_id :id},{$set:{isBlock:false}})
+}
+
+async blockOrUnblock(email:string){
+  return await this.db.updateOne(
+    { email },
+    [
+      { 
+        $set: { 
+          isBlock: { $eq: ["$isBlock", false] }
+        } 
+      }
+    ]
+  );
+  
 
 }
+
 }

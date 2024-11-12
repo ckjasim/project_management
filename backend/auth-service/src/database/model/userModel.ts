@@ -10,6 +10,7 @@ const userSchema = new Schema<IUser>({
   role: { type: String, required: true },
   isBlock: { type: Boolean, default: false, required: true },
   organization: { type: String, required: [true, "organization is required"]},
+  subscription: { type: String,default: "basic"},
 }, 
 {
   timestamps: true 

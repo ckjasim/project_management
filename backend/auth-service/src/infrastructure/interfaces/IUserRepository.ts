@@ -5,6 +5,6 @@ export default interface IUserRepository {
   findById(id: string): Promise<IUser | null>;
   create(data: IUser): Promise<IUser>;
   find():Promise<IUser[]>
-  block(email: string): Promise<IUser | null> ;
-  unBlock(email: string): Promise<IUser|null>;
+  blockOrUnblock(email: string): Promise<any> ;
+
 }

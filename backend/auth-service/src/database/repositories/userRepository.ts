@@ -23,11 +23,18 @@ async create(data:IUser){
 async find(){
   return await this.db.find()
 }
-async block(email:string){
-  return await this.db.findOneAndUpdate({email},{$set:{isBlock:true}})
-}
-async unBlock(email:string){
-  return await this.db.findOneAndUpdate({email},{$set:{isBlock:false}})
+async blockOrUnblock(email:string){
+  return await this.db.updateOne(
+    { email },
+    [
+      { 
+        $set: { 
+          isBlock: { $eq: ["$isBlock", false] }
+        } 
+      }
+    ]
+  );
+  
 
 }
 }
