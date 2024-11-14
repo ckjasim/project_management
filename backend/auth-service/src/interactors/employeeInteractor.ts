@@ -100,4 +100,13 @@ export default class EmployeeInteractor implements IEmployeeInteractor {
       throw error;
     }
   }
+  async getEmployee(organization:string): Promise<any> {
+    try {
+      console.log('jjj')
+      return await this.repository.getEmployee(organization);
+    } catch (error) {
+      console.error('Error getting employee by organization:', error);
+      throw error;
+    }
+  }
 }

@@ -4,7 +4,7 @@ import ITeam from "../../infrastructure/interfaces/ITeam";
 
 const teamSchema = new mongoose.Schema<ITeam>({
   teamName: { type: String, required: [true, "Team name is required"] },
-  members: { type: [Schema.Types.ObjectId], required: true, default: [] },
+  members: { type: [Schema.Types.String], required: true, default: [] },
   eventHistory: { type: Object, default: {} },
   createdAt: { type: Date, default: Date.now },
   organization:{type: String, required: [true, "organization is required"] },

@@ -31,6 +31,8 @@ router.post('/employeeLogin', employeeLoginValidation, employeeController.loginH
 router.post('/employeeRegister', employeeRegisterValidation, employeeController.registerHandler.bind(employeeController));
 router.post('/employeeOtp', employeeController.verifyOtpHandler.bind(employeeController));
 router.post('/resendEmpOtp', employeeController.resendOtp.bind(employeeController));
+router.get('/employeesByOrg', employeeController.employeeByOrganization.bind(employeeController));
+
 
 
 router.post('/adminLogin', adminController.loginHandler.bind(adminController));

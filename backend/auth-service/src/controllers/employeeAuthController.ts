@@ -53,35 +53,37 @@ class EmployeeAuthController implements IEmployeeController {
         res.status(400);
         throw new Error('invalid password');
       }
-      const projectCodeSample=['11111','22222','33333']
-      if(!projectCodeSample.includes(projectCode)){
+      const projectCodeSample = ['11111', '22222', '33333'];
+      if (!projectCodeSample.includes(projectCode)) {
         res.status(400);
         throw new Error('invalid project code');
       }
       const tokenData = {
-       email,
+        email,
         projectCode,
-          role:'employee'
+        role: 'employee',
       };
       const token = this.jwt.generateToken(tokenData);
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
-  
-      const refreshData = {   
+
+      const refreshData = {
         email,
         token: refreshToken,
-      
+
         expiresAt,
       };
       await this.interactor.createRefreshToken(refreshData);
-  
+
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
         maxAge: COOKIE_MAXAGE,
         path: '/',
       });
-      res.status(200).json({ message: 'Successfully logged in', data: { user, token } });
+      res
+        .status(200)
+        .json({ message: 'Successfully logged in', data: { user, token } });
     } catch (error) {
       next(error);
     }
@@ -94,19 +96,27 @@ class EmployeeAuthController implements IEmployeeController {
       console.log(errors);
       console.log(errors.array());
       if (!errors.isEmpty()) {
-       return res
+        return res
           .status(400)
           .json({ message: 'validation error', errors: errors.array() });
       }
-      const { name, email, password, mobile, jobRole, projectCode, img ,organization} =
-        req.body;
+      const {
+        name,
+        email,
+        password,
+        mobile,
+        jobRole,
+        projectCode,
+        img,
+        organization,
+      } = req.body;
       const user = await this.interactor.findUserByEmail(email);
       if (user) {
-       res.status(400);
+        res.status(400);
         throw new Error('already have an account please login');
       }
-      const projectCodeSample=['11111','22222','33333']
-      if(!projectCodeSample.includes(projectCode)){
+      const projectCodeSample = ['11111', '22222', '33333'];
+      if (!projectCodeSample.includes(projectCode)) {
         res.status(400);
         throw new Error('invalid project code');
       }
@@ -120,7 +130,7 @@ class EmployeeAuthController implements IEmployeeController {
         email,
         otp,
       };
-      const org = organization.toLowerCase().replace(/\s+/g, '')
+      const org = organization.toLowerCase().replace(/\s+/g, '');
 
       const otpd = await this.interactor.saveOtp(otpData);
       const data = {
@@ -133,7 +143,7 @@ class EmployeeAuthController implements IEmployeeController {
         jobRole,
         projectCode,
         img,
-        organization:org
+        organization: org,
       };
 
       const tempToken = this.jwt.generateToken(data, '10m');
@@ -184,10 +194,10 @@ class EmployeeAuthController implements IEmployeeController {
         password,
         role,
         isBlock,
-        mobile,  
+        mobile,
         jobRole,
         projectCode,
-        organization
+        organization,
       };
 
       await this.interactor.createUser(data);
@@ -196,26 +206,24 @@ class EmployeeAuthController implements IEmployeeController {
       const tokenData = {
         email,
         projectCode,
-        role:'employee'
+        role: 'employee',
       };
-      
+
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
-      const refreshData = {   
+      const refreshData = {
         email,
         token: refreshToken,
         expiresAt,
       };
       await this.interactor.createRefreshToken(refreshData);
-  
+
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
         maxAge: COOKIE_MAXAGE,
         path: '/',
       });
 
-      res
-      .status(201)
-      .json({ message: 'user created successfully' });
+      res.status(201).json({ message: 'user created successfully' });
     } catch (error) {
       next(error);
     }
@@ -238,12 +246,59 @@ class EmployeeAuthController implements IEmployeeController {
 
       const decodedData = await this.jwt.verifyToken(token);
       const { email } = decodedData;
-      console.log(email)
+      console.log(email);
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
       await this.emailService.sendOTP(email, otp);
       const otpData = { otp, email };
       await this.interactor.saveOtp(otpData);
+    } catch (error) {
+      next(error);
+    }
+  }
+  // async employeeByOrganization(req: Request, res: Response, next: NextFunction) {
+  //   try {
+  //     const token = req.cookies['jwt'];
+  //     if (!token) {
+  //       return res.status(401).json({ message: 'No token provided' });
+  //     }
+
+  //     const decodedData = await this.jwt.verifyToken(token);
+  //     const { user } = decodedData;
+  //     const organization = user.organization;
+  //     await this.interactor.getEmployee(organization);;
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+  async employeeByOrganization(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      console.log('81818181881')
+      const token = req.cookies['jwt'];
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
+
+      let decodedData;
+      try {
+        decodedData = await this.jwt.verifyRefreshToken(token);
+      } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+      }
+
+      const { user } = decodedData;
+
+      const organization = user.organization;
+
+      const employees = await this.interactor.getEmployee(organization);
+
+      res
+        .status(200)
+        .send({ message: 'employees successfully found', employees });
     } catch (error) {
       next(error);
     }

@@ -52,11 +52,28 @@ class ProjectController implements IProjectController {
     next: NextFunction
   ): Promise<any> {
     try {
-      const { teamName, members, organization } = req.body.data;
+      console.log('prprprprpr')
+      console.log(req.body,'dfdfdfdf')
+      const { title, employees} = req.body.data;
 
+      const token = req.cookies['jwt'];
+      console.log(token);
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
+
+      let decodedData;
+      try {
+        decodedData = await this.jwt.verifyRefreshToken(token);
+      } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+      }
+
+      const { user } = decodedData;
+      const organization = user.organization;
       const data = {
-        teamName,
-        members,
+        teamName:title,
+        members:employees,
         organization,
       };
 
@@ -76,7 +93,8 @@ class ProjectController implements IProjectController {
     next: NextFunction
   ): Promise<any> {
     try {
-      const { title, summary, description, dueDate, status, teamId } =
+      console.log(req.body)
+      const { title, summary, description, dueDate, status, team } =
         req.body.data;
       const token = req.cookies['jwt'];
       if (!token) {
@@ -96,15 +114,15 @@ class ProjectController implements IProjectController {
       }
       const projectCode = generateRandomCode();
 
-      console.log(projectCode);
+      console.log(projectCode,'mmmmmmmmmmmmmmm');
 
-      const id = new Types.ObjectId(teamId);
+     
 
       const data = {
         userEmail: email,
         projectCode,
         title,
-        teamId: id,
+        teamId: team,
         summary,
         description,
         dueDate,
@@ -161,9 +179,9 @@ class ProjectController implements IProjectController {
       console.log(id, 'pppppppppp');
       const { title, summary, description, dueDate, status, teamId } = data;
       const project = { title, summary, description, dueDate, status, teamId };
-      const projects = await this.interactor.updateProject(id, project);
+      const editedProject = await this.interactor.updateProject(id, project);
 
-      res.status(200).send({ message: 'projects successfully updated' });
+      res.status(200).send({ message: 'projects successfully updated',editedProject });
     } catch (error) {
       next(error);
     }

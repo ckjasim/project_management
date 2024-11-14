@@ -6,4 +6,5 @@ export default interface IEmployeeController {
     verifyOtpHandler(req: Request, res: Response,next:NextFunction): Promise<any>;
     refreshToken(req: Request, res: Response,next:NextFunction): Promise<any>;
     resendOtp(req: Request, res: Response,next:NextFunction): Promise<any>;
+    employeeByOrganization(req: Request, res: Response,next:NextFunction): Promise<any>;
 }

@@ -7,5 +7,6 @@ export default interface IEmployeeRepository {
   block(email: string): Promise<IEmployee | null> ;
   unBlock(email: string): Promise<IEmployee|null>;
   blockOrUnblock(email: string): Promise<any>;
+  getEmployee(organization:string):Promise<IEmployee[]>
 
 }

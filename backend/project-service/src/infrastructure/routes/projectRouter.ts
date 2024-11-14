@@ -12,5 +12,7 @@ Router.route('/project')
     .patch(controller.updateProjectHandler.bind(controller));
 
 Router.patch('/project/delete', controller.deleteProjectHandler.bind(controller));
+Router.get('/project/teamList', controller.getTeamsHandler.bind(controller));
+Router.post('/project/createTeam', controller.createTeamHandler.bind(controller));
 
 export default Router;

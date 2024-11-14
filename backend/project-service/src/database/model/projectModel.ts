@@ -4,7 +4,7 @@ import IProject from "../../infrastructure/interfaces/IProject";
 
 const projectSchema = new mongoose.Schema<IProject>({
   userEmail:{ type: String, required: [true, "User email is required"] },
-  projectName: { type: String, required: [true, "Project name is required"] },
+  title: { type: String, required: [true, "Project name is required"] },
   projectCode: { type: String, required: [true, "Project code is required"] },
   summary: { type: String, required: [true, "Summary is required"] },
   description: { type: String },

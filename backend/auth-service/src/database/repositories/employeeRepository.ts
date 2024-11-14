@@ -16,6 +16,10 @@ constructor(){
 async findByEmail(email:String){
   return await this.db.findOne({email})
 }
+async getEmployee(organization:String){
+  console.log('db')
+  return await this.db.find({organization})
+}
 async create(data:IEmployee){
   return await this.db.create(data)
 }
@@ -40,8 +44,6 @@ async blockOrUnblock(email:string){
       }
     ]
   );
-  
-
 }
 
 }

@@ -2,7 +2,7 @@ import { Document, ObjectId } from "mongoose";
 import { Types } from "mongoose";
 export default interface IProject extends Document {
   userEmail:string
-  projectName: string;
+  title: string;
   projectCode: string;
   summary: string;
   description?: string;
