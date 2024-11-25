@@ -1,9 +1,9 @@
 import express from 'express';
 import container from '../util/inversify';
-import ITaskController from '../interfaces/IProjectController';
+import IProjectController from '../interfaces/IProjectController';
 import INTERFACE_TYPES from '../constants/inversify';
 
-const controller = container.get<ITaskController>(INTERFACE_TYPES.ProjectController);
+const controller = container.get<IProjectController>(INTERFACE_TYPES.ProjectController);
 const Router = express.Router();
 
 Router.route('/project')
@@ -14,5 +14,7 @@ Router.route('/project')
 Router.patch('/project/delete', controller.deleteProjectHandler.bind(controller));
 Router.get('/project/teamList', controller.getTeamsHandler.bind(controller));
 Router.post('/project/createTeam', controller.createTeamHandler.bind(controller));
+Router.get('/project/singleProject', controller.getProjectByProjectCodeHandler.bind(controller));
+Router.get('/project/teamMembers', controller.getTeamMembersByProjectCodeHandler.bind(controller));
 
 export default Router;

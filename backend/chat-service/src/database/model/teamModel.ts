@@ -5,12 +5,10 @@ import ITeam from "../../infrastructure/interfaces/ITeam";
 const teamSchema = new mongoose.Schema<ITeam>({
   teamName: { type: String, required: [true, "Team name is required"] },
   members: { type: [Schema.Types.String], required: true, default: [] },
-  projectManager:{ type: String, required: [true, "project manager name is required"] },
   eventHistory: { type: Object, default: {} },
   createdAt: { type: Date, default: Date.now },
   organization:{type: String, required: [true, "organization is required"] },
   updatedAt: { type: Date, default: Date.now },
-
 });
 
 teamSchema.pre("save", function (next) {

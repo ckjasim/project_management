@@ -2,7 +2,7 @@
 import { inject, injectable } from 'inversify';
 
 import INTERFACE_TYPES from '../infrastructure/constants/inversify';
-import { IProjectInteractor } from '../infrastructure/interfaces/IProjectInteractor';
+import { IProjectInteractor } from '../infrastructure/interfaces/IChatInteractor';
 import IProject from '../infrastructure/interfaces/IProject';
 import IRefreshToken from '../infrastructure/interfaces/IRefreshToken';
 import IJwt from '../infrastructure/interfaces/IJwt';
@@ -49,16 +49,6 @@ export default class ProjectInteractor implements IProjectInteractor {
       throw error;
     }
   }
-  async getProjectsByProjectCode(projectCode:string): Promise<any> {
-    try {
-      return await this.repository.findByProjectCode(projectCode);
-     
-    } catch (error) {
-      console.error('Error finding tasks by project code:', error);
-      throw error;
-    }
-  }
- 
  async updateProject(id: string, data: Partial<IProject>): Promise<void> {
     try {
       console.log('0000000000000000000000000')
@@ -76,18 +66,9 @@ export default class ProjectInteractor implements IProjectInteractor {
      throw error;
    }
   }
-  async getTeamMembersByProjectCode(projectCode:string): Promise<any> {
+  async getTeamsByOrganization(organization:string): Promise<ITeam[] | null> {
     try {
-      return await this.repository.findTeamByProjectCode(projectCode);
-    } catch (error) {
-      console.error('Error finding tasks by project code:', error);
-      throw error;
-    }
-  }
-
-  async getTeamsByprojectManager(projectManager:string): Promise<ITeam[] | null> {
-    try {
-      return await this.teamRepository.findByprojectManager(projectManager);
+      return await this.teamRepository.findByOrganization(organization);
     } catch (error) {
       console.error('Error finding tasks by project code:', error);
       throw error;

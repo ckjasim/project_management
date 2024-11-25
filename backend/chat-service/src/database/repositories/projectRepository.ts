@@ -1,29 +1,28 @@
+import { ProjectModel } from '../model/projectModel';
 import { Model } from 'mongoose';
 import { injectable } from 'inversify';
 
 import { ObjectId } from 'mongodb';
 import IProject from '../../infrastructure/interfaces/IProject';
-import ITeamRepository from '../../infrastructure/interfaces/ITeamRepository';
-import ITeam from '../../infrastructure/interfaces/ITeam';
-import { TeamModel } from '../model/teamModel';
+import IProjectRepository from '../../infrastructure/interfaces/IProjectRepository';
 
 @injectable()
-export default class TeamRepository implements ITeamRepository {
-  private readonly db: Model<ITeam>;
+export default class ProjectRepository implements IProjectRepository {
+  private readonly db: Model<IProject>;
 
   constructor() {
-    this.db = TeamModel;
+    this.db = ProjectModel;
   }
 
-  async create(data: ITeam) {
+  async create(data: IProject) {
     return await this.db.create(data);
   }
 
-  async findByprojectManager(projectManager:string) {
-    return await this.db.find({projectManager});
+  async findByUserEmail(userEmail:string) {
+    return await this.db.find({userEmail});
   }
 
-  async update(id: string, data: Partial<ITeam>) {
+  async update(id: string, data: Partial<IProject>) {
     try {
       const updatedProject = await this.db.findByIdAndUpdate(id, data, {
         new: true,

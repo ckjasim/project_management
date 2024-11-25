@@ -172,7 +172,7 @@ class userAuthController implements IUserController {
       }
 
       const data = { email, name, password, role, isBlock ,organization};
-      await this.interactor.createUser(data);
+      const newUser =await this.interactor.createUser(data);
 
       const tokenData = {
         email,
@@ -204,7 +204,7 @@ class userAuthController implements IUserController {
       //   sameSite: 'lax',
       // });
 
-      return res.status(201).json({ message: 'User created successfully' });
+      return res.status(201).json({ message: 'User created successfully',newUser });
     } catch (error) {
       next(error);
     }

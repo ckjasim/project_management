@@ -14,7 +14,7 @@ import { validationResult } from 'express-validator';
 class adminAuthController implements IAdminController {
   private interactor: IAdminInteractor;
   private jwt: IJwt;
-
+ 
   constructor(
     @inject(INTERFACE_TYPES.AdminInteractor) adminInter: IAdminInteractor,
     @inject(INTERFACE_TYPES.jwt) jwt: IJwt

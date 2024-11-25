@@ -19,8 +19,8 @@ export default class TeamRepository implements ITeamRepository {
     return await this.db.create(data);
   }
 
-  async findByprojectManager(projectManager:string) {
-    return await this.db.find({projectManager});
+  async findByOrganization(organization:string) {
+    return await this.db.find({organization});
   }
 
   async update(id: string, data: Partial<ITeam>) {

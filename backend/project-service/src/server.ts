@@ -1,7 +1,7 @@
+
 import express, { urlencoded } from 'express';
 import "reflect-metadata"
 import cors from 'cors'
-
 
 import {config} from "dotenv"
 import dbConnect from './database/dbConnect'
@@ -13,6 +13,7 @@ config()
 dbConnect();
 
 const app = express()
+
 app.use(cookieParser());
 app.use(cors({
   origin: 'http://localhost:5173', 
@@ -26,5 +27,5 @@ app.use(errorHandler)
 
 
 app.listen(3002,()=>{
-  console.log('Listening to port 3001 http://localhost:3002')
+  console.log('Listening to port prj-s 3002 http://localhost:3002')
 }) 

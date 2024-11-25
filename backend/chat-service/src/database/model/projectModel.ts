@@ -8,7 +8,7 @@ const projectSchema = new mongoose.Schema<IProject>({
   projectCode: { type: String, required: [true, "Project code is required"] },
   summary: { type: String, required: [true, "Summary is required"] },
   description: { type: String },
-  teamId: { type: Schema.Types.ObjectId,ref: "Team", required: [true, "Team ID is required"] },
+  teamId: { type: Schema.Types.ObjectId, required: [true, "Team ID is required"] },
   dueDate: { type: Date, required: [true, "Due date is required"] },
   isActive: { type: Boolean, default: true },
   eventHistory: { type: Object, default: {} },

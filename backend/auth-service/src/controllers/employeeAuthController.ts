@@ -53,7 +53,7 @@ class EmployeeAuthController implements IEmployeeController {
         res.status(400);
         throw new Error('invalid password');
       }
-      const projectCodeSample = ['11111', '22222', '33333'];
+      const projectCodeSample = ['11111', '22222', '33333','FSJVE',];
       if (!projectCodeSample.includes(projectCode)) {
         res.status(400);
         throw new Error('invalid project code');
@@ -62,6 +62,8 @@ class EmployeeAuthController implements IEmployeeController {
         email,
         projectCode,
         role: 'employee',
+        organization:user?.organization
+        
       };
       const token = this.jwt.generateToken(tokenData);
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
@@ -200,13 +202,14 @@ class EmployeeAuthController implements IEmployeeController {
         organization,
       };
 
-      await this.interactor.createUser(data);
+     const newUser =  await this.interactor.createUser(data);
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
       const tokenData = {
         email,
         projectCode,
         role: 'employee',
+        organization
       };
 
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
@@ -223,7 +226,7 @@ class EmployeeAuthController implements IEmployeeController {
         path: '/',
       });
 
-      res.status(201).json({ message: 'user created successfully' });
+      res.status(201).json({ message: 'user created successfully',newUser });
     } catch (error) {
       next(error);
     }
@@ -289,7 +292,7 @@ class EmployeeAuthController implements IEmployeeController {
       } catch (error) {
         return res.status(401).json({ message: 'Invalid or expired token' });
       }
-
+console.log(decodedData,'11111111111111111122222222222222222222000000000000000')
       const { user } = decodedData;
 
       const organization = user.organization;
