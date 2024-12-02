@@ -1,11 +1,14 @@
 import { Document, ObjectId } from "mongoose";
+
 export default interface ITask extends Document {
-  projectCode: string;
-  topic: string;
-  summary: string;
-  description: string;
-  photo?: Buffer;
-  dueDate: Date;
+  project: ObjectId; 
+  team: ObjectId; 
+  title: string; 
+  description?: string;
+  assignedTo?: ObjectId; 
+  status?: 'pending' | 'progressing' | 'review' | 'completed'; 
+  priority?: 'low' | 'medium' | 'high' | 'critical'; 
+  dueDate: Date; 
   createdAt?: Date;
-  status?: string;
+  updatedAt?: Date; 
 }

@@ -13,24 +13,30 @@ import { IEmployeeInteractor } from '../infrastructure/interfaces/IEmployeeInter
 import IRefreshToken from '../infrastructure/interfaces/IRefreshToken';
 import IRefreshTokenRepository from '../infrastructure/interfaces/IRefreshTokenRepository';
 import IJwt from '../infrastructure/interfaces/IJwt';
+import { Types } from 'mongoose';
+import IInvitation from '../infrastructure/interfaces/IInvitation';
+import IInvitationRepository from '../infrastructure/interfaces/IInvitationRepository';
 
 @injectable()
 export default class EmployeeInteractor implements IEmployeeInteractor {
   private repository: IEmployeeRepository;
   private refreshRepo: IRefreshTokenRepository;
   private otpRepo: IOtpRepository;
+  private invitRepo: IInvitationRepository;
   private jwt: IJwt;
 
   constructor(
     @inject(INTERFACE_TYPES.EmployeeRepository)
     employeeRepo: IEmployeeRepository,
     @inject(INTERFACE_TYPES.OtpRepository) otpRepo: IOtpRepository,
+    @inject(INTERFACE_TYPES.invitationRepository) invitRepo: IInvitationRepository,
     @inject(INTERFACE_TYPES.RefreshTokenRepository)
     refreshRepo: IRefreshTokenRepository,
     @inject(INTERFACE_TYPES.jwt) jwt: IJwt
   ) {
     this.repository = employeeRepo;
     this.refreshRepo = refreshRepo;
+    this.invitRepo = invitRepo;
     this.otpRepo = otpRepo;
     this.jwt = jwt;
   }
@@ -39,9 +45,9 @@ export default class EmployeeInteractor implements IEmployeeInteractor {
     const newAccessToken = await this.jwt.generateToken(decoded.email);
     return newAccessToken;
   }
-  async findUserByEmail(email: string): Promise<IEmployee | null> {
+  async findUserByEmail(email: string,organization:string): Promise<IEmployee | null> {
     try {
-      return await this.repository.findByEmail(email);
+      return await this.repository.findByEmail(email,organization);
     } catch (error) {
       console.error('Error finding user by email:', error);
       throw error;
@@ -56,6 +62,32 @@ export default class EmployeeInteractor implements IEmployeeInteractor {
       throw error;
     }
   }
+  async createInvitation(data: IInvitation): Promise<IInvitation> {
+    try {
+      return await this.invitRepo.create(data);
+    } catch (error) {
+      console.error('Error creating invitaion:', error);
+      throw error;
+    }
+  }
+  async findInvitation(data: any): Promise<IInvitation | null> {
+    try {
+      return await this.invitRepo.findByToken(data);
+    } catch (error) {
+      console.error('Error finding invitation:', error);
+      throw error;
+    }
+  }
+  async findInvitationByEmail(email: string,organization:any): Promise<IInvitation | null> {
+    try {
+      
+      return await this.invitRepo.findInvitaionByEmail(email,organization);
+    } catch (error) {
+      console.error('Error finding invitation:', error);
+      throw error;
+    }
+  }
+  
   async comparePassword(password: string, hashPassword: string) {
     try {
       return bcrypt.compareSync(password, hashPassword);

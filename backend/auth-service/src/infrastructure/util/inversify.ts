@@ -30,10 +30,16 @@ import IRefreshTokenRepository from "../interfaces/IRefreshTokenRepository"
 import refreshTokenRepository from "../../database/repositories/refreshTokenRepository"
 import IAdminController from "../interfaces/IAdminController"
 import adminAuthController from "../../controllers/adminAuthController"
+import IOrganizationRepository from "../interfaces/IOrganizationRepository"
+import organizationRepository from "../../database/repositories/organizationRepository"
+import IInvitationRepository from "../interfaces/IInvitationRepository"
+import InvitationRepository from "../../database/repositories/invitationRepository"
 
 const container = new Container()
 
 container.bind<IUserRepository>(INTERFACE_TYPES.UserRepository).to(UserRepository)
+container.bind<IOrganizationRepository>(INTERFACE_TYPES.OrganizatonRepository).to(organizationRepository)
+container.bind<IInvitationRepository >(INTERFACE_TYPES.invitationRepository).to(InvitationRepository)
 container.bind<IEmployeeRepository>(INTERFACE_TYPES.EmployeeRepository).to(EmployeeRepository)
 container.bind<IRefreshTokenRepository>(INTERFACE_TYPES.RefreshTokenRepository).to(refreshTokenRepository)
 

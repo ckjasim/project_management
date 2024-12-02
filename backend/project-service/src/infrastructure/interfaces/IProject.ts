@@ -1,17 +1,18 @@
-import { Document, ObjectId } from "mongoose";
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
+
 export default interface IProject extends Document {
-  userEmail:string
   title: string;
-  projectCode: string;
-  summary: string;
+  priority: string;
   description?: string;
-  teamId: Types.ObjectId;
+  organization: Types.ObjectId;
+  teams: {
+    team: Types.ObjectId;
+  }[];
+  projectManager: Types.ObjectId;
+  startDate?: Date;
   dueDate: Date;
-  isActive: boolean;
   eventHistory?: Record<string, any>;
+  status?: 'planning' | 'in_progress' | 'completed' | 'on_hold';
   createdAt?: Date;
   updatedAt?: Date;
-
-
 }

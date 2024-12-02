@@ -1,9 +1,11 @@
+import IOrganization from './IOrganization';
 import IOtp from './IOtp';
 import IRefreshToken from './IRefreshToken';
 import IUser from './IUser';
 
 export interface IUserInteractor {
   createUser(data: Partial<IUser>): Promise<IUser>; 
+  createOrganization(data: Partial<IOrganization>): Promise<IOrganization>; 
   createRefreshToken(data: Partial<IRefreshToken>): Promise<IRefreshToken>; 
   findUserByEmail(email: string): Promise<IUser | null>;
   findUserById(id: string): Promise<IUser | null>;

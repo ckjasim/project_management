@@ -10,22 +10,27 @@ import IOtpRepository from '../infrastructure/interfaces/IOtpRepository';
 import IRefreshTokenRepository from '../infrastructure/interfaces/IRefreshTokenRepository';
 import IRefreshToken from '../infrastructure/interfaces/IRefreshToken';
 import IJwt from '../infrastructure/interfaces/IJwt';
+import IOrganizationRepository from '../infrastructure/interfaces/IOrganizationRepository';
+import IOrganization from '../infrastructure/interfaces/IOrganization';
 
 @injectable()
 export default class UserInteractor implements IUserInteractor {
   private repository: IUserRepository;
+  private orgRepo: IOrganizationRepository;
   private otpRepo: IOtpRepository;
   private refreshRepo: IRefreshTokenRepository;
   private jwt: IJwt;
 
   constructor(
     @inject(INTERFACE_TYPES.UserRepository) userRepo: IUserRepository,
+    @inject(INTERFACE_TYPES.OrganizatonRepository) orgRepo: IOrganizationRepository,
     @inject(INTERFACE_TYPES.OtpRepository) otpRepo: IOtpRepository,
     @inject(INTERFACE_TYPES.RefreshTokenRepository)
     refreshRepo: IRefreshTokenRepository,
     @inject(INTERFACE_TYPES.jwt) jwt: IJwt
   ) {
     this.repository = userRepo;
+    this.orgRepo = orgRepo;
     this.otpRepo = otpRepo;
     this.refreshRepo = refreshRepo;
     this.jwt = jwt;
@@ -55,6 +60,14 @@ export default class UserInteractor implements IUserInteractor {
     }
   }
 
+  async createOrganization(data: IOrganization): Promise<IOrganization> {
+    try {
+      return await this.orgRepo.create(data);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
   async createUser(data: IUser): Promise<IUser> {
     try {
       return await this.repository.create(data);

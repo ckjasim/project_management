@@ -1,6 +1,6 @@
 import IUser from "../../infrastructure/interfaces/IUser";
 import IUserRepository from "../../infrastructure/interfaces/IUserRepository";
-import { employeeModel } from "../model/employeeModel";
+import { EmployeeModel } from "../model/employeeModel";
 import { Model } from "mongoose";
 import { injectable } from "inversify";
 import IEmployeeRepository from "../../infrastructure/interfaces/IEmployeeRepository";
@@ -10,11 +10,11 @@ import IEmployee from "../../infrastructure/interfaces/IEmployee";
 export default class EmployeeRepository implements IEmployeeRepository{
   private readonly db:Model<IEmployee>
 constructor(){
-  this.db=employeeModel
+  this.db=EmployeeModel
 }
 
-async findByEmail(email:String){
-  return await this.db.findOne({email})
+async findByEmail(email:String,organization:String){
+  return await this.db.findOne({email,organization})
 }
 async getEmployee(organization:String){
   console.log('db')

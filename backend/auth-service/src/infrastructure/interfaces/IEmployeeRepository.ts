@@ -1,7 +1,8 @@
+import { Types } from "mongoose";
 import IEmployee from "./IEmployee";
 
 export default interface IEmployeeRepository {
-  findByEmail(email: string): Promise<IEmployee | null>;
+  findByEmail(email: string,organization:string): Promise<IEmployee | null>;
   create(data: IEmployee): Promise<IEmployee>;
   find(): Promise<IEmployee[]>;
   block(email: string): Promise<IEmployee | null> ;

@@ -55,7 +55,7 @@ export default class AdminInteractor implements IAdminInteractor {
       throw error;
     }
   }
-  async manageUser(email:string): Promise<IEmployee | null> {
+  async manageUser(email:string): Promise<IUser | null> {
     try {
       return await this.userRepo.blockOrUnblock(email);
     } catch (error) {

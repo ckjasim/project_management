@@ -39,9 +39,9 @@ class ProjectController implements IProjectController {
       }
 
       const { user } = decodedData;
-      const projectManager = user.email;
+      const projectManager = user?._id;
 
-      const teams = await this.interactor.getTeamsByprojectManager(projectManager);
+      const teams = await this.interactor.getTeamsByprojectManager(projectManager,user?.organization);
       res.status(200).send({ message: 'Teams successfully found', teams });
     } catch (error) {
       next(error);
@@ -74,10 +74,10 @@ class ProjectController implements IProjectController {
 
       const organization = user.organization;
       const data = {
-        teamName:title,
+        name:title,
         members:employees,
         organization,
-        projectManager:user.email
+        projectManager:user?._id
       };
 
       const createdTeam = await this.interactor.createTeam(data);
@@ -97,39 +97,28 @@ class ProjectController implements IProjectController {
   ): Promise<any> {
     try {
       console.log(req.body)
-      const { title, summary, description, dueDate, status, team } =
-        req.body.data;
+      const { title, description, dueDate,priority, teams } = req.body.data;
       const token = req.cookies['jwt'];
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
       }
-
       let decodedData;
       try {
         decodedData = await this.jwt.verifyRefreshToken(token);
       } catch (error) {
         return res.status(401).json({ message: 'Invalid or expired token' });
       }
-      const { email } = decodedData.user;
+      const { _id,organization } = decodedData.user;
 
-      function generateRandomCode() {
-        return Math.random().toString(36).substring(2, 7).toUpperCase();
-      }
-      const projectCode = generateRandomCode();
-
-      console.log(projectCode,'mmmmmmmmmmmmmmm');
-
-     
-
+   
       const data = {
-        userEmail: email,
-        projectCode,
+        projectManager: _id,
         title,
-        teamId: team,
-        summary,
-        description,
+        teams,
+        priority,
+        organization,
+         description,
         dueDate,
-        status,
       };
 
       const createdProject = await this.interactor.createProject(data);
@@ -165,10 +154,10 @@ class ProjectController implements IProjectController {
       const { user } = decodedData;
       const projectCode = user?.projectCode;
 
-      const project = await this.interactor.getTeamMembersByProjectCode(projectCode);
+      // const project = await this.interactor.getTeamMembersByProjectCode(projectCode);
       res
         .status(200)
-        .send({ message: 'projects successfully found', project });
+        .send({ message: 'projects successfully found',  });
     } catch (error) {
       next(error);
     }
@@ -224,10 +213,11 @@ class ProjectController implements IProjectController {
         return res.status(401).json({ message: 'Invalid or expired token' });
       }
 
-      const { user } = decodedData;
-      const email = user.email;
+      const { _id,organization } = decodedData.user;
+    
 
-      const projects = await this.interactor.getProjectsByUserEmail(email);
+      const projects = await this.interactor.getProjectsByProjectManager(_id,organization);
+      console.log(projects,'l---------------l-')
       res
         .status(200)
         .send({ message: 'projects successfully found', projects });

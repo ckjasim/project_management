@@ -1,33 +1,63 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import IEmployee from "../../infrastructure/interfaces/IEmployee";
+import IEmployee from '../../infrastructure/interfaces/IEmployee';
 
 const employeeSchema = new mongoose.Schema<IEmployee>(
   {
-    name: { type: String, required: [true, "name is required"] },
-    email: { type: String, required: [true, "email is required"], unique: true },
-    password: { type: String, required: [true, "password is required"] },
-    mobile: { type: Number },
-    role: { type: String, required: true },
-    organization: { type: String, required: true },
-    isBlock: { type: Boolean, default: false, required: true },
-    jobRole: { type: String, required: true },
-    projectCode: { type: String, required: [true, "projectCode is required"] },
-    img: { type: String },
+    name: {
+      type: String,
+      required: [true, 'Name is required'],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
+    },
+    organization: {
+      type: Schema.Types.ObjectId,
+      ref: 'organization',
+      required: [true, 'organization association is required'],
+    },
+    mobile: {
+      type: Number,
+    },
+    role: {
+      type: String,
+      required: true,
+    },
+    jobRole: {
+      type: String,
+      required: true,
+    },
+    isBlock: {
+      type: Boolean,
+      default: false,
+    },
+    profileImage: {
+      public_id: {
+        type: String,
+      },
+      url: {
+        type: String,
+      },
+    },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-employeeSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    return next();
-  }
+employeeSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-export const employeeModel = mongoose.model<IEmployee>("EMPLOYEE", employeeSchema);
+export const EmployeeModel = mongoose.model('Employee', employeeSchema);

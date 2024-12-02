@@ -1,12 +1,19 @@
-import IProject from './IProject';
-import ITeam from './ITeam';
+import IUser from './IUser';
 
 export interface IChatInteractor {
-  createProject(data: Partial<IProject>): Promise<IProject>;
-  getProjectsByUserEmail(email:string): Promise<IProject[] | null>;
-  updateProject(id: string, data: Partial<IProject>): Promise<void>;
-  deleteProject(id: string): Promise<void>;
-  
-  createTeam(data:Partial<ITeam>):  Promise<ITeam>;
-  getTeamsByOrganization(organization:string): Promise<ITeam[] | null>;
+  // Create a new chat user
+  createUser(data: Partial<IUser>): Promise<IUser>;
+  updateSocketId(userName:string,socketId:string): Promise<IUser>;
+
+  // Get a chat user by their socket ID
+  getUserBySocketId(socketId: string): Promise<IUser | null>;
+
+  // Get a chat user by their user name
+  getUserByUserName(userName: string): Promise<IUser | null>;
+
+  // Delete a chat user by socket ID
+  deleteUserBySocketId(socketId: string): Promise<void>;
+
+  // // Optionally, list all chat users
+  // getAllUsers(): Promise<IUser[]>;
 }

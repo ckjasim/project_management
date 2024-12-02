@@ -5,6 +5,8 @@ const INTERFACE_TYPES = {
   UserRepository:Symbol.for('UserRepository'),
   UserInteractor:Symbol.for('UserInteractor'),
   
+  OrganizatonRepository:Symbol.for('OrganizatonRepository'),
+  invitationRepository:Symbol.for('invitationRepository'),
 
   AdminInteractor:Symbol.for('AdminInteractor'),
 

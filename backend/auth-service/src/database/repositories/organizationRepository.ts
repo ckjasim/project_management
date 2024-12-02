@@ -1,14 +1,15 @@
-import IUser from "../../infrastructure/interfaces/IUser";
-import IUserRepository from "../../infrastructure/interfaces/IUserRepository";
-import { UserModel } from "../model/userModel";
+
 import { Model } from "mongoose";
 import { injectable } from "inversify";
+import IOrganization from "../../infrastructure/interfaces/IOrganization";
+import { OrganizationModel } from "../model/organizationModel";
+import IOrganizationRepository from "../../infrastructure/interfaces/IOrganizationRepository";
 
 @injectable()
-export default class UserRepository implements IUserRepository{
-  private readonly db:Model<IUser>
+export default class organizationRepository implements IOrganizationRepository{
+  private readonly db:Model<IOrganization>
 constructor(){
-  this.db=UserModel
+  this.db=OrganizationModel
 }
 
 async findByEmail(email:String){
@@ -17,7 +18,7 @@ async findByEmail(email:String){
 async findById(id:String){
   return await this.db.findOne({id})
 }
-async create(data:IUser){
+async create(data:Partial<IOrganization>){
   return await this.db.create(data)
 }
 async find(){

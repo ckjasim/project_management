@@ -20,8 +20,8 @@ export default class ProjectRepository implements IProjectRepository {
     return await this.db.create(data);
   }
 
-  async findByUserEmail(userEmail:string) {
-    return await this.db.find({userEmail});
+  async findByProjectManager(_id:string,organization:string) {
+    return await this.db.find({projectManager:_id,organization});
   }
   async findByProjectCode(projectCode:string) {
     return await this.db.find({projectCode});
@@ -49,10 +49,10 @@ export default class ProjectRepository implements IProjectRepository {
 
       console.log(project ,"fasluuuu")
 
-    // Check if the project exists and return the team details
-    if (project && project.teamId) {
-      return project.teamId as unknown as ITeam; // Cast the populated teamId to ITeam
-    }
+
+
+
+    
 
     return null; // Return null if no project or team found
   }

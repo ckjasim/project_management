@@ -27,6 +27,8 @@ router.post('/role', userController.authRole.bind(userController));
 router.post('/Logout', userController.logoutHandler.bind(userController));
 
 
+router.post('/employeeInvitation', employeeController.employeeInvitation.bind(employeeController));
+router.post('/verifyInvitation', employeeController.verifyInvitationHandler.bind(employeeController));
 router.post('/employeeLogin', employeeLoginValidation, employeeController.loginHandler.bind(employeeController));
 router.post('/employeeRegister', employeeRegisterValidation, employeeController.registerHandler.bind(employeeController));
 router.post('/employeeOtp', employeeController.verifyOtpHandler.bind(employeeController));

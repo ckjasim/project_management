@@ -1,13 +1,11 @@
-import { Document, ObjectId } from "mongoose";
+import { Document, Types } from "mongoose";
+
 export default interface ITeam extends Document {
-  _id:ObjectId,
-  teamName: string;
-  projectManager: string;
-  members: ObjectId[];
-  eventHistory: Record<string, any>;
+  name: string;
+  organization: Types.ObjectId;
+  projectManager: Types.ObjectId;
+  members: Types.ObjectId[];
+  eventHistory?: Record<string, any>;
   createdAt?: Date;
-  organization:string;
   updatedAt?: Date;
-
-
 }

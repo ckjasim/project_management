@@ -3,7 +3,7 @@ import "reflect-metadata";
 import cors from 'cors';
 import { config } from "dotenv";
 import dbConnect from './database/dbConnect';
-import router from './infrastructure/routes/projectRouter';
+import router from './infrastructure/routes/chatRouter';
 import { errorHandler } from './infrastructure/middleware/errorMiddleware';
 import cookieParser from 'cookie-parser';
 import { Server } from 'socket.io';

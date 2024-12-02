@@ -8,6 +8,8 @@ import { COOKIE_MAXAGE } from '../infrastructure/constants/timeAndDuration';
 import IEmailService from '../infrastructure/interfaces/IEmailService';
 import { SessionData } from 'express-session';
 import { validationResult } from 'express-validator';
+import IUser from '../infrastructure/interfaces/IUser';
+import { Types } from 'mongoose';
 
 @injectable()
 class userAuthController implements IUserController {
@@ -63,9 +65,11 @@ class userAuthController implements IUserController {
       if (!comparePassword) {
         return res.status(400).json({ message: 'Invalid password' });
       }
+    
       const data = {
+        _id:user?._id,
         email:user?.email,
-        role:'user',
+        role:'project manager',
         organization:user?.organization
       }
       const token = this.jwt.generateToken(data);
@@ -134,7 +138,6 @@ class userAuthController implements IUserController {
         email,
         password,
         role: 'project manager',
-        isBlock: false,
         organization:org
       };
 
@@ -159,7 +162,7 @@ class userAuthController implements IUserController {
       }
 
       const decodedData = await this.jwt.verifyToken(token);
-      const { email, name, password, role, isBlock ,organization} = decodedData;
+      const { email, name, password, role ,organization} = decodedData;
 
       const { otp } = req.body;
       const storedOtp = await this.interactor.getOtp(email);
@@ -171,13 +174,30 @@ class userAuthController implements IUserController {
         return res.status(400).json({ message: 'Invalid OTP' });
       }
 
-      const data = { email, name, password, role, isBlock ,organization};
-      const newUser =await this.interactor.createUser(data);
+      const tenant = {
+        name: organization,
+        email: email,
+        subscriptionTier: 'basic'
+      }
+      const newOrganization =await this.interactor.createOrganization(tenant);
+     
+      
 
-      const tokenData = {
+      const data: Partial<IUser> = {       
+        email, 
+        name, 
+        password, 
+        role, 
+        organization: newOrganization._id as Types.ObjectId 
+      };
+
+      const newUser =await this.interactor.createUser(data);
+      console.log(newOrganization._id,'lklklklk-----------------------------------')
+      const tokenData = { 
+        _id:newUser._id,
         email,
-       organization,
-        role:'user'
+       organization: newOrganization._id,
+        role:'project manager'
       };
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
       const expiresAt = new Date();

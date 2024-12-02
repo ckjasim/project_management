@@ -1,25 +1,19 @@
 import { Container } from "inversify"
 import INTERFACE_TYPES from "../constants/inversify"
-import IProjectController from "../interfaces/IChatController";
-// import { IProjectInteractor } from "../interfaces/IChatInteractor";
-import IJwt from "../interfaces/IJwt";
-import Jwt from "./jwt";
-// import ProjectController from "../../controllers/projectController";
-import ProjectRepository from "../../database/repositories/projectRepository";
-import IProjectRepository from "../interfaces/IProjectRepository";
-import ProjectInteractor from "../../interactors/ChatInteractor";
-import ITeamRepository from "../interfaces/ITeamRepository";
-import TeamRepository from "../../database/repositories/teamRepository";
+
 import IChatController from "../interfaces/IChatController";
 import ChatController from "../../controllers/chatController";
+import IChatUserRepository from "../interfaces/IChatUserRepository";
+import ChatUserRepository from "../../database/repositories/chatUserRepository";
+import { IChatInteractor } from "../interfaces/IChatInteractor";
+import ChatInteractor from "../../interactors/ChatInteractor";
 
 const container = new Container()
 
 container.bind<IChatController>(INTERFACE_TYPES.ChatController).to(ChatController);
-// container.bind<IProjectRepository>(INTERFACE_TYPES.ProjectRepository).to(ProjectRepository)
-// container.bind<ITeamRepository>(INTERFACE_TYPES.TeamRepository).to(TeamRepository)
-// // container.bind<IRefreshTokenRepository>(INTERFACE_TYPES.RefreshTokenRepository).to(refreshTokenRepository)
-// container.bind<IProjectInteractor>(INTERFACE_TYPES.ProjectInteractor).to(ProjectInteractor)
-container.bind<IJwt>(INTERFACE_TYPES.jwt).to(Jwt)
+container.bind<IChatUserRepository>(INTERFACE_TYPES.ChatUserRepository).to(ChatUserRepository)
+
+container.bind<IChatInteractor>(INTERFACE_TYPES.ChatInteractor).to(ChatInteractor)
+
 
 export default container 

@@ -6,7 +6,7 @@ import INTERFACE_TYPES from '../constants/inversify';
 // const controller = container.get<ITaskController>(INTERFACE_TYPES.ProjectController);
 const Router = express.Router();
 
-// Router.route('/project')
+// Router.route('/chat')
 //     .post(controller.createProjectHandler.bind(controller))
 //     .get(controller.getProjectsHandler.bind(controller))
 //     .patch(controller.updateProjectHandler.bind(controller));

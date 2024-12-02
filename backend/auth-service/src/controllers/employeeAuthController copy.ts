@@ -9,8 +9,6 @@ import IEmployeeController from '../infrastructure/interfaces/IEmployeeControlle
 import { IEmployeeInteractor } from '../infrastructure/interfaces/IEmployeeInteractors';
 import { validationResult } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
-import CloudinaryV2 from '../infrastructure/util/cloudinary';
- 
 
 @injectable()
 class EmployeeAuthController implements IEmployeeController {
@@ -28,94 +26,71 @@ class EmployeeAuthController implements IEmployeeController {
     this.jwt = jwt;
     this.emailService = emailServ;
   }
-  async verifyInvitationHandler(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> {
+ async verifyInvitationHandler(req: Request, res: Response, next: NextFunction):Promise<any> {
     const token = Object.keys(req.body)[0];
-    console.log('Extracted token:', token);
-    const invitation = await this.interactor.findInvitation(token);
-    console.log(invitation);
+    console.log("Extracted token:", token);
+      const invitation = await this.interactor.findInvitation(token)
+      console.log(invitation)
 
-    if (!invitation) {
-      return res.status(400).json({
-        message: 'Invalid or expired invitation',
-      });
-    }
+      if (!invitation) {
+        return res.status(400).json({ 
+          message: "Invalid or expired invitation" 
+        });
+      }
+  }
+  async employeeInvitation(req: Request, res: Response, next: NextFunction): Promise<any> {
+    console.log(req.body,'kkkkkkkkkkkkkkkkkkk')
+  const {name,jobRole,email}=req.body
+  const token = req.cookies['jwt'];
+  console.log(token);
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+  let decodedData;
+  try {
+    decodedData = await this.jwt.verifyRefreshToken(token);
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
   }
 
-  async employeeInvitation(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> {
-
-    const { name, jobRole, email } = req.body;
-    const token = req.cookies['jwt'];
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-    let decodedData;
-    try {
-      decodedData = await this.jwt.verifyRefreshToken(token);
-    } catch (error) {
-      return res.status(401).json({ message: 'Invalid or expired token' });
-    }
-
-    const { user } = decodedData;
+  const { user } = decodedData;
+console.log(user,"user-----------------------")
 
 
-    const existingEmployee = await this.interactor.findUserByEmail(
-      email,
-      user.organization
-    );
+  const existingEmployee = await this.interactor.findUserByEmail(email,user.organization)
 
-    if (existingEmployee) {
-      return res.status(400).json({
-        message: 'Employee with this email already exists in your organization',
-      });
-    }
-console.log('qqqqqqqqqqqqqqq')
-    const existingInvitation = await this.interactor.findInvitationByEmail(
-      email,
-      user.organization
-    );
-    if (existingInvitation) {
-      return res.status(400).json({
-        message: 'Invitation is already send to this email',
-      })
-    }
+  console.log(existingEmployee,'existing------employee')
+  if (existingEmployee) {
+    return res.status(400).json({ 
+      message: "Employee with this email already exists in your organization" 
+    });
+  }
+  const invitationToken = uuidv4();
+  const invitationData={
+    email,
+    organization: user.organization,
+    invitedBy: user._id,
+    token: invitationToken,
+    jobRole,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  }
+  const invitation = await this.interactor.createInvitation(invitationData);
 
-    console.log(existingInvitation, 'existing------employee');
+  console.log(invitation,'jjjjjjjjjjaaaaaaaaaaaaasssssssssssiiiiiiiiiii')
 
-    const invitationToken = uuidv4();
-    const invitationData = {
-      name,
-      email,
-      organization: user.organization,
-      invitedBy: user._id,
-      token: invitationToken,
-      jobRole,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    };
-    const invitation = await this.interactor.createInvitation(invitationData);
+  const invitationLink = `http://localhost:5173/auth/employeeSignup?token=${invitationToken}`;
+  console.log(invitationLink)
 
-  
+  const data = {
+    to: email, 
+    name, 
+    invitationLink,
+    invitedBy: user.email,
+    jobRole
+  }
 
-    const invitationLink = `http://localhost:5173/auth/employeeSignup?token=${invitationToken}`;
-    console.log(invitationLink);
-
-    const data = {
-      to: email,
-      name,
-      invitationLink,
-      invitedBy: user.email,
-      jobRole,
-    };
-
-    await this.emailService.sendInvitation(data);
-    res.send('email has been send into mail');
+  await this.emailService.sendInvitation(data);
+  res.send("email has been send into mail")
   }
 
   async loginHandler(req: Request, res: Response, next: NextFunction) {
@@ -130,7 +105,7 @@ console.log('qqqqqqqqqqqqqqq')
       }
       console.log(req.body);
       const { email, password, projectCode } = req.body;
-      const user = await this.interactor.findUserByEmail(email, projectCode);
+      const user = await this.interactor.findUserByEmail(email,projectCode);
       if (!user) {
         res.status(400);
         throw new Error('User not found , Please create an account');
@@ -145,7 +120,7 @@ console.log('qqqqqqqqqqqqqqq')
         res.status(400);
         throw new Error('invalid password');
       }
-      const projectCodeSample = ['11111', '22222', '33333', 'FSJVE'];
+      const projectCodeSample = ['11111', '22222', '33333','FSJVE',];
       if (!projectCodeSample.includes(projectCode)) {
         res.status(400);
         throw new Error('invalid project code');
@@ -154,7 +129,8 @@ console.log('qqqqqqqqqqqqqqq')
         email,
         projectCode,
         role: 'employee',
-        organization: user?.organization,
+        organization:user?.organization
+        
       };
       const token = this.jwt.generateToken(tokenData);
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
@@ -184,65 +160,126 @@ console.log('qqqqqqqqqqqqqqq')
   async registerHandler(req: Request, res: Response, next: NextFunction) {
     try {
       console.log(req.body);
-
-      const {
-        password,
-        mobile,
-        token,
-        image,
-      } = req.body;
-
-      const invitation = await this.interactor.findInvitation(token);
-
-
-      if (!invitation) {
-        return res.status(400).json({
-          message: 'Invalid or expired invitation',
-        });
-      }
       
 
-      const existingEmployee = await this.interactor.findUserByEmail(
-        invitation?.email,
-        invitation?.organization?._id.toString()
-      );
-      if (existingEmployee) {
-        res.status(400);
-        throw new Error('already have an account please login');
+     
+      const {
+       
+        password,
+        mobile,
+        
+       token,
+        img,
+      
+      } = req.body;
+  
+      console.log("Extracted token:", token);
+        const invitation = await this.interactor.findInvitation(token)
+        console.log(invitation)
+  
+        if (!invitation) {
+          return res.status(400).json({ 
+            message: "Invalid or expired invitation" 
+          });
+        }
+      // const user = await this.interactor.findUserByEmail(email,organization);
+      // if (user) {
+      //   res.status(400);
+      //   throw new Error('already have an account please login');
+      // }
+      
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      console.log(otp);
+
+      // await this.emailService.sendOTP(email, otp);
+
+      // const otpData = {
+      //   email,
+      //   otp,
+      // };
+      // const org = organization.toLowerCase().replace(/\s+/g, '');
+
+      // const otpd = await this.interactor.saveOtp(otpData);
+      // const data = {
+      //   name,
+      //   email,
+      //   password,
+      //   role: 'employee',
+      //   isBlock: false,
+      //   mobile,
+      //   jobRole,
+      //   projectCode,
+      //   img,
+      //   organization: org,
+      // };
+
+      // const tempToken = this.jwt.generateToken(data, '10m');
+      // res.cookie('employeeTemp', tempToken, {
+      //   httpOnly: true,
+      //   maxAge: 10 * 60 * 1000,
+      //   path: '/',
+      // });
+
+      // res
+      //   .status(201)
+      //   .json({ message: 'otp shared into your email', otp, otpd });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async verifyOtpHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+      const token = req.cookies['employeeTemp'];
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
       }
 
-      const result = await CloudinaryV2.uploader.upload(image, {
-        folder: "employee",
-      });
-
-      const data = {
-        email:invitation?.email,
-        name:invitation?.name,
+      const decodedData = await this.jwt.verifyToken(token);
+      const {
+        name,
+        email,
         password,
-        role:"employee",
+        role,
+        isBlock,
         mobile,
-        jobRole:invitation?.jobRole,
-        organization:invitation?.organization?._id,
-      profileImage:{
-      public_id: result.public_id,
-      url: result.secure_url,
-    }
-  };
+        jobRole,
+        projectCode,
+        organization,
+        img,
+      } = decodedData;
+      const { otp } = req.body;
 
-      const newUser = await this.interactor.createUser(data);
+      const storedOtp = await this.interactor.getOtp(email);
+      const compareOtp = await this.interactor.compareOtp(otp, storedOtp.otp);
+      if (!compareOtp) {
+        res.status(400);
+        throw new Error('invalid Otp');
+      }
+      const data = {
+        email,
+        name,
+        password,
+        role,
+        isBlock,
+        mobile,
+        jobRole,
+        projectCode,
+        organization,
+      };
 
+     const newUser =  await this.interactor.createUser(data);
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
       const tokenData = {
-        _id:newUser?._id,
-        email:newUser?.email,
+        email,
+        projectCode,
         role: 'employee',
-        organization:newUser?.organization,
+        organization
       };
 
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
       const refreshData = {
-        email:newUser?.email,
+        email,
         token: refreshToken,
         expiresAt,
       };
@@ -254,14 +291,7 @@ console.log('qqqqqqqqqqqqqqq')
         path: '/',
       });
 
-      res.status(201).json({ message: 'user created successfully', newUser });
-    } catch (error) {
-      next(error);
-    }
-  }
-  async verifyOtpHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-      
+      res.status(201).json({ message: 'user created successfully',newUser });
     } catch (error) {
       next(error);
     }
@@ -315,7 +345,7 @@ console.log('qqqqqqqqqqqqqqq')
     next: NextFunction
   ) {
     try {
-      console.log('81818181881');
+      console.log('81818181881')
       const token = req.cookies['jwt'];
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
@@ -327,7 +357,7 @@ console.log('qqqqqqqqqqqqqqq')
       } catch (error) {
         return res.status(401).json({ message: 'Invalid or expired token' });
       }
-      
+console.log(decodedData,'11111111111111111122222222222222222222000000000000000')
       const { user } = decodedData;
 
       const organization = user.organization;

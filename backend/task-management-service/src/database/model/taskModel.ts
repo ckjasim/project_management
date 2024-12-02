@@ -1,17 +1,35 @@
 import mongoose, { Schema, Document, ObjectId } from "mongoose";
-
 import ITask from "../../infrastructure/interfaces/ITask";
 
-const taskSchema = new mongoose.Schema<ITask>({
-  // projectId: { type: Schema.Types.ObjectId, required: true },
-  projectCode: { type: String, required: [true, "Project code is required"] },
-  topic: { type: String, required: [true, "Topic is required"] },
-  summary: { type: String, required: [true, "Summary is required"] },
+const taskSchema = new Schema<ITask>({
+  project: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'Project', 
+    required: true 
+  },
+  team: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'Team', 
+    required: true 
+  },
+  title: { type: String, required: [true, "Task title is required"] },
   description: { type: String },
-  photo: { type: Buffer },
+  assignedTo: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'User' 
+  },
+  status: { 
+    type: String, 
+    enum: ['pending', 'progressing', 'review', 'completed'], 
+    default: 'pending' 
+  },
+  priority: { 
+    type: String, 
+    enum: ['low', 'medium', 'high', 'critical'], 
+    default: 'medium' 
+  },
   dueDate: { type: Date, required: [true, "Due date is required"] },
-  createdAt: { type: Date, default: Date.now },
-  status: { type: String, required: true, enum: ['pending', 'progressing', 'completed','review'], default: 'pending' },
-});
+}, { timestamps: true });
 
-export const TaskModel = mongoose.model<ITask>("Task", taskSchema);
+export const TaskModel = mongoose.model('Task', taskSchema);
+
