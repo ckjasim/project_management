@@ -1,5 +1,5 @@
 import { ProjectModel } from '../model/projectModel';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { injectable } from 'inversify';
 
 import { ObjectId } from 'mongodb';
@@ -23,6 +23,37 @@ export default class ProjectRepository implements IProjectRepository {
   async findByProjectManager(_id:string,organization:string) {
     return await this.db.find({projectManager:_id,organization});
   }
+
+  async findByProject(projectId:string,organization:string): Promise<any> {
+    try {
+      const orgId = new mongoose.Types.ObjectId(organization);
+      const prjId = new mongoose.Types.ObjectId(projectId);
+
+      const project =await this.db.findOne({_id:prjId,organization:orgId}).populate('teams')
+      console.log(project)
+      if (project && project.teams.length > 0) {
+        return project.teams
+    }
+
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   async findByProjectCode(projectCode:string) {
     return await this.db.find({projectCode});
   }

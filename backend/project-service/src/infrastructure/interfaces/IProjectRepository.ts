@@ -4,6 +4,11 @@ import ITeam from './ITeam';
 export default interface IProjectRepository {
   create(data: Partial<IProject>): Promise<IProject>;
   findByProjectManager(_id:string,organization:string): Promise<IProject[] | null>;
+  findByProject(projectId:string,organization:string): Promise<ITeam[] | null>;
+
+
+
+  
   findByProjectCode(projectCode:string): Promise<IProject[] | null>;
   findTeamByProjectCode(projectCode:string): Promise<ITeam[] | null>;
   update(id: string, data: Partial<IProject>): Promise<any>;

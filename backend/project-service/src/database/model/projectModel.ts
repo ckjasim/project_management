@@ -13,10 +13,8 @@ const projectSchema = new Schema<IProject>({
     required: true 
   },
   teams: [{ 
-   
       type: Schema.Types.ObjectId, 
       ref: 'Team' 
- 
   }],
   projectManager: { 
     type: Schema.Types.ObjectId, 

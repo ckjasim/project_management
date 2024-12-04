@@ -76,9 +76,9 @@ export default class ProjectInteractor implements IProjectInteractor {
      throw error;
    }
   }
-  async getTeamMembersByProjectCode(projectCode:string): Promise<any> {
+  async getTeamMembersByTeamId(teamId:string): Promise<any> {
     try {
-      return await this.repository.findTeamByProjectCode(projectCode);
+      return await this.teamRepository.findTeamByTeamId(teamId);
     } catch (error) {
       console.error('Error finding tasks by project code:', error);
       throw error;
@@ -88,6 +88,14 @@ export default class ProjectInteractor implements IProjectInteractor {
   async getTeamsByprojectManager(projectManager:string,organization:string): Promise<ITeam[] | null> {
     try {
       return await this.teamRepository.findByprojectManager(projectManager,organization);
+    } catch (error) {
+      console.error('Error finding tasks by project code:', error);
+      throw error;
+    }
+  }
+  async getTeamsByProject(projectId:string,organization:string): Promise<ITeam[] | null> {
+    try {
+      return await this.repository.findByProject(projectId,organization);
     } catch (error) {
       console.error('Error finding tasks by project code:', error);
       throw error;

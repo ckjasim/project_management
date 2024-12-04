@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { injectable } from 'inversify';
 
 import { ObjectId } from 'mongodb';
@@ -22,6 +22,14 @@ export default class TeamRepository implements ITeamRepository {
   async findByprojectManager(projectManager:string,organization:string) {
     return await this.db.find({projectManager,organization})
   }
+  async findTeamByTeamId(teamId:string) {
+    console.log(teamId)
+    const id =new mongoose.Types.ObjectId(teamId)
+    const team = await this.db.findOne({_id:id}).populate('members')
+    console.log(team)
+    return team
+  }
+
 
   async update(id: string, data: Partial<ITeam>) {
     try {

@@ -1,0 +1,26 @@
+apiVersion: skaffold/v2beta1
+kind: Config
+build:
+  local:
+    push: false
+  artifacts:
+    - image: projectManagement/auth-service
+      context: auth-service
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
+    - image: projectManagement/project-service
+      context: project-service
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
+deploy:
+  kubectl:
+    manifests:
+      - ./infra/k8s/*

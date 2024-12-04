@@ -8,7 +8,9 @@ export interface IProjectInteractor {
   updateProject(id: string, data: Partial<IProject>): Promise<void>;
   deleteProject(id: string): Promise<void>;
   
+  getTeamMembersByTeamId(projectCode:string):  Promise<ITeam[] | null>;
+  
   createTeam(data:Partial<ITeam>):  Promise<ITeam>;
-  getTeamMembersByProjectCode(projectCode:string):  Promise<ITeam[] | null>;
   getTeamsByprojectManager(projectManager:string,organization:string): Promise<ITeam[] | null>;
+  getTeamsByProject(projectId:string,organization:string): Promise<ITeam[] | null>;
 }

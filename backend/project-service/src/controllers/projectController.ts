@@ -18,7 +18,7 @@ class ProjectController implements IProjectController {
     this.interactor = projectInter;
     this.jwt = jwt;
   }
- 
+
   async getTeamsHandler(
     req: Request,
     res: Response,
@@ -41,7 +41,45 @@ class ProjectController implements IProjectController {
       const { user } = decodedData;
       const projectManager = user?._id;
 
-      const teams = await this.interactor.getTeamsByprojectManager(projectManager,user?.organization);
+      const teams = await this.interactor.getTeamsByprojectManager(
+        projectManager,
+        user?.organization
+      );
+      res.status(200).send({ message: 'Teams successfully found', teams });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getTeamsByProjectHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const id = Object.keys(req.body);
+      const projectId = id[0];
+
+      const token = req.cookies['jwt'];
+
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
+
+      let decodedData;
+      try {
+        decodedData = await this.jwt.verifyRefreshToken(token);
+      } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+      }
+
+      const { organization } = decodedData.user;
+
+      const teams = await this.interactor.getTeamsByProject(
+        projectId,
+        organization
+      );
+      console.log(teams);
+
       res.status(200).send({ message: 'Teams successfully found', teams });
     } catch (error) {
       next(error);
@@ -53,9 +91,9 @@ class ProjectController implements IProjectController {
     next: NextFunction
   ): Promise<any> {
     try {
-      console.log('prprprprpr')
-      console.log(req.body,'dfdfdfdf')
-      const { title, employees} = req.body.data;
+      console.log('prprprprpr');
+      console.log(req.body, 'dfdfdfdf');
+      const { title, employees } = req.body.data;
 
       const token = req.cookies['jwt'];
       console.log(token);
@@ -74,14 +112,14 @@ class ProjectController implements IProjectController {
 
       const organization = user.organization;
       const data = {
-        name:title,
-        members:employees,
+        name: title,
+        members: employees,
         organization,
-        projectManager:user?._id
+        projectManager: user?._id,
       };
 
       const createdTeam = await this.interactor.createTeam(data);
-      console.log(createdTeam, 'ppppppppppppppppppppppppppppp');
+   
 
       res
         .status(201)
@@ -96,8 +134,8 @@ class ProjectController implements IProjectController {
     next: NextFunction
   ): Promise<any> {
     try {
-      console.log(req.body)
-      const { title, description, dueDate,priority, teams } = req.body.data;
+      console.log(req.body);
+      const { title, description, dueDate, priority, teams } = req.body.data;
       const token = req.cookies['jwt'];
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
@@ -108,21 +146,19 @@ class ProjectController implements IProjectController {
       } catch (error) {
         return res.status(401).json({ message: 'Invalid or expired token' });
       }
-      const { _id,organization } = decodedData.user;
+      const { _id, organization } = decodedData.user;
 
-   
       const data = {
         projectManager: _id,
         title,
         teams,
         priority,
         organization,
-         description,
+        description,
         dueDate,
       };
 
       const createdProject = await this.interactor.createProject(data);
-      console.log(createdProject, 'ppppppppppppppppppppppppppppp');
 
       res
         .status(201)
@@ -131,33 +167,19 @@ class ProjectController implements IProjectController {
       next(error);
     }
   }
-  async getTeamMembersByProjectCodeHandler(
+  async getTeamMembersByTeamIdHandler(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<any> {
     try {
-      console.log("jasi")
-      const token = req.cookies['jwt'];
-      console.log(token);
-      if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
-      }
-      let decodedData;
-      try {
-        decodedData = await this.jwt.verifyRefreshToken(token);
-      } catch (error) {
-        return res.status(401).json({ message: 'Invalid or expired token' });
-      }
+      const id=Object.keys(req.body)
+      const teamId=id[0]
 
-      console.log(decodedData,'123123123213123123123213213')
-      const { user } = decodedData;
-      const projectCode = user?.projectCode;
-
-      // const project = await this.interactor.getTeamMembersByProjectCode(projectCode);
+      const teamMembers = await this.interactor.getTeamMembersByTeamId(teamId);
       res
         .status(200)
-        .send({ message: 'projects successfully found',  });
+        .send({ message: 'projects successfully found', teamMembers });
     } catch (error) {
       next(error);
     }
@@ -168,9 +190,8 @@ class ProjectController implements IProjectController {
     next: NextFunction
   ): Promise<any> {
     try {
-      console.log("jasi")
       const token = req.cookies['jwt'];
-      console.log(token);
+
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
       }
@@ -181,16 +202,16 @@ class ProjectController implements IProjectController {
         return res.status(401).json({ message: 'Invalid or expired token' });
       }
 
-      console.log(decodedData,'123123123213123123123213213')
+      console.log(decodedData, '123123123213123123123213213');
       const { user } = decodedData;
       const projectCode = user?.projectCode;
 
-      const project = await this.interactor.getProjectsByProjectCode(projectCode);
-      console.log(project,'haaaiii')
-     
-      res
-        .status(200)
-        .send({ message: 'projects successfully found', project });
+      const project = await this.interactor.getProjectsByProjectCode(
+        projectCode
+      );
+      console.log(project, 'haaaiii');
+
+      res.status(200).send({ message: 'projects successfully found', project });
     } catch (error) {
       next(error);
     }
@@ -202,7 +223,7 @@ class ProjectController implements IProjectController {
   ): Promise<any> {
     try {
       const token = req.cookies['jwt'];
-      console.log(token);
+
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
       }
@@ -213,11 +234,13 @@ class ProjectController implements IProjectController {
         return res.status(401).json({ message: 'Invalid or expired token' });
       }
 
-      const { _id,organization } = decodedData.user;
-    
+      const { _id, organization } = decodedData.user;
 
-      const projects = await this.interactor.getProjectsByProjectManager(_id,organization);
-      console.log(projects,'l---------------l-')
+      const projects = await this.interactor.getProjectsByProjectManager(
+        _id,
+        organization
+      );
+
       res
         .status(200)
         .send({ message: 'projects successfully found', projects });
@@ -238,12 +261,14 @@ class ProjectController implements IProjectController {
       const project = { title, summary, description, dueDate, status, teamId };
       const editedProject = await this.interactor.updateProject(id, project);
 
-      res.status(200).send({ message: 'projects successfully updated',editedProject });
+      res
+        .status(200)
+        .send({ message: 'projects successfully updated', editedProject });
     } catch (error) {
       next(error);
     }
   }
- async deleteProjectHandler(
+  async deleteProjectHandler(
     req: Request,
     res: Response,
     next: NextFunction
@@ -276,8 +301,6 @@ class ProjectController implements IProjectController {
   //       next(error);
   //     }
   //   }
-
 }
-
 
 export default ProjectController;
