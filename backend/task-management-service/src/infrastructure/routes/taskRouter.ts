@@ -8,7 +8,9 @@ const router= express.Router()
 
 const taskController = container.get<ITaskController>(INTERFACE_TYPES.TaskController)
 router.post('/task/createTask',taskController.createTaskHandler.bind(taskController))
-router.get('/task/getTask',taskController.getTasksByProjectCodeHandler.bind(taskController))
+router.post('/task/getTaskByTeam',taskController.getTasksByTeamHandler.bind(taskController))
+
+
 router.patch('/task/updateStatus',taskController.updateTaskStatusHandler.bind(taskController))
 router.patch('/task/updateTask',taskController.updateTaskHandler.bind(taskController))
 router.patch('/task/deleteTask',taskController.deleteTaskHandler.bind(taskController))

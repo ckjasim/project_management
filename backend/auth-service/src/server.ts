@@ -6,9 +6,11 @@ import { config } from 'dotenv';
 import dbConnect from './database/dbConnect';
 import router from './infrastructure/routes/authRoute';
 import { errorHandler } from './infrastructure/middleware/errorMiddleware';
+import kafkaWrapper from './infrastructure/util/kafka/kafkaWrapper';
 
 config();
 dbConnect();
+kafkaWrapper.connect()
 
 const app = express();
 

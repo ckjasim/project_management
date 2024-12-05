@@ -18,12 +18,16 @@ export default class TaskRepository implements ITaskRepository {
   async create(data: ITask) {
     return await this.db.create(data);
   }
+  async findByTeamId(team: string) {
+    return await this.db.find({ team });
+  }
 
+
+
+
+  
   async findByProjectId(projectId: string) {
     return await this.db.find({ projectId });
-  }
-  async findByProjectCode(projectCode: string) {
-    return await this.db.find({ projectCode });
   }
 
   async findById(id: string) {

@@ -10,6 +10,9 @@ import { IEmployeeInteractor } from '../infrastructure/interfaces/IEmployeeInter
 import { validationResult } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import CloudinaryV2 from '../infrastructure/util/cloudinary';
+import { EmployeeCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
+import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
+import { Producer } from 'kafkajs';
  
 
 @injectable()
@@ -230,7 +233,26 @@ console.log('qqqqqqqqqqqqqqq')
   };
 
       const newUser = await this.interactor.createUser(data);
+      console.log(newUser)
 
+ if (newUser) {
+        console.log("hi");
+        
+        await new EmployeeCreatedPublisher(kafkaWrapper.producer as Producer).produce({
+          _id: newUser._id! as string,
+          name: newUser.name as string,
+          email: newUser.email as string,
+          organization:newUser.organization as unknown as string,
+          role: newUser.role! as string,
+          password:newUser.password,
+          jobRole:newUser.jobRole as string,
+          mobile:newUser.mobile,
+          profileImage:{
+            public_id:result.public_id,
+            url:result.secure_url
+          }
+        })
+        }
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
       const tokenData = {

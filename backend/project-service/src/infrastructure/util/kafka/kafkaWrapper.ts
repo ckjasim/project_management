@@ -8,14 +8,14 @@ class KafkaWrapper {
     constructor() {
         this._kafka = new Kafka({
             clientId: 'auth-service',
-            brokers: ['localhost:9092'],
+            brokers: [process.env.KAFKA_SERVER!],
             // logLevel:logLevel.INFO
         })
     }
 
     async connect(): Promise<void> {
         try {
-            this._producer = this._kafka.producer({allowAutoTopicCreation:true});
+            this._producer = this._kafka.producer({ allowAutoTopicCreation:true });
             await this._producer.connect();
             console.log('Connected to Kafka');
         } catch (error) {

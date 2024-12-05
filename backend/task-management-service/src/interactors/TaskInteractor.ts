@@ -20,15 +20,36 @@ export default class TaskInteractor implements ITaskInteractor {
     this.jwt = jwt;
   }
  
-
-  async getTaskByProjectCode(projectCode: string): Promise<ITask[] | null> {
+  async createTask(data: Partial<ITask>): Promise<ITask> {
     try {
-      return await this.repository.findByProjectCode(projectCode);
+      return await this.repository.create(data);
     } catch (error) {
       console.error('Error finding tasks by project code:', error);
       throw error;
     }
   }
+
+  async getTasksByTeam(teamId: string): Promise<ITask[] | null> {
+    try {
+      return await this.repository.findByTeamId(teamId);
+    } catch (error) {
+      console.error('Error finding tasks by project code:', error);
+      throw error;
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
   async updateTaskStatus(taskId: string,status:string): Promise<ITask[] | null> {
     try {
       return await this.repository.updateTaskStatus(taskId,status);
@@ -38,14 +59,7 @@ export default class TaskInteractor implements ITaskInteractor {
     }
   }
 
-  async createTask(data: Partial<ITask>): Promise<ITask> {
-    try {
-      return await this.repository.create(data);
-    } catch (error) {
-      console.error('Error finding tasks by project code:', error);
-      throw error;
-    }
-  }
+
 
   createRefreshToken(data: Partial<IRefreshToken>): Promise<IRefreshToken> {
     throw new Error('Method not implemented.');

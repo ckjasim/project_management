@@ -9,7 +9,10 @@ import IEmailService from '../infrastructure/interfaces/IEmailService';
 import { SessionData } from 'express-session';
 import { validationResult } from 'express-validator';
 import IUser from '../infrastructure/interfaces/IUser';
-import { Types } from 'mongoose';
+import { ObjectId, Types } from 'mongoose';
+import { UserCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
+import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
+import { Producer } from 'kafkajs';
 
 @injectable()
 class userAuthController implements IUserController {
@@ -192,7 +195,20 @@ class userAuthController implements IUserController {
       };
 
       const newUser =await this.interactor.createUser(data);
-      console.log(newOrganization._id,'lklklklk-----------------------------------')
+      console.log(newUser)
+
+      if (newUser) {
+        console.log("hi");
+        
+        await new UserCreatedPublisher(kafkaWrapper.producer as Producer).produce({
+          _id: newUser._id! as string,
+          name: name as string,
+          email: email as string,
+          organization:newUser.organization as unknown as string,
+          role: role! as string,
+          password:newUser.password
+        })
+        }
       const tokenData = { 
         _id:newUser._id,
         email,

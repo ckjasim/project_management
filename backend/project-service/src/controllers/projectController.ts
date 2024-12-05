@@ -202,7 +202,6 @@ class ProjectController implements IProjectController {
         return res.status(401).json({ message: 'Invalid or expired token' });
       }
 
-      console.log(decodedData, '123123123213123123123213213');
       const { user } = decodedData;
       const projectCode = user?.projectCode;
 

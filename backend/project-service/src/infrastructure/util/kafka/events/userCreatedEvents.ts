@@ -1,5 +1,4 @@
 
-import { ObjectId } from "mongoose";
 import { Topics } from "../topics/topics";
 
 export interface UserCreateEvent {

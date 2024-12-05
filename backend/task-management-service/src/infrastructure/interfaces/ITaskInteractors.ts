@@ -3,7 +3,11 @@ import ITask from './ITask';
 
 export interface ITaskInteractor {
   createTask(data: Partial<ITask>): Promise<ITask>; 
-  getTaskByProjectCode(projectCode: string): Promise<ITask[] | null>; 
+  getTasksByTeam(projectCode: string): Promise<ITask[] | null>; 
+
+
+
+  
   updateTaskStatus(taskId: any, status: any): unknown;
   updateTask(id: string,data: Partial<ITask>): Promise<void >;
   deleteTask(id: string): Promise<void>;

@@ -18,7 +18,7 @@ const teamSchema = new Schema<ITeam>({
   },
   members: [{ 
     type: Schema.Types.ObjectId, 
-    ref: 'User' 
+    ref: 'Employee' 
   }],
   eventHistory: { type: Object, default: {} },
 }, { timestamps: true });

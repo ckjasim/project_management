@@ -7,7 +7,6 @@ interface Events {
 }
 
 export  abstract class Publisher<T extends Events> {
-
     abstract topic: T['topic'];
     protected producer: Producer;
     constructor(producer: Producer){
@@ -15,7 +14,6 @@ export  abstract class Publisher<T extends Events> {
     };
     async produce(data: T['data']): Promise<void>{
         try {
-            console.log(data,'jh-------------')
             await this.producer.send({
                 topic: this.topic,
                 messages: [
