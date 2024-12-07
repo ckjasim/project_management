@@ -16,7 +16,7 @@ const taskSchema = new Schema<ITask>({
   description: { type: String },
   assignedTo: { 
     type: Schema.Types.ObjectId, 
-    ref: 'User' 
+    ref: 'Employee' 
   },
   status: { 
     type: String, 

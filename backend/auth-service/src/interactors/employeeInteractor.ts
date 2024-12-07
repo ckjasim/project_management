@@ -87,7 +87,8 @@ export default class EmployeeInteractor implements IEmployeeInteractor {
       throw error;
     }
   }
-  
+
+
   async comparePassword(password: string, hashPassword: string) {
     try {
       return bcrypt.compareSync(password, hashPassword);
@@ -96,6 +97,32 @@ export default class EmployeeInteractor implements IEmployeeInteractor {
       throw error;
     }
   }
+
+
+
+  async findUserByEmailForLogin(email: string): Promise<IEmployee | null> {
+    try {
+      return await this.repository.findByEmailForLogin(email);
+    } catch (error) {
+      console.error('Error finding user by email:', error);
+      throw error;
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   async saveOtp(data: IOtp): Promise<IOtp> {
     try {
       return await this.otpRepo.create(data);

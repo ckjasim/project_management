@@ -13,7 +13,6 @@ import CloudinaryV2 from '../infrastructure/util/cloudinary';
 import { EmployeeCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
 import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
 import { Producer } from 'kafkajs';
- 
 
 @injectable()
 class EmployeeAuthController implements IEmployeeController {
@@ -53,7 +52,6 @@ class EmployeeAuthController implements IEmployeeController {
     res: Response,
     next: NextFunction
   ): Promise<any> {
-
     const { name, jobRole, email } = req.body;
     const token = req.cookies['jwt'];
     if (!token) {
@@ -68,7 +66,6 @@ class EmployeeAuthController implements IEmployeeController {
 
     const { user } = decodedData;
 
-
     const existingEmployee = await this.interactor.findUserByEmail(
       email,
       user.organization
@@ -79,7 +76,7 @@ class EmployeeAuthController implements IEmployeeController {
         message: 'Employee with this email already exists in your organization',
       });
     }
-console.log('qqqqqqqqqqqqqqq')
+    console.log('qqqqqqqqqqqqqqq');
     const existingInvitation = await this.interactor.findInvitationByEmail(
       email,
       user.organization
@@ -87,7 +84,7 @@ console.log('qqqqqqqqqqqqqqq')
     if (existingInvitation) {
       return res.status(400).json({
         message: 'Invitation is already send to this email',
-      })
+      });
     }
 
     console.log(existingInvitation, 'existing------employee');
@@ -103,8 +100,6 @@ console.log('qqqqqqqqqqqqqqq')
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     };
     const invitation = await this.interactor.createInvitation(invitationData);
-
-  
 
     const invitationLink = `http://localhost:5173/auth/employeeSignup?token=${invitationToken}`;
     console.log(invitationLink);
@@ -132,8 +127,8 @@ console.log('qqqqqqqqqqqqqqq')
           .json({ message: 'validation error', errors: errors.array() });
       }
       console.log(req.body);
-      const { email, password, projectCode } = req.body;
-      const user = await this.interactor.findUserByEmail(email, projectCode);
+      const { email, password } = req.body;
+      const user = await this.interactor.findUserByEmailForLogin(email);
       if (!user) {
         res.status(400);
         throw new Error('User not found , Please create an account');
@@ -148,14 +143,10 @@ console.log('qqqqqqqqqqqqqqq')
         res.status(400);
         throw new Error('invalid password');
       }
-      const projectCodeSample = ['11111', '22222', '33333', 'FSJVE'];
-      if (!projectCodeSample.includes(projectCode)) {
-        res.status(400);
-        throw new Error('invalid project code');
-      }
+     
       const tokenData = {
-        email,
-        projectCode,
+        _id: user?._id,
+        email: user?.email,
         role: 'employee',
         organization: user?.organization,
       };
@@ -167,7 +158,6 @@ console.log('qqqqqqqqqqqqqqq')
       const refreshData = {
         email,
         token: refreshToken,
-
         expiresAt,
       };
       await this.interactor.createRefreshToken(refreshData);
@@ -188,22 +178,15 @@ console.log('qqqqqqqqqqqqqqq')
     try {
       console.log(req.body);
 
-      const {
-        password,
-        mobile,
-        token,
-        image,
-      } = req.body;
+      const { password, mobile, token, image } = req.body;
 
       const invitation = await this.interactor.findInvitation(token);
-
 
       if (!invitation) {
         return res.status(400).json({
           message: 'Invalid or expired invitation',
         });
       }
-      
 
       const existingEmployee = await this.interactor.findUserByEmail(
         invitation?.email,
@@ -215,56 +198,58 @@ console.log('qqqqqqqqqqqqqqq')
       }
 
       const result = await CloudinaryV2.uploader.upload(image, {
-        folder: "employee",
+        folder: 'employee',
       });
 
       const data = {
-        email:invitation?.email,
-        name:invitation?.name,
+        email: invitation?.email,
+        name: invitation?.name,
         password,
-        role:"employee",
+        role: 'employee',
         mobile,
-        jobRole:invitation?.jobRole,
-        organization:invitation?.organization?._id,
-      profileImage:{
-      public_id: result.public_id,
-      url: result.secure_url,
-    }
-  };
+        jobRole: invitation?.jobRole,
+        organization: invitation?.organization?._id,
+        profileImage: {
+          public_id: result.public_id,
+          url: result.secure_url,
+        },
+      };
 
       const newUser = await this.interactor.createUser(data);
-      console.log(newUser)
+      console.log(newUser);
 
- if (newUser) {
-        console.log("hi");
-        
-        await new EmployeeCreatedPublisher(kafkaWrapper.producer as Producer).produce({
+      if (newUser) {
+        console.log('hi');
+
+        await new EmployeeCreatedPublisher(
+          kafkaWrapper.producer as Producer
+        ).produce({
           _id: newUser._id! as string,
           name: newUser.name as string,
           email: newUser.email as string,
-          organization:newUser.organization as unknown as string,
+          organization: newUser.organization as unknown as string,
           role: newUser.role! as string,
-          password:newUser.password,
-          jobRole:newUser.jobRole as string,
-          mobile:newUser.mobile,
-          profileImage:{
-            public_id:result.public_id,
-            url:result.secure_url
-          }
-        })
-        }
+          password: newUser.password,
+          jobRole: newUser.jobRole as string,
+          mobile: newUser.mobile,
+          profileImage: {
+            public_id: result.public_id,
+            url: result.secure_url,
+          },
+        });
+      }
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
       const tokenData = {
-        _id:newUser?._id,
-        email:newUser?.email,
+        _id: newUser?._id,
+        email: newUser?.email,
         role: 'employee',
-        organization:newUser?.organization,
+        organization: newUser?.organization,
       };
 
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
       const refreshData = {
-        email:newUser?.email,
+        email: newUser?.email,
         token: refreshToken,
         expiresAt,
       };
@@ -283,7 +268,6 @@ console.log('qqqqqqqqqqqqqqq')
   }
   async verifyOtpHandler(req: Request, res: Response, next: NextFunction) {
     try {
-      
     } catch (error) {
       next(error);
     }
@@ -349,7 +333,7 @@ console.log('qqqqqqqqqqqqqqq')
       } catch (error) {
         return res.status(401).json({ message: 'Invalid or expired token' });
       }
-      
+
       const { user } = decodedData;
 
       const organization = user.organization;

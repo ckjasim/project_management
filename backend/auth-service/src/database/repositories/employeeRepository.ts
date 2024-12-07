@@ -16,6 +16,9 @@ constructor(){
 async findByEmail(email:String,organization:String){
   return await this.db.findOne({email,organization})
 }
+async findByEmailForLogin(email:String){
+  return await this.db.findOne({email})
+}
 async getEmployee(organization:String){
   console.log('db')
   return await this.db.find({organization})

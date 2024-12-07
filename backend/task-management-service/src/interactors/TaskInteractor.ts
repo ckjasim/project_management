@@ -6,19 +6,28 @@ import { ITaskInteractor } from '../infrastructure/interfaces/ITaskInteractors';
 import ITask from '../infrastructure/interfaces/ITask';
 import IRefreshToken from '../infrastructure/interfaces/IRefreshToken';
 import IJwt from '../infrastructure/interfaces/IJwt';
+import IProjectRepository from '../infrastructure/interfaces/IProjectRepository';
+import ITeamRepository from '../infrastructure/interfaces/ITeamRepository';
 
 @injectable()
 export default class TaskInteractor implements ITaskInteractor {
   private repository: ITaskRepository;
+  private teamRepo: ITeamRepository;
+  private projectRepo: IProjectRepository;
   private jwt: IJwt;
 
   constructor(
     @inject(INTERFACE_TYPES.TaskRepository) taskRepo: ITaskRepository,
+    @inject(INTERFACE_TYPES.TeamRepository) teamRepo: ITeamRepository,
+    @inject(INTERFACE_TYPES.ProjectRepository) projectRepo: IProjectRepository,
     @inject(INTERFACE_TYPES.jwt) jwt: IJwt,
   ) {
     this.repository = taskRepo;
+    this.teamRepo = teamRepo;
+    this.projectRepo = projectRepo;
     this.jwt = jwt;
   }
+
  
   async createTask(data: Partial<ITask>): Promise<ITask> {
     try {
@@ -29,9 +38,34 @@ export default class TaskInteractor implements ITaskInteractor {
     }
   }
 
-  async getTasksByTeam(teamId: string): Promise<ITask[] | null> {
+  async getTasksByTeam(teamId: string,projectId:string): Promise<ITask[] | null> {
     try {
-      return await this.repository.findByTeamId(teamId);
+      return await this.repository.findByTeamId(teamId,projectId);
+    } catch (error) {
+      console.error('Error finding tasks by project code:', error);
+      throw error;
+    }
+  }
+  async getTaskByProjectId(projectId: string,teamId:string): Promise<ITask[] | null> {
+    try {
+      return await this.repository.findByProjectId(projectId,teamId);
+    } catch (error) {
+      console.error('Error finding tasks by project code:', error);
+      throw error;
+    }
+  }
+
+  async getTeamIdByUserId(userId: string): Promise<any> {
+    try {
+      return await this.teamRepo.getTeamIdByUserId(userId);
+    } catch (error) {
+      console.error('Error finding tasks by project code:', error);
+      throw error;
+    }
+  }
+  async getProjectsByTeamId(teamId: string): Promise<any> {
+    try {
+      return await this.projectRepo.getProjectsByTeamId(teamId);
     } catch (error) {
       console.error('Error finding tasks by project code:', error);
       throw error;

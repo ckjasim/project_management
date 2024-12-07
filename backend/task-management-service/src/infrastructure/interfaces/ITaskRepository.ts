@@ -2,7 +2,8 @@ import ITask from './ITask';
 
 export default interface ITaskRepository {
   create(data: Partial<ITask>): Promise<ITask>;
-  findByTeamId(teamId: string): Promise<ITask[] | null>;
+  findByTeamId(teamId: string,projectId:string): Promise<ITask[] | null>;
+  findByProjectId(projectId: string,teamId:string): Promise<ITask[] | null>;
 
 
 

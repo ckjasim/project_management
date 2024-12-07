@@ -10,6 +10,10 @@ export interface IEmployeeInteractor {
   createUser(data: Partial<IEmployee>): Promise<IEmployee>; 
   createInvitation(data: Partial<IInvitation>): Promise<IInvitation>; 
   findUserByEmail(email: string,organization:string): Promise<IEmployee | null>;
+  findUserByEmailForLogin(email: string): Promise<IEmployee | null>;
+
+
+
   comparePassword(password:string,hashPassword:string):Promise<boolean>; 
   saveOtp(data:Partial<IOtp>):Promise<IOtp>; 
   getOtp(email:string):Promise<IOtp>

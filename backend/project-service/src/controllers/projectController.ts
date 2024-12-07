@@ -5,6 +5,9 @@ import { IProjectInteractor } from '../infrastructure/interfaces/IProjectInterac
 import IJwt from '../infrastructure/interfaces/IJwt';
 import IProjectController from '../infrastructure/interfaces/IProjectController';
 import { Types } from 'mongoose';
+import { ProjectCreatedPublisher, TeamCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
+import { Producer } from 'kafkajs';
+import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
 
 @injectable()
 class ProjectController implements IProjectController {
@@ -90,13 +93,10 @@ class ProjectController implements IProjectController {
     res: Response,
     next: NextFunction
   ): Promise<any> {
-    try {
-      console.log('prprprprpr');
-      console.log(req.body, 'dfdfdfdf');
+    try {;
       const { title, employees } = req.body.data;
 
       const token = req.cookies['jwt'];
-      console.log(token);
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
       }
@@ -119,11 +119,23 @@ class ProjectController implements IProjectController {
       };
 
       const createdTeam = await this.interactor.createTeam(data);
-   
+      
+      if (createdTeam) {
+        await new TeamCreatedPublisher(
+          kafkaWrapper.producer as Producer
+        ).produce({
+          _id:createdTeam._id as string,
+          name: createdTeam.name as string,
+          organization:createdTeam.organization,
+          projectManager:createdTeam.projectManager,
+          members:createdTeam.members 
+        });
+      }
+      console.log('sendeddddd')
 
       res
         .status(201)
-        .json({ message: 'Project created successfully', createdTeam });
+        .json({ message: 'Team created successfully', createdTeam });
     } catch (error) {
       next(error);
     }
@@ -159,6 +171,27 @@ class ProjectController implements IProjectController {
       };
 
       const createdProject = await this.interactor.createProject(data);
+      const {
+        projectManager,
+        startDate,
+        organization: org,
+        teams: tms,
+      } = createdProject;
+
+      if (createdProject) {
+        await new ProjectCreatedPublisher(
+          kafkaWrapper.producer as Producer
+        ).produce({
+          _id: createdProject._id! as string,
+          priority: priority as string,
+          description: description as string,
+          organization: org,
+          teams: tms,
+          projectManager: projectManager,
+          dueDate: dueDate as Date,
+          title: title,
+        });
+      }
 
       res
         .status(201)
@@ -173,10 +206,11 @@ class ProjectController implements IProjectController {
     next: NextFunction
   ): Promise<any> {
     try {
-      const id=Object.keys(req.body)
-      const teamId=id[0]
+      const id = Object.keys(req.body);
+      const teamId = id[0];
 
       const teamMembers = await this.interactor.getTeamMembersByTeamId(teamId);
+      console.log(teamMembers)
       res
         .status(200)
         .send({ message: 'projects successfully found', teamMembers });

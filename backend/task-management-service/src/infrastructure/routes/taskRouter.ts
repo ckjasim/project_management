@@ -10,6 +10,10 @@ const taskController = container.get<ITaskController>(INTERFACE_TYPES.TaskContro
 router.post('/task/createTask',taskController.createTaskHandler.bind(taskController))
 router.post('/task/getTaskByTeam',taskController.getTasksByTeamHandler.bind(taskController))
 
+router.get('/task/projectByTeam',taskController.getProjectByTeamHandler.bind(taskController))
+router.post('/task/taskByProjectId',taskController.getTaskByProjectIdHandler.bind(taskController))
+
+
 
 router.patch('/task/updateStatus',taskController.updateTaskStatusHandler.bind(taskController))
 router.patch('/task/updateTask',taskController.updateTaskHandler.bind(taskController))

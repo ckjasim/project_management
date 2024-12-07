@@ -1,13 +1,15 @@
 
 
 import { Publisher } from "../basePublisher";
-import { UserCreateEvent } from "../events/userCreatedEvents";
+import { ProjectCreateEvent } from "../events/ProjectCreateEvent";
+import { TeamCreateEvent } from "../events/teamCreatedEvents";
 import { Topics } from "../topics/topics";
 
 
-export class UserCreatedPublisher extends Publisher<UserCreateEvent>{
-    topic: Topics.userCreated = Topics.userCreated;
+
+export class ProjectCreatedPublisher extends Publisher<ProjectCreateEvent>{
+    topic: Topics.projectCreated = Topics.projectCreated;
 }
-export class EmployeeCreatedPublisher extends Publisher<UserCreateEvent>{
-    topic: Topics.userCreated = Topics.userCreated;
+export class TeamCreatedPublisher extends Publisher<TeamCreateEvent>{
+    topic: Topics.teamCreated = Topics.teamCreated;
 }

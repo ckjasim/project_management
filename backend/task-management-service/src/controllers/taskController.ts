@@ -29,7 +29,7 @@ class TaskController implements ITaskController {
   async createTaskHandler(req: Request, res: Response, next: NextFunction) {
     try {
       const createdTask = await this.interactor.createTask(req.body?.data);
-      console.log(createdTask, 'ppppppppppppppppppppppppppppp');
+
 
       res
         .status(201)
@@ -45,9 +45,78 @@ class TaskController implements ITaskController {
     next: NextFunction
   ): Promise<any> {
     try {
-      const teamId = Object.keys(req.body)[0];
-      const tasks = await this.interactor.getTasksByTeam(teamId);
+const {teamId,projectId}=req.body
+      const tasks = await this.interactor.getTasksByTeam(teamId,projectId);
       res.status(200).send({ message: 'Tasks successfully found', tasks });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+
+  async getTaskByProjectIdHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+
+const projectId=Object.keys(req.body)[0];
+
+const token = req.cookies['jwt'];
+if (!token) {
+  return res.status(401).json({ message: 'No token provided' });
+}
+let decodedData;
+try {
+  decodedData = await this.jwt.verifyRefreshToken(token);
+} catch (error) {
+  return res.status(401).json({ message: 'Invalid or expired token' });
+}
+const { user } = decodedData;
+const userId = user._id;
+console.log(userId)
+const teamId =await this.interactor.getTeamIdByUserId(userId)
+ 
+      const tasks=await this.interactor.getTaskByProjectId(projectId,teamId)
+      console.log(tasks)
+
+      res.status(200).send({ message: 'Tasks successfully found', tasks });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+
+
+  async getProjectByTeamHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+
+      const token = req.cookies['jwt'];
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
+      let decodedData;
+      try {
+        decodedData = await this.jwt.verifyRefreshToken(token);
+      } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+      }
+      const { user } = decodedData;
+      const userId = user._id;
+      console.log(userId)
+      const teamId =await this.interactor.getTeamIdByUserId(userId)
+      console.log(teamId,'tamid-------------------')
+      const projects=await this.interactor.getProjectsByTeamId(teamId)
+      console.log(projects)
+
+      res.status(200).send({ message: 'Tasks successfully found', projects });
     } catch (error) {
       next(error);
     }
@@ -68,7 +137,7 @@ class TaskController implements ITaskController {
 
 
 
-  
+
   async updateTaskStatusHandler(
     req: Request,
     res: Response,
