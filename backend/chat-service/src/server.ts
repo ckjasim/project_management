@@ -1,53 +1,53 @@
-import express, { urlencoded } from 'express';
-import "reflect-metadata";
+import express from 'express';
 import cors from 'cors';
-import { config } from "dotenv";
-import dbConnect from './database/dbConnect';
-import router from './infrastructure/routes/chatRouter';
-import { errorHandler } from './infrastructure/middleware/errorMiddleware';
+import { createServer } from 'http';
+import { Server, Socket  } from 'socket.io';
 import cookieParser from 'cookie-parser';
-import { Server } from 'socket.io';
-import http from 'http'; 
-import IChatController from './infrastructure/interfaces/IChatController';
-import container from './infrastructure/util/inversify';
-import INTERFACE_TYPES from './infrastructure/constants/inversify';
 
-config();
-dbConnect();
+
 
 const app = express();
+app.use(cors({ 
+  origin: 'http://localhost:5173', 
+  credentials: true 
+}));
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-
-const server = http.createServer(app);
-
-
+const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: 'http://localhost:5173',
+    methods: ['GET', 'POST'],
     credentials: true,
   },
 });
 
-app.use(cookieParser());
-app.use(
-  cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
-  })
-);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/api', router);
+const userSockets = new Map<string, string>();
 
-app.use(errorHandler);
+io.on('connection', (socket: Socket) => {
+  console.log('New user connected');
+  const userId = socket.handshake.query.userId
+  console.log('User connected with ID:', userId);
+  userSockets.set(userId as string,socket.id)
 
-const chatController = container.get<IChatController>(INTERFACE_TYPES.ChatController);
 
-io.on('connection', (socket) => {
-  chatController.initializeSocket(io, socket, () => {});
+socket.on('message',async (message)=>{console.log(message,'messagee-----------------')
+  const recipientSocketId = userSockets.get(message.recipientId);
+  if (recipientSocketId) {
+    io.to(recipientSocketId).emit('new_message', message); 
+  } else {
+    console.log(`Recipient ${message.recipientId} is not connected`);
+  }
+})
 });
 
 
-server.listen(3003, () => {
-  console.log('Listening on port 3003 http://localhost:3003');
+
+const PORT = 3003;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
+
+

@@ -1,3 +1,4 @@
+
 import { NextFunction } from "express";
 import { Server as SocketIOServer, Socket } from "socket.io";
 import { inject, injectable } from "inversify";
@@ -31,7 +32,7 @@ class ChatController implements IChatController {
     @inject(INTERFACE_TYPES.ChatInteractor) chatInteractor: ChatInteractor
   ) {
     this.chatInteractor = chatInteractor;
-   
+    
   }
 
   initializeSocketServer(server: any): SocketIOServer {
@@ -57,7 +58,6 @@ class ChatController implements IChatController {
   }
 
   initializeSocket(io: SocketIOServer, socket: Socket, next: NextFunction): void {
-    console.log('dddddddddddddd')
     console.log('New client connected');
 
     // User registration
@@ -70,6 +70,9 @@ class ChatController implements IChatController {
       }
 
       try {
+        // Optional: Use chatInteractor for user registration logic if needed
+        // await this.chatInteractor.registerUser(userId);
+
         // Store user's socket connection
         (socket as any).userId = userId;
         socket.join(userId);
@@ -78,6 +81,38 @@ class ChatController implements IChatController {
       } catch (error) {
         console.error('Registration error:', error);
         socket.emit('error', { message: 'Registration failed' });
+      }
+    });
+
+    // Join room
+    socket.on('join_room', async (roomId: string) => {
+      if (!roomId) {
+        socket.emit('error', { message: 'Room ID is required' });
+        return;
+      }
+
+      try {
+        socket.join(roomId);
+        console.log(`Socket joined room: ${roomId}`);
+      } catch (error) {
+        console.error('Join room error:', error);
+        socket.emit('error', { message: 'Failed to join room' });
+      }
+    });
+
+    // Leave room
+    socket.on('leave_room', async (roomId: string) => {
+      if (!roomId) {
+        socket.emit('error', { message: 'Room ID is required' });
+        return;
+      }
+
+      try {
+        socket.leave(roomId);
+        console.log(`Socket left room: ${roomId}`);
+      } catch (error) {
+        console.error('Leave room error:', error);
+        socket.emit('error', { message: 'Failed to leave room' });
       }
     });
 
