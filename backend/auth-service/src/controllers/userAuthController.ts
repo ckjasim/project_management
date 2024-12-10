@@ -283,7 +283,7 @@ class userAuthController implements IUserController {
   async logoutHandler(req: Request, res: Response, next: NextFunction) {
     try {
       const token = req.cookies.jwt;
-
+      console.log('looggggggggouuuuuuuuuuuuttttttttt')
       if (!token) {
         return res.status(401).json({ message: 'No active session found' });
       }
