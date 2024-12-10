@@ -1,9 +1,10 @@
-import { NextFunction } from "express";
-import { Server as SocketIOServer, Socket } from "socket.io";
+
 import { inject, injectable } from "inversify";
 import IChatController from "../infrastructure/interfaces/IChatController";
 import INTERFACE_TYPES from "../infrastructure/constants/inversify";
 import ChatInteractor from "../interactors/ChatInteractor";
+import { NextFunction, Request, Response } from "express";
+import IJwt from "../infrastructure/interfaces/IJwt";
 
 export interface Message {
   id: string;
@@ -16,113 +17,66 @@ export interface Message {
   recipientId?: string;
 }
 
-declare module 'socket.io' {
-  interface Socket {
-    userId?: string;
-  }
-}
 
 @injectable()
 class ChatController implements IChatController {
-  private io?: SocketIOServer;
   private chatInteractor: ChatInteractor;
+  private jwt: IJwt;
+
 
   constructor(
-    @inject(INTERFACE_TYPES.ChatInteractor) chatInteractor: ChatInteractor
+    @inject(INTERFACE_TYPES.ChatInteractor) chatInteractor: ChatInteractor,
+    @inject(INTERFACE_TYPES.jwt) jwt: IJwt,
   ) {
     this.chatInteractor = chatInteractor;
-   
+    this.jwt = jwt;
   }
 
-  initializeSocketServer(server: any): SocketIOServer {
-    this.io = new SocketIOServer(server, {
-      cors: {
-        origin: '*',
-        methods: ['GET', 'POST']
+
+  
+  async teamListByEmployeeHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const token = req.cookies['jwt'];
+     
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
       }
-    });
 
-    this.setupSocketListeners();
-    return this.io;
-  }
-
-  private setupSocketListeners(): void {
-    if (!this.io) {
-      throw new Error('Socket.IO server not initialized');
+      let decodedData;
+      try {
+        decodedData = await this.jwt.verifyRefreshToken(token);
+      } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+      }
+      const { user } = decodedData;
+      const employee = user?._id;
+      const teams = await this.chatInteractor.getTeamsByEmployee(
+        employee,
+        user?.organization
+      );
+      res.status(200).send({ message: 'Teams successfully found',teams });
+    } catch (error) {
+      next(error);
     }
-
-    this.io.on('connection', (socket: Socket) => {
-      this.initializeSocket(this.io!, socket, () => {});
-    });
+  }
+  async getChatsHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const chats = await this.chatInteractor.getChats();
+      console.log(chats)
+      res.status(200).send({ message: 'Teams successfully found',chats });
+    } catch (error) {
+      next(error);
+    }
   }
 
-  initializeSocket(io: SocketIOServer, socket: Socket, next: NextFunction): void {
-    console.log('dddddddddddddd')
-    console.log('New client connected');
-
-    // User registration
-    socket.on('register', async (data: { userId: string }) => {
-      const { userId } = data;
-      
-      if (!userId) {
-        socket.emit('error', { message: 'User ID is required' });
-        return;
-      }
-
-      try {
-        // Store user's socket connection
-        (socket as any).userId = userId;
-        socket.join(userId);
-
-        console.log(`User ${userId} registered`);
-      } catch (error) {
-        console.error('Registration error:', error);
-        socket.emit('error', { message: 'Registration failed' });
-      }
-    });
-
-    // Send message
-    socket.on('send_message', async (message: Message) => {
-      // Validate message
-      if (!message || !message.senderId) {
-        socket.emit('error', { message: 'Invalid message format' });
-        return;
-      }
-
-      try {
-        if (message.type === 'group' && message.roomId) {
-          // Broadcast to room
-          io.to(message.roomId).emit('new_message', message);
-        } else if (message.type === 'private' && message.recipientId) {
-          // Send to specific recipient
-          io.to(message.recipientId).emit('new_message', message);
-        } else {
-          socket.emit('error', { message: 'Invalid message type or recipient' });
-        }
-      } catch (error) {
-        console.error('Error sending message:', error);
-        socket.emit('error', { message: 'Failed to send message' });
-      }
-    });
-
-    // Handle disconnection
-    socket.on('disconnect', () => {
-      const userId = (socket as any).userId;
-      console.log(`Client disconnected: ${userId}`);
-    });
-
-    // Error handling
-    socket.on('error', (error) => {
-      console.error('Socket error:', error);
-    });
-
-    next();
-  }
-
-  // Optional: Method to get the Socket.IO server instance
-  getIO(): SocketIOServer | undefined {
-    return this.io;
-  }
 }
 
 export default ChatController;

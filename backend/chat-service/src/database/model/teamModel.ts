@@ -2,18 +2,25 @@ import mongoose, { Schema, Document, ObjectId } from "mongoose";
 
 import ITeam from "../../infrastructure/interfaces/ITeam";
 
-const teamSchema = new mongoose.Schema<ITeam>({
-  teamName: { type: String, required: [true, "Team name is required"] },
-  members: { type: [Schema.Types.String], required: true, default: [] },
+
+
+const teamSchema = new Schema<ITeam>({
+  name: { type: String, required: [true, "Team name is required"] },
+  organization: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'Organization', 
+    required: true 
+  },
+  projectManager: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  members: [{ 
+    type: Schema.Types.ObjectId, 
+    ref: 'Employee' 
+  }],
   eventHistory: { type: Object, default: {} },
-  createdAt: { type: Date, default: Date.now },
-  organization:{type: String, required: [true, "organization is required"] },
-  updatedAt: { type: Date, default: Date.now },
-});
+}, { timestamps: true });
 
-teamSchema.pre("save", function (next) {
-  this.updatedAt = new Date();
-  next();
-});
-
-export const TeamModel = mongoose.model<ITeam>("Team", teamSchema);
+export const TeamModel = mongoose.model('Team', teamSchema);

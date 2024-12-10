@@ -4,7 +4,7 @@ import { injectable } from 'inversify';
 
 import { ObjectId } from 'mongodb';
 import IProject from '../../infrastructure/interfaces/IProject';
-import IProjectRepository from '../../infrastructure/interfaces/IChatUserRepository';
+import IProjectRepository from '../../infrastructure/interfaces/IChatRepository';
 
 @injectable()
 export default class ProjectRepository implements IProjectRepository {

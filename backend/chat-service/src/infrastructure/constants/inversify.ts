@@ -1,5 +1,6 @@
 const INTERFACE_TYPES = {
-  ChatUserRepository: Symbol.for('ChatUserRepository'),
+  ChatRepository: Symbol.for('ChatRepository'),
+  TeamRepository: Symbol.for('TeamRepository'),
   ChatInteractor: Symbol.for(' ChatInteractor'),
   ChatController: Symbol.for(' ChatController'),
   jwt: Symbol.for('jwt'),
