@@ -13,7 +13,7 @@ import { TeamCreateEvent } from "../events/teamCreatedEvents";
 export class UserCreateConsumer extends KafkaConsumer<UserCreateEvent>{
  
     topic: Topics.userCreated = Topics.userCreated;
-    groupId: string = "user-created";
+    groupId: string = "user-created-for-chat";
     constructor(consumer:Consumer){
         super(consumer)
     }
@@ -31,7 +31,7 @@ export class UserCreateConsumer extends KafkaConsumer<UserCreateEvent>{
 export class EmployeeCreateConsumer extends KafkaConsumer<EmployeeCreateEvent>{
  
     topic: Topics.employeeCreated = Topics.employeeCreated;
-    groupId: string = "employee-created";
+    groupId: string = "employee-created-for-chat";
     constructor(consumer:Consumer){
         super(consumer)
     }
@@ -49,7 +49,7 @@ export class EmployeeCreateConsumer extends KafkaConsumer<EmployeeCreateEvent>{
 export class TeamCreateConsumer extends KafkaConsumer<TeamCreateEvent>{
 
     topic: Topics.teamCreated = Topics.teamCreated;
-    groupId: string = "team-created";
+    groupId: string = "team-created-for-chat";
     constructor(consumer:Consumer){
         super(consumer)
     }

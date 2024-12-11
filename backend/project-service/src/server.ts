@@ -19,8 +19,8 @@ async function start() {
     await kafkaWrapper.connect();
 
     // Create and connect consumer
-    const consumer = await kafkaWrapper.createConsumer('user-created');
-    const EmployeeConsumer = await kafkaWrapper.createConsumer('employee-created');
+    const consumer = await kafkaWrapper.createConsumer('user-created-for-project');
+    const EmployeeConsumer = await kafkaWrapper.createConsumer('employee-created-for-project');
     await consumer.connect();
     await EmployeeConsumer.connect();
     console.log("Consumer connected successfully");

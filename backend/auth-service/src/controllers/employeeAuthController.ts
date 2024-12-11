@@ -47,6 +47,8 @@ class EmployeeAuthController implements IEmployeeController {
     }
   }
 
+  
+
   async employeeInvitation(
     req: Request,
     res: Response,
@@ -76,7 +78,7 @@ class EmployeeAuthController implements IEmployeeController {
         message: 'Employee with this email already exists in your organization',
       });
     }
-    console.log('qqqqqqqqqqqqqqq');
+  
     const existingInvitation = await this.interactor.findInvitationByEmail(
       email,
       user.organization
@@ -86,8 +88,6 @@ class EmployeeAuthController implements IEmployeeController {
         message: 'Invitation is already send to this email',
       });
     }
-
-    console.log(existingInvitation, 'existing------employee');
 
     const invitationToken = uuidv4();
     const invitationData = {
@@ -118,14 +118,14 @@ class EmployeeAuthController implements IEmployeeController {
 
   async loginHandler(req: Request, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-      console.log(errors);
-      console.log(errors.array());
-      if (!errors.isEmpty()) {
-        res
-          .status(400)
-          .json({ message: 'validation error', errors: errors.array() });
-      }
+      // const errors = validationResult(req);
+      // console.log(errors);
+      // console.log(errors.array());
+      // if (!errors.isEmpty()) {
+      //   res
+      //     .status(400)
+      //     .json({ message: 'validation error', errors: errors.array() });
+      // }
       console.log(req.body);
       const { email, password } = req.body;
       const user = await this.interactor.findUserByEmailForLogin(email);
@@ -216,10 +216,10 @@ class EmployeeAuthController implements IEmployeeController {
       };
 
       const newUser = await this.interactor.createUser(data);
-      console.log(newUser);
+      
 
       if (newUser) {
-        console.log('hi');
+ 
 
         await new EmployeeCreatedPublisher(
           kafkaWrapper.producer as Producer
@@ -236,6 +236,7 @@ class EmployeeAuthController implements IEmployeeController {
             public_id: result.public_id,
             url: result.secure_url,
           },
+          projectManager:invitation.invitedBy as unknown as string,
         });
       }
       const expiresAt = new Date();
@@ -261,7 +262,7 @@ class EmployeeAuthController implements IEmployeeController {
         path: '/',
       });
 
-      res.status(201).json({ message: 'user created successfully', newUser });
+      res.status(201).json({ message: 'employee created successfully', newUser });
     } catch (error) {
       next(error);
     }

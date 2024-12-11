@@ -9,7 +9,7 @@ import dbConnect from './database/dbConnect';
 import kafkaWrapper from './infrastructure/util/kafka/kafkaWrapper';
 import {
   EmployeeCreateConsumer,
-  TeamCreateConsumer,
+  TaskCreateConsumer,
   UserCreateConsumer,
 } from './infrastructure/util/kafka/consumer/consumer';
 
@@ -17,37 +17,37 @@ import { config } from 'dotenv';
 import container from './infrastructure/util/inversify';
 import INTERFACE_TYPES from './infrastructure/constants/inversify';
 import { ChatModel } from './database/model/chatModel';
+import { notificationSockets } from './infrastructure/constants/socketStore';
 config();
 async function start() {
   try {
-    
     dbConnect();
     await kafkaWrapper.connect();
 
-
-    const UserConsumer = await kafkaWrapper.createConsumer('user-created');
-    
-    const EmployeeConsumer = await kafkaWrapper.createConsumer('employee-created');
-
-    const TeamConsumer = await kafkaWrapper.createConsumer('team-created');
+    const UserConsumer = await kafkaWrapper.createConsumer(
+      'user-created-for-notification'
+    );
+    const EmployeeConsumer = await kafkaWrapper.createConsumer(
+      'employee-created-for-notification'
+    );
+    const TaskConsumer = await kafkaWrapper.createConsumer(
+      'task-created-for-notification'
+    );
 
     await UserConsumer.connect();
     await EmployeeConsumer.connect();
-    await TeamConsumer.connect();
-    console.log("Consumer connected successfully");
+    await TaskConsumer.connect();
+    console.log('Consumer connected successfully');
 
     const listener = new UserCreateConsumer(UserConsumer);
-    console.log(listener)
     const listener2 = new EmployeeCreateConsumer(EmployeeConsumer);
-    console.log(listener2)
-    const listener3 = new TeamCreateConsumer(TeamConsumer);
-    console.log(listener3)
+    const listener3 = new TaskCreateConsumer(TaskConsumer);
 
-    await listener.listen(); // Start listening to messages
-    await listener2.listen(); // Start listening to messages
-    await listener3.listen(); // Start listening to messages
+    await listener.listen(); 
+    await listener2.listen(); 
+    await listener3.listen();
   } catch (error) {
-    console.error("Error starting consumer:", error);
+    console.error('Error starting consumer:', error);
   }
 }
 start();
@@ -72,7 +72,7 @@ export const io = new Server(server, {
   },
 });
 
-const notificationSockets = new Map<string, string>();
+
 
 io.on('connection', (socket: Socket) => {
   console.log('New user connected');
@@ -80,29 +80,14 @@ io.on('connection', (socket: Socket) => {
   console.log('User connected with ID:', userId);
   notificationSockets.set(userId as string, socket.id);
 
-  // socket.on('joinRoom', async (roomName) => {
-  //   socket.join(roomName);
-  //   console.log(`Socket ${socket.id} joined room ${roomName}`);
-  // });
+  console.log(notificationSockets)
 
-  // socket.on('message', async (message) => {
-  //   console.log(message, 'messagee-----------------');
-  //   try {
-  //     await ChatModel.create(message);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  //   if (message.type === 'private') {
-  //     const recipientSocketId = userSockets.get(message.recipientId);
-  //     if (recipientSocketId) {
-  //       io.to(recipientSocketId).emit('new_message', message);
-  //     } else {
-  //       console.log(`Recipient ${message.recipientId} is not connected`);
-  //     }
-  //   } else if (message.type === 'group') {
-  //     io.to(message.roomId).emit('new_message', message);
-  //   }
-  // });
+  socket.on('disconnect', () => {
+   
+    notificationSockets.delete(userId as string);
+    console.log(`User with ID ${userId} disconnected.`);
+  });
+
 });
 
 app.use('/api', router);

@@ -42,7 +42,6 @@ class EmployeeAuthController implements IEmployeeController {
     console.log(req.body,'kkkkkkkkkkkkkkkkkkk')
   const {name,jobRole,email}=req.body
   const token = req.cookies['jwt'];
-  console.log(token);
   if (!token) {
     return res.status(401).json({ message: 'No token provided' });
   }
@@ -54,12 +53,7 @@ class EmployeeAuthController implements IEmployeeController {
   }
 
   const { user } = decodedData;
-console.log(user,"user-----------------------")
-
-
   const existingEmployee = await this.interactor.findUserByEmail(email,user.organization)
-
-  console.log(existingEmployee,'existing------employee')
   if (existingEmployee) {
     return res.status(400).json({ 
       message: "Employee with this email already exists in your organization" 
@@ -76,7 +70,6 @@ console.log(user,"user-----------------------")
   }
   const invitation = await this.interactor.createInvitation(invitationData);
 
-  console.log(invitation,'jjjjjjjjjjaaaaaaaaaaaaasssssssssssiiiiiiiiiii')
 
   const invitationLink = `http://localhost:5173/auth/employeeSignup?token=${invitationToken}`;
   console.log(invitationLink)
@@ -93,70 +86,70 @@ console.log(user,"user-----------------------")
   res.send("email has been send into mail")
   }
 
-  async loginHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      console.log(errors);
-      console.log(errors.array());
-      if (!errors.isEmpty()) {
-        res
-          .status(400)
-          .json({ message: 'validation error', errors: errors.array() });
-      }
-      console.log(req.body);
-      const { email, password, projectCode } = req.body;
-      const user = await this.interactor.findUserByEmail(email,projectCode);
-      if (!user) {
-        res.status(400);
-        throw new Error('User not found , Please create an account');
-      }
+  // async loginHandler(req: Request, res: Response, next: NextFunction) {
+  //   try {
+  //     const errors = validationResult(req);
+  //     console.log(errors);
+  //     console.log(errors.array());
+  //     if (!errors.isEmpty()) {
+  //       res
+  //         .status(400)
+  //         .json({ message: 'validation error', errors: errors.array() });
+  //     }
+  //     console.log(req.body);
+  //     const { email, password, projectCode } = req.body;
+  //     const user = await this.interactor.findUserByEmail(email,projectCode);
+  //     if (!user) {
+  //       res.status(400);
+  //       throw new Error('User not found , Please create an account');
+  //     }
 
-      const comparePassword = await this.interactor.comparePassword(
-        password,
-        user.password
-      );
-      console.log(comparePassword);
-      if (!comparePassword) {
-        res.status(400);
-        throw new Error('invalid password');
-      }
-      const projectCodeSample = ['11111', '22222', '33333','FSJVE',];
-      if (!projectCodeSample.includes(projectCode)) {
-        res.status(400);
-        throw new Error('invalid project code');
-      }
-      const tokenData = {
-        email,
-        projectCode,
-        role: 'employee',
-        organization:user?.organization
+  //     const comparePassword = await this.interactor.comparePassword(
+  //       password,
+  //       user.password
+  //     );
+  //     console.log(comparePassword);
+  //     if (!comparePassword) {
+  //       res.status(400);
+  //       throw new Error('invalid password');
+  //     }
+  //     const projectCodeSample = ['11111', '22222', '33333','FSJVE',];
+  //     if (!projectCodeSample.includes(projectCode)) {
+  //       res.status(400);
+  //       throw new Error('invalid project code');
+  //     }
+  //     const tokenData = {
+  //       email,
+  //       projectCode,
+  //       role: 'employee',
+  //       organization:user?.organization
         
-      };
-      const token = this.jwt.generateToken(tokenData);
-      const refreshToken = this.jwt.generateRefreshToken(tokenData);
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 30);
+  //     };
+  //     const token = this.jwt.generateToken(tokenData);
+  //     const refreshToken = this.jwt.generateRefreshToken(tokenData);
+  //     const expiresAt = new Date();
+  //     expiresAt.setDate(expiresAt.getDate() + 30);
 
-      const refreshData = {
-        email,
-        token: refreshToken,
+  //     const refreshData = {
+  //       email,
+  //       token: refreshToken,
 
-        expiresAt,
-      };
-      await this.interactor.createRefreshToken(refreshData);
+  //       expiresAt,
+  //     };
+  //     await this.interactor.createRefreshToken(refreshData);
 
-      res.cookie('jwt', refreshToken, {
-        httpOnly: true,
-        maxAge: COOKIE_MAXAGE,
-        path: '/',
-      });
-      res
-        .status(200)
-        .json({ message: 'Successfully logged in', data: { user, token } });
-    } catch (error) {
-      next(error);
-    }
-  }
+  //     res.cookie('jwt', refreshToken, {
+  //       httpOnly: true,
+  //       maxAge: COOKIE_MAXAGE,
+  //       path: '/',
+  //     });
+  //     res
+  //       .status(200)
+  //       .json({ message: 'Successfully logged in', data: { user, token } });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
   async registerHandler(req: Request, res: Response, next: NextFunction) {
     try {
       console.log(req.body);

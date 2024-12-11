@@ -20,9 +20,9 @@ async function start() {
     await kafkaWrapper.connect();
 
 
-    const UserConsumer = await kafkaWrapper.createConsumer('user-created');
-    const EmployeeConsumer = await kafkaWrapper.createConsumer('employee-created');
-    const TeamConsumer = await kafkaWrapper.createConsumer('team-created');
+    const UserConsumer = await kafkaWrapper.createConsumer('user-created-for-chat');
+    const EmployeeConsumer = await kafkaWrapper.createConsumer('employee-created-for-chat');
+    const TeamConsumer = await kafkaWrapper.createConsumer('team-created-for-chat');
     await UserConsumer.connect();
     await EmployeeConsumer.connect();
     await TeamConsumer.connect();
@@ -32,9 +32,9 @@ async function start() {
     const listener2 = new EmployeeCreateConsumer(EmployeeConsumer);
     const listener3 = new TeamCreateConsumer(TeamConsumer);
 
-    await listener.listen(); // Start listening to messages
-    await listener2.listen(); // Start listening to messages
-    await listener3.listen(); // Start listening to messages
+    await listener.listen();
+    await listener2.listen(); 
+    await listener3.listen(); 
   } catch (error) {
     console.error("Error starting consumer:", error);
   }

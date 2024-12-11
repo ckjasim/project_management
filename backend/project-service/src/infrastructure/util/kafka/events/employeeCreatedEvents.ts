@@ -16,6 +16,7 @@ export interface EmployeeCreateEvent {
             public_id: string; 
             url: string;  
           };
+        projectManager:string  
 
     };
 }

@@ -19,17 +19,17 @@ async function start() {
     await kafkaWrapper.connect();
 
 
-    const ProjectConsumer = await kafkaWrapper.createConsumer('project-created');
-    const EmployeeConsumer = await kafkaWrapper.createConsumer('employee-created');
-    const TeamConsumer = await kafkaWrapper.createConsumer('team-created');
+    const TeamConsumer = await kafkaWrapper.createConsumer('team-created-for-task');
+    const ProjectConsumer = await kafkaWrapper.createConsumer('project-created-for-task');
+    const EmployeeConsumer = await kafkaWrapper.createConsumer('employee-created-for-task');
+    await TeamConsumer.connect();
     await ProjectConsumer.connect();
     await EmployeeConsumer.connect();
-    await TeamConsumer.connect();
     console.log("Consumer connected successfully");
 
+    const listener3 = new TeamCreateConsumer(TeamConsumer);
     const listener = new ProjectCreateConsumer(ProjectConsumer);
     const listener2 = new EmployeeCreateConsumer(EmployeeConsumer);
-    const listener3 = new TeamCreateConsumer(TeamConsumer);
 
     await listener.listen(); // Start listening to messages
     await listener2.listen(); // Start listening to messages

@@ -4,6 +4,9 @@ import INTERFACE_TYPES from '../infrastructure/constants/inversify';
 import ITaskController from '../infrastructure/interfaces/ITaskController';
 import { ITaskInteractor } from '../infrastructure/interfaces/ITaskInteractors';
 import IJwt from '../infrastructure/interfaces/IJwt';
+import { TaskCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
+import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
+import { Producer } from 'kafkajs';
 
 @injectable()
 class TaskController implements ITaskController {
@@ -29,7 +32,22 @@ class TaskController implements ITaskController {
   async createTaskHandler(req: Request, res: Response, next: NextFunction) {
     try {
       const createdTask = await this.interactor.createTask(req.body?.data);
-
+     const {  _id, project, team,title, description,assignedTo,status, priority,dueDate }=createdTask
+      if (createdTask) {
+        await new TaskCreatedPublisher(
+          kafkaWrapper.producer as Producer
+        ).produce({
+          _id:_id as string ,
+           project:project as unknown as string,
+            team :team as unknown as string,
+            title:title,
+             description:description,
+             assignedTo:assignedTo as unknown as string,
+             status:status,
+              priority:priority,
+              dueDate:dueDate
+        });
+      }
 
       res
         .status(201)

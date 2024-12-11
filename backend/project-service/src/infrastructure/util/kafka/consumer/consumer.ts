@@ -11,7 +11,7 @@ import { EmployeeCreateEvent } from "../events/employeeCreatedEvents";
 export class UserCreateConsumer extends KafkaConsumer<UserCreateEvent>{
  
     topic: Topics.userCreated = Topics.userCreated;
-    groupId: string = "user-created";
+    groupId: string = "user-created-for-project";
     constructor(consumer:Consumer){
         super(consumer)
     }
@@ -29,14 +29,16 @@ export class UserCreateConsumer extends KafkaConsumer<UserCreateEvent>{
 export class EmployeeCreateConsumer extends KafkaConsumer<EmployeeCreateEvent>{
  
     topic: Topics.employeeCreated = Topics.employeeCreated;
-    groupId: string = "employee-created";
+    groupId: string = "employee-created-for-project";
     constructor(consumer:Consumer){
         super(consumer)
     }
 
-    async onMessage(data: { _id: string; name: string; email: string; organization: string; role: string;  }): Promise<void> {
+    async onMessage(data: { _id: string; name: string; email: string; organization: string; role: string;  projectManager:string}): Promise<void> {
         try {
             console.log(data,'piippii--------------------')
+            // const {projectManager,...rest}=data
+            // console.log(rest,'ppppppppppppiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
             await EmployeeModel.create(data)
         } catch (error) {
             console.error('Error processing message:', error);

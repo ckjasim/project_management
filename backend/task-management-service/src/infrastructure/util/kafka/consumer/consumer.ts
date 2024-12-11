@@ -33,7 +33,7 @@ import { EmployeeModel } from "../../../../database/model/employeeModel";
 export class EmployeeCreateConsumer extends KafkaConsumer<EmployeeCreateEvent>{
  
     topic: Topics.employeeCreated = Topics.employeeCreated;
-    groupId: string = "employee-created";
+    groupId: string = "employee-created-for-task";
     constructor(consumer:Consumer){
         super(consumer)
     }
@@ -51,7 +51,7 @@ export class EmployeeCreateConsumer extends KafkaConsumer<EmployeeCreateEvent>{
 export class TeamCreateConsumer extends KafkaConsumer<TeamCreateEvent>{
 
     topic: Topics.teamCreated = Topics.teamCreated;
-    groupId: string = "team-created";
+    groupId: string = "team-created-for-task";
     constructor(consumer:Consumer){
         super(consumer)
     }
@@ -73,7 +73,7 @@ async onMessage(data: {_id: string;
 export class ProjectCreateConsumer extends KafkaConsumer<ProjectCreateEvent>{
  
     topic: Topics.projectCreated = Topics.projectCreated;
-    groupId: string = "project-created";
+    groupId: string = "project-created-for-task";
     constructor(consumer:Consumer){
         super(consumer)
     }
