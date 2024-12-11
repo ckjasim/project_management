@@ -10,6 +10,8 @@ import { TeamModel } from "../../../../database/model/teamModel";
 import { TaskCreateEvent } from "../events/taskCreatedEvents";
 import { io } from "../../../../server";
 import { notificationSockets } from "../../../constants/socketStore";
+import { ChatCreateEvent } from "../events/chatCreatedEvents";
+import { TeamCreateEvent } from "../events/teamCreatedEvents";
 
 
 export class UserCreateConsumer extends KafkaConsumer<UserCreateEvent>{
@@ -72,6 +74,68 @@ async onMessage(data: { _id:string;project: string;
             const employeeSocketId = notificationSockets.get(data?.assignedTo);
             if(employeeSocketId)
             io.to(employeeSocketId).emit('new_task', data); 
+        } catch (error) {
+            console.error('Error processing message:', error);
+            throw error;
+        }
+    }
+}
+export class ChatCreateConsumer extends KafkaConsumer<ChatCreateEvent>{
+
+    topic: Topics.chatCreated = Topics.chatCreated;
+    groupId: string = "chat-created-for-notification";
+    constructor(consumer:Consumer){
+        super(consumer)
+    }
+
+async onMessage(data: {  _id: string;
+    content: string,
+    id: string ,
+    recipientId: string,
+    roomId: string,
+    senderId: string,
+    senderName: string,
+    type:string}): Promise<void> {
+        try {
+            console.log(data,'piippii--------------------')
+            if(data.recipientId){
+                const chatSocketId = notificationSockets.get(data?.recipientId);
+                if(chatSocketId)
+                io.to(chatSocketId).emit('new_chat', data); 
+            }else{
+                const team= await TeamModel.findOne({_id:data.roomId})
+                team?.members.map((member)=>{
+                    if( member.toString() !== data.senderId){
+                    const groupSocketId=notificationSockets.get(member.toString());
+                    if(groupSocketId)
+                    io.to(groupSocketId).emit('new_chat', data); 
+                    }
+                })
+            }
+           
+        } catch (error) {
+            console.error('Error processing message:', error);
+            throw error;
+        }
+    }
+}
+
+export class TeamCreateConsumer extends KafkaConsumer<TeamCreateEvent>{
+
+    topic: Topics.teamCreated = Topics.teamCreated;
+    groupId: string = "team-created-for-notification";
+    constructor(consumer:Consumer){
+        super(consumer)
+    }
+
+async onMessage(data: {_id: string;
+    name: string,
+    organization: string,
+    projectManager: string,
+    members: any,}): Promise<void> {
+        try {
+            console.log(data,'piippii--------------------')
+            await TeamModel.create(data)
         } catch (error) {
             console.error('Error processing message:', error);
             throw error;

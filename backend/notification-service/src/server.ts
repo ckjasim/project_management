@@ -8,8 +8,10 @@ import router from './infrastructure/routes/chatRouter';
 import dbConnect from './database/dbConnect';
 import kafkaWrapper from './infrastructure/util/kafka/kafkaWrapper';
 import {
+  ChatCreateConsumer,
   EmployeeCreateConsumer,
   TaskCreateConsumer,
+  TeamCreateConsumer,
   UserCreateConsumer,
 } from './infrastructure/util/kafka/consumer/consumer';
 
@@ -33,19 +35,34 @@ async function start() {
     const TaskConsumer = await kafkaWrapper.createConsumer(
       'task-created-for-notification'
     );
+    const ChatConsumer = await kafkaWrapper.createConsumer(
+      'chat-created-for-notification'
+    );
+    const TeamConsumer = await kafkaWrapper.createConsumer(
+      'team-created-for-notification'
+    );
 
     await UserConsumer.connect();
     await EmployeeConsumer.connect();
     await TaskConsumer.connect();
+    await ChatConsumer.connect();
+    await TeamConsumer.connect();
     console.log('Consumer connected successfully');
 
     const listener = new UserCreateConsumer(UserConsumer);
     const listener2 = new EmployeeCreateConsumer(EmployeeConsumer);
     const listener3 = new TaskCreateConsumer(TaskConsumer);
+    const listener4 = new ChatCreateConsumer(ChatConsumer);
+    const listener5 = new TeamCreateConsumer
+    
+    
+    (TeamConsumer);
 
     await listener.listen(); 
     await listener2.listen(); 
     await listener3.listen();
+    await listener4.listen();
+    await listener5.listen();
   } catch (error) {
     console.error('Error starting consumer:', error);
   }

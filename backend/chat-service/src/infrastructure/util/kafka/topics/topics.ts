@@ -3,5 +3,6 @@ export enum Topics{
     employeeCreated = "employee-created",
     projectCreated = "project-created",
     teamCreated="team-created",
+    chatCreated="chat-created",
 
 }
