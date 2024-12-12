@@ -5,5 +5,6 @@ const INTERFACE_TYPES = {
   TeamRepository: Symbol.for('TeamRepository'),
   RefreshTokenRepository: Symbol.for('RefreshTokenRepository'),
   jwt: Symbol.for('jwt'),
+  Auth: Symbol.for('Auth'),
 };
 export default INTERFACE_TYPES;

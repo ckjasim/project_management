@@ -28,20 +28,8 @@ class ProjectController implements IProjectController {
     next: NextFunction
   ): Promise<any> {
     try {
-      const token = req.cookies['jwt'];
-      console.log(token);
-      if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
-      }
-
-      let decodedData;
-      try {
-        decodedData = await this.jwt.verifyRefreshToken(token);
-      } catch (error) {
-        return res.status(401).json({ message: 'Invalid or expired token' });
-      }
-
-      const { user } = decodedData;
+    
+      const user  = req.user;
       const projectManager = user?._id;
 
       const teams = await this.interactor.getTeamsByprojectManager(

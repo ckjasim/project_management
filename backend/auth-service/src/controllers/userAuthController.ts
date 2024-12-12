@@ -61,34 +61,39 @@ class userAuthController implements IUserController {
           .json({ message: 'User not found, please create an account' });
       }
 
-      const comparePassword = await this.interactor.comparePassword(
-        password,
-        user.password
-      );
-      if (!comparePassword) {
-        return res.status(400).json({ message: 'Invalid password' });
-      }
-    
-      const data = {
-        _id:user?._id,
-        email:user?.email,
-        role:'project manager',
-        organization:user?.organization
-      }
-      const token = this.jwt.generateToken(data);
+const comparePassword = await this.interactor.comparePassword(
+  password,
+  user.password
+);
+if (!comparePassword) {
+  return res.status(400).json({ message: 'Invalid password' });
+}
 
-      const refreshToken = this.jwt.generateRefreshToken(data);
 
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 30);
+const data = {
+  _id:user?._id,
+  email:user?.email,
+  role:'project manager',
+  organization:user?.organization
+}
 
-      const refreshData = {
-        email: user.email,
-        token: refreshToken,
-        expiresAt,
+const token = this.jwt.generateToken(data);
+
+
+const refreshToken = this.jwt.generateRefreshToken(data);
+
+
+const expiresAt = new Date();
+expiresAt.setDate(expiresAt.getDate() + 30);
+
+const refreshData = {
+  email: user.email,
+  token: refreshToken,
+  expiresAt,
       };
 
       await this.interactor.createRefreshToken(refreshData);
+
 
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
