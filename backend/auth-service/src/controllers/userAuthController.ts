@@ -29,7 +29,7 @@ class userAuthController implements IUserController {
     this.jwt = jwt;
     this.emailService = emailServ;
   }
- async authRole(req: Request, res: Response, next: NextFunction) {
+  async authRole(req: Request, res: Response, next: NextFunction) {
     try {
       const token = req.cookies['jwt'];
       if (!token) {
@@ -37,16 +37,16 @@ class userAuthController implements IUserController {
       }
 
       const decodedData = await this.jwt.verifyToken(token);
-      const {  role } = decodedData;
-      console.log(role,'zzzzzzzzzzz')
-      console.log(decodedData,'eeeeeeeeee')
+      const { role } = decodedData;
+      console.log(role, 'zzzzzzzzzzz');
+      console.log(decodedData, 'eeeeeeeeee');
       if (role) {
         res.json({ role });
-    } else {
+      } else {
         res.status(401).json({ message: 'Role not found' });
-    }
+      }
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
 
@@ -61,39 +61,35 @@ class userAuthController implements IUserController {
           .json({ message: 'User not found, please create an account' });
       }
 
-const comparePassword = await this.interactor.comparePassword(
-  password,
-  user.password
-);
-if (!comparePassword) {
-  return res.status(400).json({ message: 'Invalid password' });
-}
+      const comparePassword = await this.interactor.comparePassword(
+        password,
+        user.password
+      );
+      if (!comparePassword) {
+        return res.status(400).json({ message: 'Invalid password' });
+      }
 
+      const data = {
+        _id: user?._id,
+        email: user?.email,
+        role: 'project manager',
+        organization: user?.organization,
+      };
 
-const data = {
-  _id:user?._id,
-  email:user?.email,
-  role:'project manager',
-  organization:user?.organization
-}
+      const token = this.jwt.generateToken(data);
 
-const token = this.jwt.generateToken(data);
+      const refreshToken = this.jwt.generateRefreshToken(data);
 
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
 
-const refreshToken = this.jwt.generateRefreshToken(data);
-
-
-const expiresAt = new Date();
-expiresAt.setDate(expiresAt.getDate() + 30);
-
-const refreshData = {
-  email: user.email,
-  token: refreshToken,
-  expiresAt,
+      const refreshData = {
+        email: user.email,
+        token: refreshToken,
+        expiresAt,
       };
 
       await this.interactor.createRefreshToken(refreshData);
-
 
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
@@ -101,7 +97,9 @@ const refreshData = {
         path: '/',
         secure: process.env.NODE_ENV === 'production' || false,
       });
-
+console.log(
+  'loooooooooooogiiiiiiiiiiiiinnnnnnnnnnnnnnnn'
+)
       res
         .status(200)
         .json({ message: 'Successfully logged in', data: { user, token } });
@@ -124,7 +122,7 @@ const refreshData = {
         return;
       }
 
-      const { name, email, password,organization } = req.body;
+      const { name, email, password, organization } = req.body;
       const user = await this.interactor.findUserByEmail(email);
       if (user) {
         res
@@ -139,14 +137,14 @@ const refreshData = {
       const otpData = { otp, email };
       await this.interactor.saveOtp(otpData);
 
-      const org = organization.toLowerCase().replace(/\s+/g, '')
+      const org = organization.toLowerCase().replace(/\s+/g, '');
 
       const data = {
         name,
         email,
         password,
         role: 'project manager',
-        organization:org
+        organization: org,
       };
 
       const tempToken = this.jwt.generateToken(data, '10m');
@@ -168,92 +166,89 @@ const refreshData = {
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
       }
-
+  
       const decodedData = await this.jwt.verifyToken(token);
-      const { email, name, password, role ,organization} = decodedData;
-
+      const { email, name, password, role, organization } = decodedData;
+  
       const { otp } = req.body;
+      if (!otp) {
+        return res.status(400).json({ message: 'OTP is required' });
+      }
+  
       const storedOtp = await this.interactor.getOtp(email);
-      const compareOtp = await this.interactor.compareOtp(
-        otp,
-        storedOtp.otp.toString()
-      );
-      if (!compareOtp) {
+      if (!storedOtp) {
+        return res.status(400).json({ message: 'No OTP found for the user' });
+      }
+  
+      const isOtpValid = await this.interactor.compareOtp(otp, storedOtp.otp.toString());
+      if (!isOtpValid) {
         return res.status(400).json({ message: 'Invalid OTP' });
       }
-
+  
       const tenant = {
         name: organization,
-        email: email,
-        subscriptionTier: 'basic'
-      }
-      const newOrganization =await this.interactor.createOrganization(tenant);
-     
-      
-
-      const data: Partial<IUser> = {       
-        email, 
-        name, 
-        password, 
-        role, 
-        organization: newOrganization._id as Types.ObjectId 
+        email,
+        subscriptionTier: 'basic',
       };
-
-      const newUser =await this.interactor.createUser(data);
-      console.log(newUser)
-
+      const newOrganization = await this.interactor.createOrganization(tenant);
+  
+      const userData: Partial<IUser> = {
+        email,
+        name,
+        password,
+        role,
+        organization: newOrganization._id as Types.ObjectId,
+      };
+      const newUser = await this.interactor.createUser(userData);
+  
       if (newUser) {
-        console.log("hi");
-        
         await new UserCreatedPublisher(kafkaWrapper.producer as Producer).produce({
           _id: newUser._id! as string,
           name: name as string,
           email: email as string,
-          organization:newUser.organization as unknown as string,
+          organization: newUser.organization as unknown as string,
           role: role! as string,
-          password:newUser.password
-        })
-        }
-      const tokenData = { 
-        _id:newUser._id,
+          password: newUser.password,
+        });
+      }
+  
+      const tokenData = {
+        _id: newUser._id,
         email,
-       organization: newOrganization._id,
-        role:'project manager'
+        organization: newOrganization._id,
+        role: 'project manager',
       };
+      const accessToken = this.jwt.generateToken(tokenData);
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
-
+  
       const refreshData = {
         email,
         token: refreshToken,
         expiresAt,
       };
       await this.interactor.createRefreshToken(refreshData);
-
+  
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
         maxAge: COOKIE_MAXAGE,
         path: '/',
       });
-
-      // const userToken = this.jwt.generateToken(email);
-      // res.cookie('jwt', userToken, {
-      //   httpOnly: true,
-      //   maxAge: COOKIE_MAXAGE,
-      //   path: '/',
-      //   sameSite: 'lax',
-      // });
-
-      return res.status(201).json({ message: 'User created successfully',newUser });
+  
+      return res.status(200).json({
+        message: 'Successfully logged in',
+        data: { newUser, token: accessToken },
+      });
     } catch (error) {
       next(error);
     }
   }
+  
 
   async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log('jhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh');
+      
       const { jwt: refreshToken } = req.cookies;
       if (!refreshToken) {
         return res
@@ -262,7 +257,7 @@ const refreshData = {
       }
 
       const accessToken = await this.interactor.execute(refreshToken);
-      res.status(200).json({ accessToken });
+      res.status(200).json(accessToken);
     } catch (error) {
       next(error);
     }
@@ -288,7 +283,7 @@ const refreshData = {
   async logoutHandler(req: Request, res: Response, next: NextFunction) {
     try {
       const token = req.cookies.jwt;
-      console.log('looggggggggouuuuuuuuuuuuttttttttt')
+      console.log('looggggggggouuuuuuuuuuuuttttttttt');
       if (!token) {
         return res.status(401).json({ message: 'No active session found' });
       }

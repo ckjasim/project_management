@@ -21,6 +21,7 @@ export interface IEmployeeInteractor {
   createRefreshToken(data: Partial<IRefreshToken>): Promise<IRefreshToken>; 
   
   getEmployee(organization: string): Promise<IEmployee>;
+  getUser(organization: string): Promise<IEmployee>;
   execute(refreshToken: string): Promise<string>
 }
      

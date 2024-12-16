@@ -34,6 +34,7 @@ import IOrganizationRepository from "../interfaces/IOrganizationRepository"
 import organizationRepository from "../../database/repositories/organizationRepository"
 import IInvitationRepository from "../interfaces/IInvitationRepository"
 import InvitationRepository from "../../database/repositories/invitationRepository"
+import Auth from "../middleware/authMiddleware"
 
 const container = new Container()
 
@@ -55,7 +56,7 @@ container.bind<IAdminController>(INTERFACE_TYPES.AdminController).to(adminAuthCo
 container.bind<IOtpRepository>(INTERFACE_TYPES.OtpRepository).to(OtpRepository)
 container.bind<IJwt>(INTERFACE_TYPES.jwt).to(Jwt)
 container.bind<IEmailService>(INTERFACE_TYPES.NodeMailerService).to(NodeMailerService)
-
+container.bind<any>(INTERFACE_TYPES.Auth).to(Auth)
 
 
 export default container 

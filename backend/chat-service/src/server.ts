@@ -1,6 +1,6 @@
 import express from 'express';
 import 'reflect-metadata';
-import cors from 'cors';
+import cors from 'cors';  
 import { createServer } from 'http';
 import { Server, Socket  } from 'socket.io';
 import cookieParser from 'cookie-parser';
@@ -75,7 +75,7 @@ io.on('connection', (socket: Socket) => {
   })
 
 socket.on('message',async (message)=>{
-  console.log(message,'messagee-----------------')
+
 try {
  const chat= await ChatModel.create(message)
      
@@ -110,7 +110,7 @@ try {
 })
 });
 
-app.use('/api', router);
+app.use('/', router);
 
 const PORT = 3003;
 server.listen(PORT, () => {

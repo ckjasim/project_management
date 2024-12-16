@@ -22,7 +22,7 @@ const employeeSchema = new mongoose.Schema<IEmployee>(
     },
     organization: {
       type: Schema.Types.ObjectId,
-      ref: 'organization',
+      ref: 'Organization',
       required: [true, 'organization association is required'],
     },
     mobile: {

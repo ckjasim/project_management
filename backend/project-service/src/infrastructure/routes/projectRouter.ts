@@ -7,7 +7,7 @@ import Auth from '../middleware/authMiddleware';
 const controller = container.get<IProjectController>(INTERFACE_TYPES.ProjectController);
 const auth = container.get<Auth>(INTERFACE_TYPES.Auth); 
 
-const Router = express.Router();
+const Router = express.Router(); 
 
 
 const userAuth = auth.Auth(['project manager', 'admin']); 

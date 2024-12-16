@@ -6,5 +6,5 @@ export default interface IUserRepository {
   create(data: IUser): Promise<IUser>;
   find():Promise<IUser[]>
   blockOrUnblock(email: string): Promise<any> ;
-
+  getUser(organization:string):Promise<any>
 }

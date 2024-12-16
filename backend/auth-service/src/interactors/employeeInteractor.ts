@@ -22,12 +22,15 @@ export default class EmployeeInteractor implements IEmployeeInteractor {
   private repository: IEmployeeRepository;
   private refreshRepo: IRefreshTokenRepository;
   private otpRepo: IOtpRepository;
+  private userRepo: IUserRepository;
   private invitRepo: IInvitationRepository;
   private jwt: IJwt;
 
   constructor(
     @inject(INTERFACE_TYPES.EmployeeRepository)
     employeeRepo: IEmployeeRepository,
+    @inject(INTERFACE_TYPES.UserRepository)
+    userRepo: IUserRepository,
     @inject(INTERFACE_TYPES.OtpRepository) otpRepo: IOtpRepository,
     @inject(INTERFACE_TYPES.invitationRepository) invitRepo: IInvitationRepository,
     @inject(INTERFACE_TYPES.RefreshTokenRepository)
@@ -38,6 +41,7 @@ export default class EmployeeInteractor implements IEmployeeInteractor {
     this.refreshRepo = refreshRepo;
     this.invitRepo = invitRepo;
     this.otpRepo = otpRepo;
+    this.userRepo = userRepo;
     this.jwt = jwt;
   }
   async execute(refreshToken: string): Promise<string> {
@@ -163,6 +167,15 @@ export default class EmployeeInteractor implements IEmployeeInteractor {
     try {
       console.log('jjj')
       return await this.repository.getEmployee(organization);
+    } catch (error) {
+      console.error('Error getting employee by organization:', error);
+      throw error;
+    }
+  }
+  async getUser(organization:string): Promise<any> {
+    try {
+      console.log('jjj')
+      return await this.userRepo.getUser(organization);
     } catch (error) {
       console.error('Error getting employee by organization:', error);
       throw error;

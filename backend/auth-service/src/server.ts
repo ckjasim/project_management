@@ -27,7 +27,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 
 
-app.use('/api', router);
+app.use('/', router);
 
 
 app.use(errorHandler);

@@ -4,7 +4,7 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import cookieParser from 'cookie-parser';
-import router from './infrastructure/routes/chatRouter';
+import router from './infrastructure/routes/notificationRouter';
 import dbConnect from './database/dbConnect';
 import kafkaWrapper from './infrastructure/util/kafka/kafkaWrapper';
 import {
@@ -20,6 +20,7 @@ import container from './infrastructure/util/inversify';
 import INTERFACE_TYPES from './infrastructure/constants/inversify';
 import { ChatModel } from './database/model/chatModel';
 import { notificationSockets } from './infrastructure/constants/socketStore';
+
 config();
 async function start() {
   try {
@@ -79,6 +80,7 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/',router)
 
 const server = createServer(app);
 export const io = new Server(server, {

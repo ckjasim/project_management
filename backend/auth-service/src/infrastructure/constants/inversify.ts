@@ -22,6 +22,8 @@ const INTERFACE_TYPES = {
 
   OtpRepository:Symbol.for('OtpRepository'),
   jwt:Symbol.for('jwt'),
-  NodeMailerService:Symbol.for('NodeMailerService')
+  NodeMailerService:Symbol.for('NodeMailerService'),
+
+    Auth: Symbol.for('Auth'),
 }
 export default INTERFACE_TYPES 

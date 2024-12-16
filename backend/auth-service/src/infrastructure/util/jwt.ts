@@ -21,7 +21,7 @@ export default class Jwt implements IJwt {
     }
   }
 
-  generateToken(data: object | string, expiresIn: string = '10m'): string {
+  generateToken(data: object | string, expiresIn: string = '2m'): string {
     return jwt.sign(
       typeof data === 'string' ? { id: data } : data,
       this.secret,
@@ -31,7 +31,7 @@ export default class Jwt implements IJwt {
 
   generateRefreshToken(user: string) {
     const payload = { user };
-    return jwt.sign(payload, this.refreshSecret, { expiresIn: '1d' });
+    return jwt.sign(payload, this.refreshSecret, { expiresIn: '30d' });
   }
 
   async verifyToken(token: string): Promise<JwtPayload> {

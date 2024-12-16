@@ -47,8 +47,6 @@ class EmployeeAuthController implements IEmployeeController {
     }
   }
 
-  
-
   async employeeInvitation(
     req: Request,
     res: Response,
@@ -78,7 +76,7 @@ class EmployeeAuthController implements IEmployeeController {
         message: 'Employee with this email already exists in your organization',
       });
     }
-  
+
     const existingInvitation = await this.interactor.findInvitationByEmail(
       email,
       user.organization
@@ -118,14 +116,6 @@ class EmployeeAuthController implements IEmployeeController {
 
   async loginHandler(req: Request, res: Response, next: NextFunction) {
     try {
-      // const errors = validationResult(req);
-      // console.log(errors);
-      // console.log(errors.array());
-      // if (!errors.isEmpty()) {
-      //   res
-      //     .status(400)
-      //     .json({ message: 'validation error', errors: errors.array() });
-      // }
       console.log(req.body);
       const { email, password } = req.body;
       const user = await this.interactor.findUserByEmailForLogin(email);
@@ -143,7 +133,7 @@ class EmployeeAuthController implements IEmployeeController {
         res.status(400);
         throw new Error('invalid password');
       }
-     
+
       const tokenData = {
         _id: user?._id,
         email: user?.email,
@@ -216,11 +206,8 @@ class EmployeeAuthController implements IEmployeeController {
       };
 
       const newUser = await this.interactor.createUser(data);
-      
 
       if (newUser) {
- 
-
         await new EmployeeCreatedPublisher(
           kafkaWrapper.producer as Producer
         ).produce({
@@ -236,7 +223,7 @@ class EmployeeAuthController implements IEmployeeController {
             public_id: result.public_id,
             url: result.secure_url,
           },
-          projectManager:invitation.invitedBy as unknown as string,
+          projectManager: invitation.invitedBy as unknown as string,
         });
       }
       const expiresAt = new Date();
@@ -249,6 +236,7 @@ class EmployeeAuthController implements IEmployeeController {
       };
 
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
+      const accessToken = this.jwt.generateToken(tokenData);
       const refreshData = {
         email: newUser?.email,
         token: refreshToken,
@@ -262,7 +250,12 @@ class EmployeeAuthController implements IEmployeeController {
         path: '/',
       });
 
-      res.status(201).json({ message: 'employee created successfully', newUser });
+      return res
+        .status(200)
+        .json({
+          message: 'Successfully logged in',
+          data: { newUser, token: accessToken },
+        });
     } catch (error) {
       next(error);
     }
@@ -322,7 +315,7 @@ class EmployeeAuthController implements IEmployeeController {
     next: NextFunction
   ) {
     try {
-      console.log('81818181881');
+
       const token = req.cookies['jwt'];
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
@@ -340,10 +333,16 @@ class EmployeeAuthController implements IEmployeeController {
       const organization = user.organization;
 
       const employees = await this.interactor.getEmployee(organization);
+      const projectManager = await this.interactor.getUser(organization);
+      const employeesArray = Array.isArray(employees) ? employees : [employees];
+      const projectManagerArray = Array.isArray(projectManager)
+        ? projectManager
+        : [projectManager];
 
-      res
-        .status(200)
-        .send({ message: 'employees successfully found', employees });
+      const all = [...projectManagerArray,...employeesArray];
+
+
+      res.status(200).send({ message: 'employees successfully found', all });
     } catch (error) {
       next(error);
     }

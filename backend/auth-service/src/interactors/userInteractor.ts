@@ -38,8 +38,8 @@ export default class UserInteractor implements IUserInteractor {
   async execute(refreshToken: string): Promise<string> {
     const decoded = await this.jwt.verifyRefreshToken(refreshToken);
     if (!decoded) throw new Error('Invalid refresh token'); 
-  
-    const newAccessToken = this.jwt.generateToken(decoded.email);
+    console.log(decoded,'deddddddddddddddooooooooooooooooooooooo')
+    const newAccessToken = this.jwt.generateToken(decoded.user);
     return newAccessToken;
   }
 

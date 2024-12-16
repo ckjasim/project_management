@@ -27,7 +27,7 @@ async create(data:IEmployee){
   return await this.db.create(data)
 }
 async find(){
-  return await this.db.find()
+  return await this.db.find().populate('organization')
 }
 async block(id:string){
   return await this.db.findOneAndUpdate({_id :id},{$set:{isBlock:true}})

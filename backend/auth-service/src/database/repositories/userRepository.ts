@@ -21,7 +21,11 @@ async create(data:IUser){
   return await this.db.create(data)
 }
 async find(){
-  return await this.db.find()
+  return await this.db.find().populate('organization')
+}
+async getUser(organization:String){
+  console.log('db')
+  return await this.db.findOne({organization})
 }
 async blockOrUnblock(email:string){
   return await this.db.updateOne(

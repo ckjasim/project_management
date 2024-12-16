@@ -2,40 +2,53 @@ import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import IJwt from '../interfaces/IJwt';
 import INTERFACE_TYPES from '../constants/inversify';
-import { JwtPayload } from 'jsonwebtoken';
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User | undefined;
+    }
+  }
+}
 
 @injectable()
-class RoleChecker {
+class Auth {
   private jwt: IJwt;
 
   constructor(@inject(INTERFACE_TYPES.jwt) jwt: IJwt) {
     this.jwt = jwt;
   }
 
-  public checkRole(allowedRoles: string[]) {
-    return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-      const token = req.cookies.jwt; 
+  public Auth(allowedRoles: string[]) {
+    return async (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): Promise<void> => {
+      const token = req.headers.authorization?.split(' ')[1];
       if (!token) {
-        res.status(401).json({ message: 'Unauthorized' });
-        return; 
+        res.status(401).json({ message: 'Unauthorized: No token provided' });
+        return;
       }
 
       try {
-        const decoded = await this.jwt.verifyToken(token) as JwtPayload;
-
+        const decoded = await this.jwt.verifyToken(token);
+        console.log(decoded,'rolllllllleeeeeeeeeeeeeeeeeeee')
 
         if (!decoded.role || !allowedRoles.includes(decoded.role)) {
-          res.status(403).json({ message: 'Forbidden' });
-          return; 
+          res
+            .status(403)
+            .json({ message: 'Forbidden: Insufficient permissions' });
+          return;
         }
-
-        req.user = decoded; // Attach decoded user data to the request object
-        next(); // Proceed to the next middleware
+        req.user = decoded;
+        next();
       } catch (error) {
-        res.status(401).json({ message: 'Unauthorized' });
+        console.error('Error during token verification:', error);
+        res.status(401).json({ message: 'Unauthorized: Invalid token' });
       }
     };
   }
 }
 
-export default RoleChecker;
+export default Auth;
