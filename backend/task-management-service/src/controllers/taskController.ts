@@ -198,15 +198,15 @@ const teamId =await this.interactor.getTeamIdByUserId(userId)
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    try {
-      console.log(req.body);
+    try {  
+      console.log(req.body);  
       const { id, data } = req.body;
       console.log(id, 'rrrrrrrrrrrrrrrrrrrrrrrr');
-      const { title: topic, description, summary, dueDate } = data;
-      const task = { topic, description, summary, dueDate };
-      const tasks = await this.interactor.updateTask(id, task);
+      
+      const tasks = await this.interactor.updateTask(id, data);
+      console.log(tasks,'--------------ddd')
 
-      res.status(200).send({ message: 'Tasks successfully updated' });
+      res.status(200).send({ message: 'Tasks successfully updated',tasks });
     } catch (error) {
       next(error);
     }

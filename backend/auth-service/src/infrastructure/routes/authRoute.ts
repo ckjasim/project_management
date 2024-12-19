@@ -19,6 +19,7 @@ const auth = container.get<Auth>(INTERFACE_TYPES.Auth);
 
 const adminAuth = auth.Auth([ 'admin']);  
 const userAuth = auth.Auth(['project manager', 'admin']);  
+const all = auth.Auth(['project manager', 'admin','employee']);  
   
 
 
@@ -38,7 +39,7 @@ router.post('/employeeLogin', employeeController.loginHandler.bind(employeeContr
 router.post('/employeeRegister', employeeRegisterValidation, employeeController.registerHandler.bind(employeeController));
 router.post('/employeeOtp', employeeController.verifyOtpHandler.bind(employeeController));
 router.post('/resendEmpOtp', employeeController.resendOtp.bind(employeeController));
-router.get('/employeesByOrg',userAuth, employeeController.employeeByOrganization.bind(employeeController));
+router.get('/employeesByOrg',all, employeeController.employeeByOrganization.bind(employeeController));
 
 
 

@@ -6,10 +6,9 @@ import IUserController from '../infrastructure/interfaces/IUserController';
 import IJwt from '../infrastructure/interfaces/IJwt';
 import { COOKIE_MAXAGE } from '../infrastructure/constants/timeAndDuration';
 import IEmailService from '../infrastructure/interfaces/IEmailService';
-import { SessionData } from 'express-session';
 import { validationResult } from 'express-validator';
 import IUser from '../infrastructure/interfaces/IUser';
-import { ObjectId, Types } from 'mongoose';
+import {Types } from 'mongoose';
 import { UserCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
 import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
 import { Producer } from 'kafkajs';
@@ -38,8 +37,6 @@ class userAuthController implements IUserController {
 
       const decodedData = await this.jwt.verifyToken(token);
       const { role } = decodedData;
-      console.log(role, 'zzzzzzzzzzz');
-      console.log(decodedData, 'eeeeeeeeee');
       if (role) {
         res.json({ role });
       } else {
@@ -59,6 +56,10 @@ class userAuthController implements IUserController {
         return res
           .status(400)
           .json({ message: 'User not found, please create an account' });
+      }
+      if (user && user.isBlock===true) {
+        res.status(403);
+        throw new Error('You are blocked ');
       }
 
       const comparePassword = await this.interactor.comparePassword(
@@ -97,9 +98,7 @@ class userAuthController implements IUserController {
         path: '/',
         secure: process.env.NODE_ENV === 'production' || false,
       });
-console.log(
-  'loooooooooooogiiiiiiiiiiiiinnnnnnnnnnnnnnnn'
-)
+
       res
         .status(200)
         .json({ message: 'Successfully logged in', data: { user, token } });

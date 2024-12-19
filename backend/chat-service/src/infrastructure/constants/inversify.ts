@@ -4,5 +4,6 @@ const INTERFACE_TYPES = {
   ChatInteractor: Symbol.for(' ChatInteractor'),
   ChatController: Symbol.for(' ChatController'),
   jwt: Symbol.for('jwt'),
+Auth: Symbol.for('Auth'),
 };
 export default INTERFACE_TYPES;

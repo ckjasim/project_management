@@ -17,6 +17,7 @@ import { INotificationInteractor } from "../interfaces/INotificationInteractor";
 import NotificationInteractor from "../../interactors/NotificationInteractor";
 import INotificationController from "../interfaces/INotificationController";
 import NotificationController from "../../controllers/notificationController";
+import Auth from "../middleware/authMiddleware";
 
 const container = new Container()
 container.bind<ITeamRepository>(INTERFACE_TYPES.TeamRepository).to(TeamRepository)
@@ -27,6 +28,7 @@ container.bind<INotificationController>(INTERFACE_TYPES.NotificationController).
 
 
 container.bind<INotificationInteractor>(INTERFACE_TYPES.NotificationInteractor).to(NotificationInteractor)
+container.bind<any>(INTERFACE_TYPES.Auth).to(Auth)
 
 
 export default container 

@@ -10,26 +10,29 @@ import { ProjectModel } from "../../../../database/model/projectModel";
 import { TeamCreateEvent } from "../events/teamCreatedEvents";
 import { TeamModel } from "../../../../database/model/teamModel";
 import { EmployeeModel } from "../../../../database/model/employeeModel";
+import { employeeUpdatedEvent } from "../events/employeeUpdatedEvents";
+import { UserUpdatedEvent } from "../events/userUpdatedEvents";
+import { UserModel } from "../../../../database/model/userModel";
 
 
-// export class UserCreateConsumer extends KafkaConsumer<UserCreateEvent>{
+export class UserCreateConsumer extends KafkaConsumer<UserCreateEvent>{
  
-//     topic: Topics.userCreated = Topics.userCreated;
-//     groupId: string = "user-created";
-//     constructor(consumer:Consumer){
-//         super(consumer)
-//     }
+    topic: Topics.userCreated = Topics.userCreated;
+    groupId: string = "user-created-for-task";
+    constructor(consumer:Consumer){
+        super(consumer)
+    }
 
-//     async onMessage(data: { _id: string; name: string; email: string; organization: string; role: string;  }): Promise<void> {
-//         try {
-//             console.log(data,'popopo--------------------')
-//             await UserModel.create(data)
-//         } catch (error) {
-//             console.error('Error processing message:', error);
-//             throw error;
-//         }
-//     }
-// }
+    async onMessage(data: { _id: string; name: string; email: string; organization: string; role: string;  }): Promise<void> {
+        try {
+            console.log(data,'popopo--------------------')
+            await UserModel.create(data)
+        } catch (error) {
+            console.error('Error processing message:', error);
+            throw error;
+        }
+    }
+}
 export class EmployeeCreateConsumer extends KafkaConsumer<EmployeeCreateEvent>{
  
     topic: Topics.employeeCreated = Topics.employeeCreated;
@@ -91,6 +94,44 @@ export class ProjectCreateConsumer extends KafkaConsumer<ProjectCreateEvent>{
         try {
             console.log(data,'piippii--------------------')
             await ProjectModel.create(data)
+        } catch (error) {
+            console.error('Error processing message:', error);
+            throw error;
+        }
+    }
+}
+
+export class UserUpdatedConsumer extends KafkaConsumer<UserUpdatedEvent>{
+ 
+    topic: Topics.userUpdated = Topics.userUpdated;
+    groupId: string = "user-updated-for-chat";
+    constructor(consumer:Consumer){
+        super(consumer)
+    }
+
+    async onMessage(data: { _id: string; isBlock:any  }): Promise<void> {
+        try {
+            console.log(data,'popopo--------------------')
+            await UserModel.findOneAndUpdate({_id:data._id},{isBlock:data.isBlock})
+        } catch (error) {
+            console.error('Error processing message:', error);
+            throw error;
+        }
+    }
+}
+
+export class EmployeeUpdatedConsumer extends KafkaConsumer<employeeUpdatedEvent>{
+ 
+    topic: Topics.employeeUpdated = Topics.employeeUpdated;
+    groupId: string = "employee-updated-for-task";
+    constructor(consumer:Consumer){
+        super(consumer)
+    }
+
+    async onMessage(data: { _id: string; isBlock:any  }): Promise<void> {
+        try {
+            console.log(data,'popopo--------------------')
+            await EmployeeModel.findOneAndUpdate({_id:data._id},{isBlock:data.isBlock})
         } catch (error) {
             console.error('Error processing message:', error);
             throw error;

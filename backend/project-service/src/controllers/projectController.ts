@@ -29,7 +29,7 @@ class ProjectController implements IProjectController {
   ): Promise<any> {
     try {
     
-      const user  = req.user;
+      const user  = JSON.parse(req.headers['user'] as string)
       const projectManager = user?._id;
 
       const teams = await this.interactor.getTeamsByprojectManager(
@@ -267,7 +267,7 @@ class ProjectController implements IProjectController {
         .send({ message: 'projects successfully found', projects });
     } catch (error) {
       next(error);
-    }
+    }   
   }
   async updateProjectHandler(
     req: Request,

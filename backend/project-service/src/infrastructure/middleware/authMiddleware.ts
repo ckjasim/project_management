@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import IJwt from '../interfaces/IJwt';
 import INTERFACE_TYPES from '../constants/inversify';
+import { UserModel } from '../../database/model/userModel';
+import { EmployeeModel } from '../../database/model/employeeModel';
 
 declare global {
   namespace Express {
@@ -25,23 +27,31 @@ class Auth {
       res: Response,
       next: NextFunction
     ): Promise<void> => {
-      const token = req.headers.authorization?.split(' ')[1];
-      if (!token) {
-        res.status(401).json({ message: 'Unauthorized: No token provided' });
-        return;
-      }
-
       try {
-        const decoded = await this.jwt.verifyToken(token);
-
-        if (!decoded.role || !allowedRoles.includes(decoded.role)) {
-          res
-            .status(403)
-            .json({ message: 'Forbidden: Insufficient permissions' });
+console.log('editttt')
+        const{email,role}= JSON.parse(req.headers['user'] as string)
+   
+        if (!role || !allowedRoles.includes(role)) {
+          res.status(403).json({ message: 'Forbidden: Insufficient permissions', errorType: 'FORBIDDEN' });
           return;
         }
-        req.user = decoded;
-        next();
+    let user=null
+          if(role === 'project manager') {
+            user = await UserModel.findOne({ email });
+          } else if (role === 'employee') {
+            user = await EmployeeModel.findOne({ email });
+          }
+          
+          if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return 
+          }
+          
+          if (user.isBlock === true) {
+            res.status(403).json({ message: 'Forbidden: Blocked by admin', errorType: 'BLOCKED' });
+            return 
+          }
+  next()
       } catch (error) {
         console.error('Error during token verification:', error);
         res.status(401).json({ message: 'Unauthorized: Invalid token' });

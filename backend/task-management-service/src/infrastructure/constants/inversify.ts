@@ -15,6 +15,7 @@ const INTERFACE_TYPES = {
 
 
   jwt:Symbol.for('jwt'),
+  Auth:Symbol.for('Auth'),
 
 }
 export default INTERFACE_TYPES 

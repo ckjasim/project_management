@@ -9,28 +9,37 @@ import router from './infrastructure/routes/projectRouter';
 import { errorHandler } from './infrastructure/middleware/errorMiddleware';
 import cookieParser from 'cookie-parser'
 import kafkaWrapper from './infrastructure/util/kafka/kafkaWrapper';
-import { EmployeeCreateConsumer, UserCreateConsumer } from './infrastructure/util/kafka/consumer/consumer';
+import { EmployeeCreateConsumer, EmployeeUpdatedConsumer, UserCreateConsumer, UserUpdatedConsumer } from './infrastructure/util/kafka/consumer/consumer';
 
 config()
 async function start() {
   try {
-    // Ensure database and Kafka connections
+  
     dbConnect();
     await kafkaWrapper.connect();
 
-    // Create and connect consumer
     const consumer = await kafkaWrapper.createConsumer('user-created-for-project');
     const EmployeeConsumer = await kafkaWrapper.createConsumer('employee-created-for-project');
+    const UserUpdateConsumer = await kafkaWrapper.createConsumer('user-updated-for-project');
+    const EmployeeUpdateConsumer = await kafkaWrapper.createConsumer('employee-updated-for-project');
+    
     await consumer.connect();
     await EmployeeConsumer.connect();
+    await UserUpdateConsumer.connect();
+    await EmployeeUpdateConsumer.connect();
     console.log("Consumer connected successfully");
 
-    // Instantiate listener and subscribe to the topic
-    const listener = new UserCreateConsumer(consumer);
-    const listener2 = new EmployeeCreateConsumer(EmployeeConsumer);
+    
 
-    await listener.listen(); // Start listening to messages
-    await listener2.listen(); // Start listening to messages
+    const listener1= new UserUpdatedConsumer(UserUpdateConsumer);
+    const listener2= new EmployeeUpdatedConsumer(EmployeeUpdateConsumer);
+    const listener3= new UserCreateConsumer(consumer);
+    const listener4= new EmployeeCreateConsumer(EmployeeConsumer);
+
+    await listener1.listen(); 
+    await listener2.listen(); 
+    await listener3.listen(); 
+    await listener4.listen(); 
   } catch (error) {
     console.error("Error starting consumer:", error);
   }

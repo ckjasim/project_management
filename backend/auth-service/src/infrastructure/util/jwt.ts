@@ -21,7 +21,7 @@ export default class Jwt implements IJwt {
     }
   }
 
-  generateToken(data: object | string, expiresIn: string = '2m'): string {
+  generateToken(data: object | string, expiresIn: string = '10m'): string {
     return jwt.sign(
       typeof data === 'string' ? { id: data } : data,
       this.secret,

@@ -4,5 +4,6 @@ const INTERFACE_TYPES = {
   NotificationInteractor: Symbol.for(' NotificationInteractor'),
   NotificationController: Symbol.for(' NotificationController'),
   jwt: Symbol.for('jwt'),
+  Auth: Symbol.for('Auth'),
 };
 export default INTERFACE_TYPES;

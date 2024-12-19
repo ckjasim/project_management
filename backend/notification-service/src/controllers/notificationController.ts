@@ -6,6 +6,7 @@ import ChatInteractor from "../interactors/NotificationInteractor";
 import { NextFunction, Request, Response } from "express";
 import IJwt from "../infrastructure/interfaces/IJwt";
 import NotificationInteractor from "../interactors/NotificationInteractor";
+import INotificationController from "../infrastructure/interfaces/INotificationController";
 
 export interface Message {
   id: string;
@@ -20,7 +21,7 @@ export interface Message {
 
 
 @injectable()
-class NotificationController implements IChatController {
+class NotificationController implements INotificationController {
   private notificationInteractor: NotificationInteractor;
   private jwt: IJwt;
 

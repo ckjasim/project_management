@@ -12,6 +12,7 @@ import IJwt from "../interfaces/IJwt";
 import Jwt from "./jwt";
 import ITeamRepository from "../interfaces/ITeamRepository";
 import IProjectRepository from "../interfaces/IProjectRepository";
+import Auth from "../middleware/authMiddleware";
 
 const container = new Container()
 
@@ -22,5 +23,7 @@ container.bind<IProjectRepository>(INTERFACE_TYPES.ProjectRepository).to(Project
 // container.bind<IRefreshTokenRepository>(INTERFACE_TYPES.RefreshTokenRepository).to(refreshTokenRepository)
 container.bind<ITaskInteractor>(INTERFACE_TYPES.TaskInteractor).to(TaskInteractor)
 container.bind<IJwt>(INTERFACE_TYPES.jwt).to(Jwt)
+container.bind<any>(INTERFACE_TYPES.Auth).to(Auth)
+
 
 export default container 

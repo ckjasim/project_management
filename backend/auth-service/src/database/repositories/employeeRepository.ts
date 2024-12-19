@@ -37,16 +37,24 @@ async unBlock(id:string){
 }
 
 async blockOrUnblock(email:string){
-  return await this.db.updateOne(
-    { email },
+  const result = await this.db.findOneAndUpdate(
+    { email }, 
     [
-      { 
-        $set: { 
-          isBlock: { $eq: ["$isBlock", false] }
-        } 
-      }
-    ]
+      {
+        $set: {
+          isBlock: { $eq: ["$isBlock", false] }, 
+        },
+      },
+    ],
+    { returnDocument: 'after' } 
   );
+console.log(result)
+  if (result) {
+    return { _id:result._id, isBlock: result.isBlock };
+  } else {
+    throw new Error(`User with email ${email} not found`);
+  }
 }
+
 
 }

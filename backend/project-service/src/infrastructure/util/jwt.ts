@@ -4,8 +4,7 @@ import IJwt from '../interfaces/IJwt';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 config();
-console.log(process.env.JWT_SECRET,'access---------------------------   ')
-console.log(process.env.REFRESH_TOKEN_SECRET,'refresh----------------------')
+
 
 @injectable()
 export default class Jwt implements IJwt {
@@ -28,9 +27,7 @@ export default class Jwt implements IJwt {
     try {
       return (await jwt.verify(token, this.secret)) as JwtPayload;
     } catch (error:any) {
-      console.log(error,'errrrrrrrrorrrrrrrrrr--------------------')
       if (error.name === 'TokenExpiredError') {
-        console.log('token ppoyyyyyyyyyyyyyyyyyyyyiii')
         throw new Error('Token expired');
       }
       throw new Error('Invalid token');

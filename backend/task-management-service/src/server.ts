@@ -9,7 +9,7 @@ import router from './infrastructure/routes/taskRouter';
 import { errorHandler } from './infrastructure/middleware/errorMiddleware';
 import cookieParser from 'cookie-parser'
 import kafkaWrapper from './infrastructure/util/kafka/kafkaWrapper';
-import { EmployeeCreateConsumer, ProjectCreateConsumer, TeamCreateConsumer } from './infrastructure/util/kafka/consumer/consumer';
+import { EmployeeCreateConsumer, EmployeeUpdatedConsumer, ProjectCreateConsumer, TeamCreateConsumer, UserUpdatedConsumer } from './infrastructure/util/kafka/consumer/consumer';
 
 config()
 async function start() {
@@ -19,21 +19,31 @@ async function start() {
     await kafkaWrapper.connect();
 
 
+    const UserConsumer = await kafkaWrapper.createConsumer('user-created-for-task');
+    const UserUpdateConsumer = await kafkaWrapper.createConsumer('user-updated-for-task');
+    const EmployeeUpdateConsumer = await kafkaWrapper.createConsumer('employee-updated-for-task');
     const TeamConsumer = await kafkaWrapper.createConsumer('team-created-for-task');
     const ProjectConsumer = await kafkaWrapper.createConsumer('project-created-for-task');
     const EmployeeConsumer = await kafkaWrapper.createConsumer('employee-created-for-task');
     await TeamConsumer.connect();
     await ProjectConsumer.connect();
     await EmployeeConsumer.connect();
+    await UserConsumer.connect();
+    await EmployeeUpdateConsumer.connect();
+    await UserUpdateConsumer.connect();
     console.log("Consumer connected successfully");
 
+    const listener1= new UserUpdatedConsumer(UserUpdateConsumer);
+    const listener2= new EmployeeUpdatedConsumer(EmployeeUpdateConsumer);
     const listener3 = new TeamCreateConsumer(TeamConsumer);
-    const listener = new ProjectCreateConsumer(ProjectConsumer);
-    const listener2 = new EmployeeCreateConsumer(EmployeeConsumer);
+    const listener4= new ProjectCreateConsumer(ProjectConsumer);
+    const listener5 = new EmployeeCreateConsumer(EmployeeConsumer);
 
-    await listener.listen(); // Start listening to messages
-    await listener2.listen(); // Start listening to messages
-    await listener3.listen(); // Start listening to messages
+    await listener1.listen(); 
+    await listener2.listen(); 
+    await listener3.listen(); 
+    await listener4.listen(); 
+    await listener5.listen(); 
   } catch (error) {
     console.error("Error starting consumer:", error);
   }

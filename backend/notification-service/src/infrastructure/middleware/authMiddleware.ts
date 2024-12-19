@@ -2,35 +2,61 @@ import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import IJwt from '../interfaces/IJwt';
 import INTERFACE_TYPES from '../constants/inversify';
+import { UserModel } from '../../database/model/userModel';
+import { EmployeeModel } from '../../database/model/employeeModel';
+
+// declare global {
+//   namespace Express {
+//     interface Request {
+//       user?: any;
+//     }
+//   }
+// }
 
 @injectable()
-class RoleChecker {
+class Auth {
   private jwt: IJwt;
 
   constructor(@inject(INTERFACE_TYPES.jwt) jwt: IJwt) {
     this.jwt = jwt;
   }
 
-  public checkRole(allowedRoles: string[]) {
-    return async (req: Request, res: Response, next: NextFunction) => {
-      const token = req.cookies.jwt; // Get the JWT from cookies
-      if (!token) return res.status(401).json({ message: 'Unauthorized' });
-
+  public Auth(allowedRoles: string[]) {
+    return async (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): Promise<void> => {
       try {
-        const decoded = await this.jwt.verifyToken(token);
-        
-        if (!decoded.role || !allowedRoles.includes(decoded.role)) {
-          return res.status(403).json({ message: 'Forbidden' });
+        const{email,role}= JSON.parse(req.headers['user'] as string)
+   
+        if (!role || !allowedRoles.includes(role)) {
+          res.status(403).json({ message: 'Forbidden: Insufficient permissions', errorType: 'FORBIDDEN' });
+          return;
         }
-
-        // Attach decoded user data to the request object
-        req.user = decoded; // Ensure you've extended the Request interface to include user
-        next();
+    let user=null
+          if(role === 'project manager') {
+            user = await UserModel.findOne({ email });
+          } else if (role === 'employee') {
+            user = await EmployeeModel.findOne({ email });
+          }
+          
+          if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return 
+          }
+          
+          if (user.isBlock === true) {
+            res.status(403).json({ message: 'Forbidden: Blocked by admin', errorType: 'BLOCKED' });
+            return 
+          }
+  next()
       } catch (error) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        console.error('Error during token verification:', error);
+        res.status(401).json({ message: 'Unauthorized: Invalid token' });
       }
     };
   }
 }
 
-export default RoleChecker;
+export default Auth;

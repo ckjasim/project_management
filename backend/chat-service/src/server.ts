@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import router from './infrastructure/routes/chatRouter';
 import dbConnect from './database/dbConnect';
 import kafkaWrapper from './infrastructure/util/kafka/kafkaWrapper';
-import { EmployeeCreateConsumer, TeamCreateConsumer, UserCreateConsumer } from './infrastructure/util/kafka/consumer/consumer';
+import { EmployeeCreateConsumer, EmployeeUpdatedConsumer, TeamCreateConsumer, UserCreateConsumer, UserUpdatedConsumer } from './infrastructure/util/kafka/consumer/consumer';
 
 import { config } from 'dotenv';
 
@@ -24,19 +24,29 @@ async function start() {
 
     const UserConsumer = await kafkaWrapper.createConsumer('user-created-for-chat');
     const EmployeeConsumer = await kafkaWrapper.createConsumer('employee-created-for-chat');
+    const UserUpdateConsumer = await kafkaWrapper.createConsumer('user-updated-for-chat');
+    const EmployeeUpdateConsumer = await kafkaWrapper.createConsumer('employee-updated-for-chat');
     const TeamConsumer = await kafkaWrapper.createConsumer('team-created-for-chat');
     await UserConsumer.connect();
+    await UserUpdateConsumer.connect();
     await EmployeeConsumer.connect();
+    await EmployeeUpdateConsumer.connect();
     await TeamConsumer.connect();
     console.log("Consumer connected successfully");
 
-    const listener = new UserCreateConsumer(UserConsumer);
-    const listener2 = new EmployeeCreateConsumer(EmployeeConsumer);
-    const listener3 = new TeamCreateConsumer(TeamConsumer);
+    const listener1 = new UserCreateConsumer(UserConsumer);
+    const listener2= new UserUpdatedConsumer(UserUpdateConsumer);
+    const listener4= new EmployeeUpdatedConsumer(EmployeeUpdateConsumer);
+    const listener3 = new EmployeeCreateConsumer(EmployeeConsumer);
+    const listener5 = new TeamCreateConsumer(TeamConsumer);
+    
+   
 
-    await listener.listen();
+    await listener1.listen();
     await listener2.listen(); 
     await listener3.listen(); 
+    await listener4.listen(); 
+    await listener5.listen(); 
   } catch (error) {
     console.error("Error starting consumer:", error);
   }

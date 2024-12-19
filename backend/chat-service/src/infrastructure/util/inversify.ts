@@ -11,6 +11,7 @@ import ITeamRepository from "../interfaces/ITeamRepository";
 import TeamRepository from "../../database/repositories/teamRepository";
 import IChatRepository from "../interfaces/IChatRepository";
 import ChatRepository from "../../database/repositories/chatRepository";
+import Auth from "../middleware/authMiddleware";
 
 const container = new Container()
 container.bind<ITeamRepository>(INTERFACE_TYPES.TeamRepository).to(TeamRepository)
@@ -21,6 +22,7 @@ container.bind<IChatController>(INTERFACE_TYPES.ChatController).to(ChatControlle
 
 
 container.bind<IChatInteractor>(INTERFACE_TYPES.ChatInteractor).to(ChatInteractor)
+container.bind<any>(INTERFACE_TYPES.Auth).to(Auth)
 
 
 export default container 

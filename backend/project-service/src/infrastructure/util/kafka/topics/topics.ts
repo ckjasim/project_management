@@ -3,5 +3,7 @@ export enum Topics{
     employeeCreated = "employee-created",
     projectCreated = "project-created",
     teamCreated="team-created",
+    userUpdated = "user-updated",
+    employeeUpdated = "employee-updated",
 
 }

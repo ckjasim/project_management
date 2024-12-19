@@ -4,10 +4,8 @@ import INTERFACE_TYPES from '../infrastructure/constants/inversify';
 import IJwt from '../infrastructure/interfaces/IJwt';
 import { COOKIE_MAXAGE } from '../infrastructure/constants/timeAndDuration';
 import IEmailService from '../infrastructure/interfaces/IEmailService';
-import { SessionData } from 'express-session';
 import IEmployeeController from '../infrastructure/interfaces/IEmployeeController';
 import { IEmployeeInteractor } from '../infrastructure/interfaces/IEmployeeInteractors';
-import { validationResult } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import CloudinaryV2 from '../infrastructure/util/cloudinary';
 import { EmployeeCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
@@ -123,6 +121,11 @@ class EmployeeAuthController implements IEmployeeController {
         res.status(400);
         throw new Error('User not found , Please create an account');
       }
+      if (user && user.isBlock===true) {
+        res.status(403);
+        throw new Error('You are blocked ');
+      }
+     
 
       const comparePassword = await this.interactor.comparePassword(
         password,
@@ -338,8 +341,14 @@ class EmployeeAuthController implements IEmployeeController {
       const projectManagerArray = Array.isArray(projectManager)
         ? projectManager
         : [projectManager];
+        let all
 
-      const all = [...projectManagerArray,...employeesArray];
+      if(user.role==='employee'){
+        
+        all = [...projectManagerArray,...employeesArray];
+      }else{
+        all=employeesArray
+      }
 
 
       res.status(200).send({ message: 'employees successfully found', all });

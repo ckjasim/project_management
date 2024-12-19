@@ -9,6 +9,9 @@ import { SessionData } from 'express-session';
 import IAdminController from '../infrastructure/interfaces/IAdminController';
 import { IAdminInteractor } from '../infrastructure/interfaces/IAdminInteractors';
 import { validationResult } from 'express-validator';
+import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
+import { Producer } from 'kafkajs';
+import { EmployeeUpdatedPublisher, UserUpdatedPublisher } from '../infrastructure/util/kafka/producer/producer';
 
 @injectable()
 class adminAuthController implements IAdminController {
@@ -67,6 +70,7 @@ class adminAuthController implements IAdminController {
   }
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log('jjjjjjjjjjjjjjjjjjjjjjj')
       const users = await this.interactor.getAllUsers();
       if (!users) {
         res.status(400);
@@ -97,7 +101,15 @@ class adminAuthController implements IAdminController {
       const { email } = req.body;
 
       const employeeStatus = await this.interactor.manageEmployee(email);
+      console.log(employeeStatus);
 
+    
+      if (employeeStatus) {
+        await new EmployeeUpdatedPublisher(kafkaWrapper.producer as Producer).produce({
+          _id: employeeStatus?._id! as string,
+          isBlock:employeeStatus?.isBlock
+        });
+      }
       res.status(201).json({ message: 'employee Blocked', employeeStatus });
     } catch (error) {
       next(error);
@@ -106,14 +118,18 @@ class adminAuthController implements IAdminController {
   async manageUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = req.body;
-      console.log(email);
-
-      console.log('employeeStatus');
+     
       const employeeStatus = await this.interactor.manageUser(email);
-      console.log('employeeStatus');
       console.log(employeeStatus);
 
-      res.status(201).json({ message: 'employee Blocked', employeeStatus });
+      if (employeeStatus) {
+        await new UserUpdatedPublisher(kafkaWrapper.producer as Producer).produce({
+          _id: employeeStatus?._id! as string,
+          isBlock:employeeStatus.isBlock
+        });
+      }
+
+      res.status(201).json({ message: 'user Blocked', employeeStatus });
     } catch (error) {
       next(error);
     }

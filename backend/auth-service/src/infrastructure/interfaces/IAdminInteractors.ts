@@ -3,7 +3,7 @@ import IRefreshToken from './IRefreshToken';
 import IUser from './IUser';
 
 export interface IAdminInteractor {
-  manageEmployee(id: any): unknown;
+  manageEmployee(id: any): any;
   getAllUsers(): Promise<IUser[] | null>; 
   getAllEmployees(): Promise<IEmployee[] | null>; 
  manageUser(id: string): Promise<IUser | null>;
