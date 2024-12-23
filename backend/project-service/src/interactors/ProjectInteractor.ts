@@ -32,6 +32,13 @@ export default class ProjectInteractor implements IProjectInteractor {
       console.error('Error finding tasks by project code:', error);
       throw error;
     }  }
+ async updateTeamMembers(id:string,data: Partial<ITeam>): Promise<ITeam> {
+    try {
+      return await this.teamRepository.updateTeamMembers(id,data);
+    } catch (error) {
+      console.error('Error finding tasks by project code:', error);
+      throw error;
+    }  }
 
   async createProject(data: Partial<IProject>): Promise<IProject> {
     try {

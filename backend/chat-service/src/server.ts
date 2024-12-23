@@ -84,6 +84,41 @@ io.on('connection', (socket: Socket) => {
     console.log(`Socket ${socket.id} joined room ${roomName}`);
   })
 
+socket.on('file',async (message)=>{
+
+try {
+ const chat= await ChatModel.create(message)
+     
+ if (chat) {
+  await new ChatCreatedPublisher(
+    kafkaWrapper.producer as Producer 
+  ).produce({
+    _id:chat._id as string,
+    content:"photo",
+    id: chat.id as unknown as string,
+    recipientId:chat.recipientId as string,
+    roomId:chat.roomId as  string,
+    senderId:chat.senderId as string,
+    senderName:chat.senderName as string,
+    type: chat.type as unknown as string, 
+    
+  });
+}
+} catch (error) {
+  console.log(error)
+}
+  if(message.type==='private'){
+    const recipientSocketId = userSockets.get(message.recipientId);
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit('new_file', message); 
+    } else {
+      console.log(`Recipient ${message.recipientId} is not connected`);
+    }
+  }else if(message.type==="group"){
+    io.to(message.roomId).emit('new_file',message );
+  }
+
+})
 socket.on('message',async (message)=>{
 
 try {

@@ -76,6 +76,36 @@ class ProjectController implements IProjectController {
       next(error);
     }
   }
+  async addTeamMemberHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {;
+      console.log(req.body)
+     const {id,data}=req.body
+
+      const createdTeam = await this.interactor.updateTeamMembers(id, data.employees);
+      // if (createdTeam) {
+      //   await new TeamCreatedPublisher(
+      //     kafkaWrapper.producer as Producer
+      //   ).produce({
+      //     _id:createdTeam._id as string,
+      //     name: createdTeam.name as string,
+      //     organization:createdTeam.organization,
+      //     projectManager:createdTeam.projectManager,
+      //     members:createdTeam.members 
+      //   });
+      // }
+      // console.log('sendeddddd')
+
+      res
+        .status(201)
+        .json({ message: 'member added successfully', createdTeam });
+    } catch (error) {
+      next(error);
+    }
+  }
   async createTeamHandler(
     req: Request,
     res: Response,

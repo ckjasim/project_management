@@ -11,6 +11,7 @@ export interface IProjectInteractor {
   getTeamMembersByTeamId(projectCode:string):  Promise<ITeam[] | null>;
   
   createTeam(data:Partial<ITeam>):  Promise<ITeam>;
+  updateTeamMembers(id:string,data:Partial<ITeam>):  Promise<ITeam>;
   getTeamsByprojectManager(projectManager:string,organization:string): Promise<ITeam[] | null>;
   getTeamsByProject(projectId:string,organization:string): Promise<ITeam[] | null>;
 }

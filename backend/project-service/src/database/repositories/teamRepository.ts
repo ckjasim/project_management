@@ -42,6 +42,22 @@ export default class TeamRepository implements ITeamRepository {
     }
   }
 
+  async updateTeamMembers(id: string, data: any) {
+    try {
+      const updatedProject = await this.db.findByIdAndUpdate(
+        id, 
+        { $addToSet: { members: { $each: data } } }, 
+        { new: true } 
+      ).populate('members');
+      return updatedProject;
+    } catch (error) {
+      console.error('Error updating team members:', error);
+      throw error; 
+    }
+  }
+  
+  
+
   async delete(id: string) {
     return await this.db.findByIdAndDelete(id);
   }

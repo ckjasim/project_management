@@ -21,6 +21,7 @@ Router.patch('/project/delete',userAuth, controller.deleteProjectHandler.bind(co
 Router.get('/project/teamList', userAuth, controller.getTeamsHandler.bind(controller));
 Router.post('/project/teamsByProject', userAuth, controller.getTeamsByProjectHandler.bind(controller));
 Router.post('/project/createTeam',userAuth, controller.createTeamHandler.bind(controller));
+Router.post('/project/addTeamMember',userAuth, controller.addTeamMemberHandler.bind(controller));
 Router.get('/project/singleProject', userAuth, controller.getProjectByProjectCodeHandler.bind(controller));
 Router.post('/project/teamMembers', userAuth, controller.getTeamMembersByTeamIdHandler.bind(controller));
 

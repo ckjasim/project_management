@@ -11,5 +11,6 @@ export default interface IProjectController {
   deleteProjectHandler(req: Request, res: Response, next: NextFunction): Promise<void>;
   
   createTeamHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
+  addTeamMemberHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
   getTeamsHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
 }

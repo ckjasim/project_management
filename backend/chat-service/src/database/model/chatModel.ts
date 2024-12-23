@@ -15,6 +15,7 @@ const chatSchema = new Schema<IChat>({
   type: { 
     type: String, 
     enum: ['group', 'private'] 
-  }
+  },
+  isImage:{type:Boolean,default:false }
 })
 export const ChatModel = mongoose.model('Chat', chatSchema);
