@@ -17,6 +17,7 @@ const services = {
     task: "http://localhost:3001",
     chat: "http://localhost:3003",
     notification: "http://localhost:3004",
+    meeting: "http://localhost:3005",
 };
 
 app.use(
@@ -53,6 +54,11 @@ app.use(
     "/notification",
     authMiddleware(["admin", "project manager","employee"]),
     createProxyMiddleware({ target: services.notification, changeOrigin: true })
+);
+app.use(
+    "/meeting",
+    authMiddleware(["admin", "project manager","employee"]),
+    createProxyMiddleware({ target: services.meeting, changeOrigin: true })
 );
 
 app.listen(process.env.PORT, () => {
