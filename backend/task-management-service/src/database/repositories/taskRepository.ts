@@ -68,6 +68,8 @@ export default class TaskRepository implements ITaskRepository {
 
   async delete(id: string) {
     const objectId = new ObjectId(id);
-    return await this.db.findByIdAndDelete(id);
+    const resp=await this.db.findByIdAndDelete({_id:id});
+    console.log(resp,'kkkkkkkkkkkkkkk')
+    return resp
   }
 }

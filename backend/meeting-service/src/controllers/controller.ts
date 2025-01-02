@@ -89,14 +89,14 @@ class Controller implements IController {
     next: NextFunction
   ): Promise<any> {
     try {
-
+console.log('meeet5tt')
       // const { _id, role } = JSON.parse(req.headers['user'] as string);
- const meetingId =req.body.data.meetingId
- console.log(meetingId)
-      const  dltMeetings = await this.interactor.deleteMeetingById(meetingId);
+ 
+      const  dltMeetings = await this.interactor.deleteMeetingById(req.body.meetingId);
+      console.log(dltMeetings,'llllllllllllllllllllllllllll')
       
 
-      res.status(200).send({ message: 'Meetings successfully found', dltMeetings });
+      res.status(200).send({ message: 'Meetings deleted successfully ', dltMeetings });
     } catch (error) {
       next(error);
     }

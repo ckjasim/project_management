@@ -7,6 +7,7 @@ import IUser from './IUser';
 export interface IUserInteractor {
   createUser(data: Partial<IUser>): Promise<IUser>; 
   createOrganization(data: Partial<IOrganization>): Promise<IOrganization>; 
+  getOrganizationById(id: string): Promise<IOrganization | null> ; 
   createRefreshToken(data: Partial<IRefreshToken>): Promise<IRefreshToken>; 
   findUserByEmail(email: string): Promise<IUser | null>;
   findUserById(id: string): Promise<IUser | null>;
@@ -15,6 +16,7 @@ export interface IUserInteractor {
   getOtp(email:string):Promise<IOtp>
   compareOtp(otp:string,hashOtp:string):Promise<boolean>; 
   execute(refreshToken: string): Promise<string>
+  updateSubscription(email: string): Promise<IOrganization | null>;
   findDriveByEmail(email: string): Promise<IDrive | null>;
   createDriveEntry(data: Partial<IDrive>): Promise<void>;
   updateDriveTokens(email: string, tokens: { accessToken: string; refreshToken: string }): Promise<void>;

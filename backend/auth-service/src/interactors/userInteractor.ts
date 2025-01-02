@@ -22,7 +22,7 @@ export default class UserInteractor implements IUserInteractor {
   private otpRepo: IOtpRepository;
   private refreshRepo: IRefreshTokenRepository;
   private jwt: IJwt;
-
+ 
   constructor(
     @inject(INTERFACE_TYPES.UserRepository) userRepo: IUserRepository,
     @inject(INTERFACE_TYPES.OrganizatonRepository) orgRepo: IOrganizationRepository,
@@ -65,6 +65,22 @@ export default class UserInteractor implements IUserInteractor {
   async createOrganization(data: IOrganization): Promise<IOrganization> {
     try {
       return await this.orgRepo.create(data);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
+  async getOrganizationById(id:string): Promise<IOrganization | null> {
+    try {
+      return await this.orgRepo.findById(id);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
+  async updateSubscription(email:string): Promise<IOrganization | null> {
+    try {
+      return await this.orgRepo.findOneAndUpdate(email);
     } catch (error) {
       console.error('Error creating user:', error);
       throw error;

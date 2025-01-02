@@ -303,21 +303,10 @@ class userAuthController implements IUserController {
     try {
   console.log('jsssssssddd')
       const email = Object.keys(req.body)[0];
-      const today = new Date();
-      const nextYearDate = new Date();
-      nextYearDate.setFullYear(today.getFullYear() + 1);
+    
 
-      const updateSub = await OrganizationModel.findOneAndUpdate(
-        { email },
-        {
-          $set: {
-            subscriptionTier: 'premium',
-            'billingInfo.renewalDate': nextYearDate,
-          },
-        },
-        { new: true } // Return the updated document
-      );
-  
+      const updateSub = await this.interactor.updateSubscription(email) 
+
       // if (!updateSub) {
       //   return res.status(404).json({ message: 'Organization not found' });
       // }
@@ -348,14 +337,15 @@ class userAuthController implements IUserController {
       const { organization } = decodedData.user;
   
 
-      const organizationData = await OrganizationModel.findOne({ _id: organization });
+      const organizationData =await this.interactor.getOrganizationById(organization)
+      // await OrganizationModel.findOne({ _id: organization });
   
       if (!organizationData) {
         return res.status(404).json({ message: 'Organization not found' });
       }
   
       const today = new Date();
-  
+  console.log(organizationData,'org-------------------------')
       if (
         organizationData.subscriptionTier === 'premium' &&
         organizationData.billingInfo &&
@@ -378,20 +368,20 @@ class userAuthController implements IUserController {
     }
   }
   async getAccessTokenHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-      const {organization}=req.body
+    // try {
+    //   const {organization}=req.body
   
             
-        const resp = await DriveModel.findOne({organization})
-        console.log(resp)
+    //     const resp = await DriveModel.findOne({organization})
+    //     console.log(resp)
   
-      return res.status(200).json({
-        message: 'Not a premium member or subscription expired',
-        accessToken: resp?.accessToken,
-      });
-    } catch (error) {
-      next(error);
-    }
+    //   return res.status(200).json({
+    //     message: 'Not a premium member or subscription expired',
+    //     accessToken: resp?.accessToken,
+    //   });
+    // } catch (error) {
+    //   next(error);
+    // }
   }
   
   

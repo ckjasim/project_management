@@ -239,9 +239,9 @@ const teamId =await this.interactor.getTeamIdByUserId(userId)
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    try {
+    try { 
       console.log(req.body);
-      const { id } = req.body.data;
+      const { id } = req.body;
       console.log(id, 'hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh');
       const tasks = await this.interactor.deleteTask(id);
 
