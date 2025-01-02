@@ -6,5 +6,6 @@ export default interface IChatRepository {
 
   create( data: Partial<IChat>): Promise<IChat>;
   getChats(): Promise<Partial<IChat>[]>; 
+  markRead(ids:any): any; 
 
 }

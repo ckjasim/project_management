@@ -17,16 +17,16 @@ const organizationSchema = new mongoose.Schema<IOrganization>({
   },
   subscriptionTier: {
     type: String,
-    enum: ['basic', 'pro', 'enterprise'],
+    enum: ['basic', 'premium'],
     default: 'basic'
   },
   isActive: {
     type: Boolean,
     default: true
   },
-  billingInfo: {
-    stripeCustomerId: String,
-    currentPlan: String,
+  billingInfo: { 
+    // stripeCustomerId: String,
+    // currentPlan: String,
     renewalDate: Date
   }
 }, { timestamps: true });

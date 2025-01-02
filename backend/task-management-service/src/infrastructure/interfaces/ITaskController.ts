@@ -5,7 +5,8 @@ export default interface ITaskController {
   createTaskHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
   getTasksByTeamHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
   getTaskByProjectIdHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
-
+  
+  addCommentsHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
 
   
   updateTaskStatusHandler(req: Request, res: Response, next: NextFunction): Promise<any>;

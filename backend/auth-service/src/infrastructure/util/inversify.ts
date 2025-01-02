@@ -25,7 +25,7 @@ import { IAdminInteractor } from "../interfaces/IAdminInteractors"
 import AdminInteractor from "../../interactors/adminInteractor"
 import { IEmployeeInteractor } from "../interfaces/IEmployeeInteractors"
 import { GoogleAuthService } from "./passport"
-import IGoogleAuthService from "../interfaces/IGoogleAuthService"
+import {IDriveAuthService, IGoogleAuthService} from "../interfaces/IGoogleAuthService"
 import IRefreshTokenRepository from "../interfaces/IRefreshTokenRepository"
 import refreshTokenRepository from "../../database/repositories/refreshTokenRepository"
 import IAdminController from "../interfaces/IAdminController"
@@ -35,6 +35,7 @@ import organizationRepository from "../../database/repositories/organizationRepo
 import IInvitationRepository from "../interfaces/IInvitationRepository"
 import InvitationRepository from "../../database/repositories/invitationRepository"
 import Auth from "../middleware/authMiddleware"
+import { DriveAuthService } from "./drivePassport"
 
 const container = new Container()
 
@@ -50,6 +51,7 @@ container.bind<IEmployeeInteractor>(INTERFACE_TYPES.EmployeeInteractor).to(Emplo
 
 container.bind<IUserController>(INTERFACE_TYPES.UserController).to(userAuthController);
 container.bind<IGoogleAuthService>(INTERFACE_TYPES.GoogleAuthService).to(GoogleAuthService);
+container.bind<IDriveAuthService>(INTERFACE_TYPES.DriveAuthService).to(DriveAuthService);
 container.bind<IEmployeeController>(INTERFACE_TYPES.EmployeeController).to(EmployeeAuthController);
 container.bind<IAdminController>(INTERFACE_TYPES.AdminController).to(adminAuthController);
 

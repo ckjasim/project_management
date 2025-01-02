@@ -326,7 +326,7 @@ class ProjectController implements IProjectController {
   ): Promise<void> {
     try {
       console.log(req.body);
-      const { id } = req.body;
+      const { id } = req.body.data;
       console.log(id, 'hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh');
       const project = await this.interactor.deleteProject(id);
 

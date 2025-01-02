@@ -32,6 +32,10 @@ return res
     console.log(res)
 return res
   }
+  async deleteById(id: string) {
+    const objectId = new ObjectId(id)
+    return await this.db.findByIdAndDelete(id)
+  }
 //   async findByorganizer(organizer: string) {
 //     const res= await this.db.find({ organizer })
 //     console.log(res)

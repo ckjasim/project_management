@@ -8,6 +8,8 @@ export default interface ITask extends Document {
   assignedTo?: ObjectId; 
   status?: 'pending' | 'progressing' | 'review' | 'completed'; 
   priority?: 'low' | 'medium' | 'high' | 'critical'; 
+  attachments:any
+  comments?:any
   dueDate: Date; 
   createdAt?: Date;
   updatedAt?: Date; 

@@ -15,6 +15,7 @@ const INTERFACE_TYPES = {
 
   UserController:Symbol.for('UserController'),
   GoogleAuthService:Symbol.for('GoogleAuthService'),
+  DriveAuthService:Symbol.for('DriveAuthService'),
   EmployeeController:Symbol.for('EmployeeController'),
   AdminController:Symbol.for('AdminController'),
 

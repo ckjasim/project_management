@@ -12,6 +12,8 @@ import {Types } from 'mongoose';
 import { UserCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
 import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
 import { Producer } from 'kafkajs';
+import { OrganizationModel } from '../database/model/organizationModel';
+import { DriveModel } from '../database/model/driveModel';
 
 @injectable()
 class userAuthController implements IUserController {
@@ -297,6 +299,103 @@ class userAuthController implements IUserController {
       next(error);
     }
   }
+  async updateSubscriptionHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+  console.log('jsssssssddd')
+      const email = Object.keys(req.body)[0];
+      const today = new Date();
+      const nextYearDate = new Date();
+      nextYearDate.setFullYear(today.getFullYear() + 1);
+
+      const updateSub = await OrganizationModel.findOneAndUpdate(
+        { email },
+        {
+          $set: {
+            subscriptionTier: 'premium',
+            'billingInfo.renewalDate': nextYearDate,
+          },
+        },
+        { new: true } // Return the updated document
+      );
+  
+      // if (!updateSub) {
+      //   return res.status(404).json({ message: 'Organization not found' });
+      // }
+  
+
+      return res.status(200).json({
+        message: 'Subscription updated successfully',
+        updatedDetails: updateSub,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async checkPremiumHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+      const token = req.cookies['jwt'];
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
+  
+      let decodedData;
+      try {
+        decodedData = await this.jwt.verifyRefreshToken(token);
+      } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+      }
+  
+      const { organization } = decodedData.user;
+  
+
+      const organizationData = await OrganizationModel.findOne({ _id: organization });
+  
+      if (!organizationData) {
+        return res.status(404).json({ message: 'Organization not found' });
+      }
+  
+      const today = new Date();
+  
+      if (
+        organizationData.subscriptionTier === 'premium' &&
+        organizationData.billingInfo &&
+        organizationData.billingInfo.renewalDate &&
+        new Date(organizationData.billingInfo.renewalDate).getTime() > today.getTime()
+      ) {
+        return res.status(200).json({
+          message: 'Premium member',
+          premium: true,
+        });
+      }
+      
+  
+      return res.status(200).json({
+        message: 'Not a premium member or subscription expired',
+        premium: false,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getAccessTokenHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+      const {organization}=req.body
+  
+            
+        const resp = await DriveModel.findOne({organization})
+        console.log(resp)
+  
+      return res.status(200).json({
+        message: 'Not a premium member or subscription expired',
+        accessToken: resp?.accessToken,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  
+  
+  
 }
 
 export default userAuthController;

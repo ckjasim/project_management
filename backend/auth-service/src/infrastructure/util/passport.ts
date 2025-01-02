@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import INTERFACE_TYPES from "../constants/inversify";
 import { IUserInteractor } from "../interfaces/IUserInteractors";
 import { COOKIE_MAXAGE } from "../constants/timeAndDuration";
-import IGoogleAuthService from "../interfaces/IGoogleAuthService";
+import {IGoogleAuthService} from "../interfaces/IGoogleAuthService";
 
 dotenv.config();
 
@@ -26,11 +26,11 @@ export class GoogleAuthService implements IGoogleAuthService {
 
   private setupPassport() {
     passport.use(
-      new GoogleStrategy(
+      new GoogleStrategy( 
         {
           clientID: process.env.CLIENT_ID as string,
           clientSecret: process.env.CLIENT_SECRET as string,
-          callbackURL:"http://localhost:3000/api/google/callback",
+          callbackURL:"http://localhost:3000/google/callback",
         },
         async (accessToken: string, refreshToken: string, profile: any, done: Function) => {
           try {
@@ -38,17 +38,16 @@ export class GoogleAuthService implements IGoogleAuthService {
             const email = emails[0].value;
             let user = await this.interactor.findUserByEmail(email);
 
-            // Create a new user if not found
+
             if (!user) {
               user = await this.interactor.createUser({
                 id,
                 email,
                 name,
-                password: id, // Use id as a dummy password
+                password: id, 
               });
             }
 
-            // Generate JWT token
             const token = this.jwtService.generateToken(email);
             return done(null, { user, token });
           } catch (error) {
@@ -71,7 +70,7 @@ export class GoogleAuthService implements IGoogleAuthService {
           return res.status(500).send("Authentication error");
         }
         if (!user) {
-          return res.status(401).redirect("/api/userLogin");
+          return res.status(401).redirect("/userLogin");
         }
         console.log(user)
         const token = user.token;
@@ -91,7 +90,7 @@ export class GoogleAuthService implements IGoogleAuthService {
             path: '/',
           });
 
-          return res.redirect("http://localhost:5173/auth/userLogin"); 
+          return res.redirect("http://localhost:5173/user/dashboard"); 
         } catch (error) {
           console.error("Error saving refresh token:", error);
           return res.status(500).send("Internal server error");

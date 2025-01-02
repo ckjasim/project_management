@@ -3,7 +3,7 @@ import container from "../util/inversify";
 import IUserController from "../interfaces/IUserController";
 import IEmployeeController from "../interfaces/IEmployeeController";
 import INTERFACE_TYPES from "../constants/inversify";
-import IGoogleAuthService from "../interfaces/IGoogleAuthService";
+import  { IDriveAuthService, IGoogleAuthService } from "../interfaces/IGoogleAuthService";
 import { employeeLoginValidation, employeeRegisterValidation, loginValidation, registerValidation } from "../middleware/validationMiddleware";
 import IAdminController from "../interfaces/IAdminController";
 import Auth from "../middleware/authMiddleware";
@@ -15,6 +15,7 @@ const userController = container.get<IUserController>(INTERFACE_TYPES.UserContro
 const employeeController = container.get<IEmployeeController>(INTERFACE_TYPES.EmployeeController);
 const adminController = container.get<IAdminController>(INTERFACE_TYPES.AdminController);
 const googleAuthService = container.get<IGoogleAuthService>(INTERFACE_TYPES.GoogleAuthService);
+const DriveAuthService = container.get<IDriveAuthService>(INTERFACE_TYPES.DriveAuthService);
 const auth = container.get<Auth>(INTERFACE_TYPES.Auth); 
 
 const adminAuth = auth.Auth([ 'admin']);  
@@ -49,7 +50,12 @@ router.get('/employeesList',adminAuth, adminController.getAllEmployees.bind(admi
 router.post('/userManage', adminAuth,adminController.manageUser.bind(adminController));
 router.post('/employeeManage',adminAuth, adminController.manageEmployee.bind(adminController));
 
+router.post('/updateSubscription',userController.updateSubscriptionHandler.bind(userController));
+router.get('/checkPremium',userController.checkPremiumHandler.bind(userController));
+router.post('/getAccessToken',userController.getAccessTokenHandler.bind(userController));
 
 router.get('/google', googleAuthService.googleAuth()); 
+router.get('/drive', DriveAuthService.driveAuth()); 
 router.get('/google/callback', googleAuthService.googleCallback()); 
+router.get('/google/driveCallback', DriveAuthService.driveCallback()); 
 export default router;

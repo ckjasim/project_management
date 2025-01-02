@@ -4,7 +4,7 @@ import { TaskModel } from '../model/taskModel';
 import { Model } from 'mongoose';
 import { injectable } from 'inversify';
 
-import { ObjectId } from 'mongodb'
+import { ObjectId } from 'mongodb';
 
 @injectable()
 export default class TaskRepository implements ITaskRepository {
@@ -13,25 +13,33 @@ export default class TaskRepository implements ITaskRepository {
   constructor() {
     this.db = TaskModel;
   }
- 
 
   async create(data: ITask) {
     return await this.db.create(data);
   }
-  async findByTeamId(team: string,projectId:string) {
-    const res= await this.db.find({ team ,project:projectId}).populate('assignedTo');
-    console.log(res)
-return res
+  async findByTeamId(team: string, projectId: string) {
+    const res = await this.db
+      .find({ team, project: projectId })
+      .populate('assignedTo').populate('comments.author');
+    console.log(res);
+    return res;
   }
-
+  async addCommentByTaskId(taskId: string, payload: any) {
+    const res = await this.db.updateOne(
+      { _id: taskId },
+      { $push: { comments: payload } } 
+    );
   
+    const tasks = await this.db.findOne({ _id: taskId }).populate('comments.author');
 
-
-
-  
-  async findByProjectId(projectId: string,teamId:string) {
-    return await this.db.find({ project:projectId ,team:teamId}).populate('assignedTo');
+  return tasks ? tasks : null;
   }
+  
+    async findByProjectId(projectId: string, teamId: string) {
+      return await this.db
+        .find({ project: projectId, team: teamId })
+        .populate('assignedTo').populate('comments.author');
+    }
 
   async findById(id: string) {
     return await this.db.findById(id);
@@ -39,23 +47,22 @@ return res
 
   async updateTaskStatus(taskId: string, status: string) {
     const objectId = new ObjectId(taskId);
-   
-    
+
     return await this.db.findByIdAndUpdate(
-      { _id: objectId }, 
+      { _id: objectId },
       { $set: { status } },
       { new: true }
     );
   }
-  
-  
-  
+
   async update(id: string, data: Partial<ITask>) {
     try {
-      const updatedTask = await TaskModel.findByIdAndUpdate(id, data, { new: true });
+      const updatedTask = await TaskModel.findByIdAndUpdate(id, data, {
+        new: true,
+      });
       return updatedTask;
     } catch (error) {
-      console.error("Error updating task:", error);
+      console.error('Error updating task:', error);
     }
   }
 
@@ -63,6 +70,4 @@ return res
     const objectId = new ObjectId(id);
     return await this.db.findByIdAndDelete(id);
   }
-
-
 }

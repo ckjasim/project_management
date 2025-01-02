@@ -27,4 +27,7 @@ export default class ChatInteractor implements IChatInteractor {
   async getChats() {
     return await this.chatRepository.getChats();
   }
+  async markRead(ids:any) {
+    return await this.chatRepository.markRead(ids);
+  }
 }

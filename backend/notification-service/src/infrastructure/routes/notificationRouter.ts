@@ -13,6 +13,6 @@ const auth = container.get<Auth>(INTERFACE_TYPES.Auth);
 const all = auth.Auth(['project manager', 'admin','employee']);
 
 Router.post('/getNotification',all, controller.getNotificationHandler.bind(controller));
-Router.post('/deleteNotification',all, controller.deleteNotificationHandler.bind(controller));
+Router.delete('/deleteNotification',all, controller.deleteNotificationHandler.bind(controller));
 
 export default Router;

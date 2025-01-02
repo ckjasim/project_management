@@ -76,6 +76,20 @@ class ChatController implements IChatController {
       next(error);
     }
   }
+  async markReadHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const { messageIds } = req.body;
+      const chats = await this.chatInteractor.markRead(messageIds);
+      console.log(chats)
+      res.status(200).send({ message: 'Teams successfully found',chats });
+    } catch (error) {
+      next(error);
+    }
+  }
 
 }
 

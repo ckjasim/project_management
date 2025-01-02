@@ -6,6 +6,7 @@ export interface ITaskInteractor {
   createTask(data: Partial<ITask>): Promise<ITask>; 
   getTasksByTeam(teamId: string,projectId:string): Promise<ITask[] | null>; 
   getTaskByProjectId(projectId: string,teamId:string): Promise<ITask[] | null>; 
+  addComment(taskId: string,payload:any): Promise<ITask[] | null>; 
 
   getTeamIdByUserId(userId: string): Promise<any>; 
   getProjectsByTeamId(teamId: string): Promise<IProject[]>; 

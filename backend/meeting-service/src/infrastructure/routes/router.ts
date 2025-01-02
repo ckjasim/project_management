@@ -13,23 +13,17 @@ const auth = container.get<Auth>(INTERFACE_TYPES.Auth);
 
 const userAuth = auth.Auth(['project manager', 'admin']); 
 const all = auth.Auth(['project manager', 'admin','employee']); 
-console.log('ioioioioi')
 router.route('/meeting')
     .post(userAuth, controller.createMeetingHandler.bind(controller)) 
     .get(all, controller.getMeetingsHandler.bind(controller)) 
-    // .patch(userAuth, controller.updateProjectHandler.bind(controller));
+    .delete(userAuth, controller.deleteMeetingHandler.bind(controller))
 
+router.get('/files',userAuth,controller.listDriveFiles.bind(controller))
+router.get('/payment',userAuth,controller.paymentHandler.bind(controller))
 
-// router.post('/createMeeting',userAuth,controller.createMeetingHandler.bind(controller))
-// router.post('/getMeetingByTeam',all,taskController.getTasksByTeamHandler.bind(taskController))
-
-// router.get('/projectByTeam',all,taskController.getProjectByTeamHandler.bind(taskController))
-// router.post('/taskByProjectId',all,taskController.getTaskByProjectIdHandler.bind(taskController))
-
-
-// router.patch('/updateTask',all,taskController.updateTaskHandler.bind(taskController))
-// router.patch('/deleteTask',all,taskController.deleteTaskHandler.bind(taskController))
-
-// router.patch('/updateStatus',all,taskController.updateTaskStatusHandler.bind(taskController))
-
+router.post(
+    '/webhook',
+    express.raw({ type: 'application/json' }), 
+    controller.webhookHandler.bind(controller)
+  );
 export default router

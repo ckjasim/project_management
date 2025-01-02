@@ -43,6 +43,14 @@ export default class Interactor implements IInteractor {
       throw error;
     }
   }
+  async deleteMeetingById(meetingId: string): Promise<IMeeting[] | null> {
+    try {
+      return await this.repository.deleteById(meetingId);
+    } catch (error) {
+      console.error('Error finding tasks by project code:', error);
+      throw error;
+    }
+  }
 
   async getMeetingsByOrganizer(organizer: string): Promise<IMeeting[] | null> {
     try {

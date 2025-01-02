@@ -10,9 +10,7 @@ const Router = express.Router();
 const auth = container.get<Auth>(INTERFACE_TYPES.Auth); 
 
 const all = auth.Auth(['project manager', 'admin','employee']);
-// Router.patch('/project/delete', controller.deleteProjectHandler.bind(controller));
 Router.get('/teamListByEmployee',all ,controller.teamListByEmployeeHandler.bind(controller));
 Router.get('/getChats',all, controller.getChatsHandler.bind(controller));
-// Router.post('/project/createTeam', controller.createTeamHandler.bind(controller));
-
+Router.post('/markRead',all, controller.markReadHandler.bind(controller));
 export default Router;

@@ -58,7 +58,8 @@ class NotificationController implements INotificationController {
     next: NextFunction
   ): Promise<any> {
     try {
-      const id =Object.keys(req.body)[0] 
+      // const id =Object.keys(req.body)[0] 
+      const id =req.body.data.id
       const notifications = await this.notificationInteractor.deleteNotification(id);
 
       res.status(200).send({ message: 'deleted successfully ' });

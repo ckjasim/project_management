@@ -11,7 +11,7 @@ import CloudinaryV2 from '../infrastructure/util/cloudinary';
 import { EmployeeCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
 import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
 import { Producer } from 'kafkajs';
-
+   
 @injectable()
 class EmployeeAuthController implements IEmployeeController {
   private interactor: IEmployeeInteractor;

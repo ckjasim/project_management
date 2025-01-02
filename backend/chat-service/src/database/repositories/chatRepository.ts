@@ -17,6 +17,15 @@ export default class ChatRepository implements IChatRepository {
     console.log(chats)
     return chats
   }
+  async markRead(ids: any):Promise<any>{
+
+    const chats = await this.db.updateMany(
+      { _id: { $in: ids } },
+      { $set: { isRead: true } }
+    );
+    console.log(chats)
+    return chats
+  }
 
   async create(data: IChat) {
     return await this.db.create(data);

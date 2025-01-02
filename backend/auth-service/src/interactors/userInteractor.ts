@@ -1,4 +1,4 @@
-// infrastructure/interactors/UserInteractor.ts
+
 import { inject, injectable } from 'inversify';
 import IUserRepository from '../infrastructure/interfaces/IUserRepository';
 import INTERFACE_TYPES from '../infrastructure/constants/inversify';
@@ -12,6 +12,8 @@ import IRefreshToken from '../infrastructure/interfaces/IRefreshToken';
 import IJwt from '../infrastructure/interfaces/IJwt';
 import IOrganizationRepository from '../infrastructure/interfaces/IOrganizationRepository';
 import IOrganization from '../infrastructure/interfaces/IOrganization';
+import { DriveModel } from '../database/model/driveModel';
+import IDrive from '../infrastructure/interfaces/IDrive';
 
 @injectable()
 export default class UserInteractor implements IUserInteractor {
@@ -100,6 +102,7 @@ export default class UserInteractor implements IUserInteractor {
       throw error;
     }
   }
+
   async getOtp(email: string): Promise<IOtp> {
     try {
       const otpDocument = await this.otpRepo.getOtp(email);
@@ -112,6 +115,7 @@ export default class UserInteractor implements IUserInteractor {
       throw error;
     }
   }
+
   async compareOtp(otp: string, hashOtp: string) {
     try {
       return bcrypt.compareSync(otp, hashOtp);
@@ -119,5 +123,24 @@ export default class UserInteractor implements IUserInteractor {
       console.error('Error comparing otp:', error);
       throw error;
     }
+  } 
+
+  async findDriveByEmail(email: string) {
+    try {
+      return await DriveModel.findOne({ email });
+    } catch (error) {
+      console.error('Error comparing otp:', error);
+      throw error;
+    }
   }
+
+  async updateDriveTokens(email: string, tokens: { accessToken: string; refreshToken: string }): Promise<void> {
+    await DriveModel.updateOne({ email }, { $set: tokens });
+  }
+
+  async createDriveEntry(data: IDrive): Promise<void> {
+    const driveEntry = new DriveModel(data);
+    await driveEntry.save();
+  }
+
 }

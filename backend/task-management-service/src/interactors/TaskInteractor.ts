@@ -71,6 +71,14 @@ export default class TaskInteractor implements ITaskInteractor {
       throw error;
     }
   }
+  async addComment(taskId: string,data:any): Promise<any> {
+    try {
+      return await this.repository.addCommentByTaskId(taskId,data);
+    } catch (error) {
+      console.error('Error finding tasks by project code:', error);
+      throw error;
+    }
+  }
 
 
 

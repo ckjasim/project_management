@@ -20,8 +20,9 @@ router.post('/taskByProjectId',all,taskController.getTaskByProjectIdHandler.bind
 
 
 router.patch('/updateTask',all,taskController.updateTaskHandler.bind(taskController))
-router.patch('/deleteTask',all,taskController.deleteTaskHandler.bind(taskController))
+router.delete('/deleteTask',all,taskController.deleteTaskHandler.bind(taskController))
 
 router.patch('/updateStatus',all,taskController.updateTaskStatusHandler.bind(taskController))
 
+router.post('/comments',all,taskController.addCommentsHandler.bind(taskController))
 export default router
