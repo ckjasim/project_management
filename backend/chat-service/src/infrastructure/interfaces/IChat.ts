@@ -13,4 +13,5 @@ export default interface IChat extends Document {
     enum: ['group', 'private'] 
   },
   isImage:boolean
+  isRead:boolean
 }

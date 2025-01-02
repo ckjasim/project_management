@@ -83,6 +83,7 @@ class ChatController implements IChatController {
   ): Promise<any> {
     try {
       const { messageIds } = req.body;
+      console.log(messageIds,'iddddddddddddddddddddddddddddddddddd')
       const chats = await this.chatInteractor.markRead(messageIds);
       console.log(chats)
       res.status(200).send({ message: 'Teams successfully found',chats });
