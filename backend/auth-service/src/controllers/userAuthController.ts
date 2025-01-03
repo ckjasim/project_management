@@ -12,8 +12,7 @@ import {Types } from 'mongoose';
 import { UserCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
 import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
 import { Producer } from 'kafkajs';
-import { OrganizationModel } from '../database/model/organizationModel';
-import { DriveModel } from '../database/model/driveModel';
+
 
 @injectable()
 class userAuthController implements IUserController {
