@@ -14,12 +14,14 @@ spec:
     spec:
       containers:
         - name: meeting
-          image: projectManagement/meeting-service
+          image: jasimck/meeting
           env:
             - name: JWT_SECRET
               value: "12345"
             - name: REFRESH_TOKEN_SECRET
               value: "12345"
+          ports:
+            - containerPort: 3005
 ---
 apiVersion: v1
 kind: Service
@@ -32,4 +34,5 @@ spec:
     - name: meeting
       protocol: TCP
       port: 3005
-      targetPort: 3000
+      targetPort: 3005
+  type: ClusterIP

@@ -14,12 +14,14 @@ spec:
     spec:
       containers:
         - name: project
-          image: projectManagement/project-service
+          image: jasimck/project
           env:
             - name: JWT_SECRET
               value: "12345"
             - name: REFRESH_TOKEN_SECRET
               value: "12345"
+          ports:
+            - containerPort: 3002
 ---
 apiVersion: v1
 kind: Service
@@ -32,4 +34,5 @@ spec:
     - name: project
       protocol: TCP
       port: 3002
-      targetPort: 3000
+      targetPort: 3002
+  type: ClusterIP
