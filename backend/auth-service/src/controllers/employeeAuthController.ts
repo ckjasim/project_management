@@ -263,55 +263,8 @@ class EmployeeAuthController implements IEmployeeController {
       next(error);
     }
   }
-  async verifyOtpHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-    } catch (error) {
-      next(error);
-    }
-  }
-  async refreshToken(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { jwt: refreshToken } = req.cookies;
-      const accessToken = await this.interactor.execute(refreshToken);
-      res.status(200).json({ accessToken });
-    } catch (error) {
-      next(error);
-    }
-  }
-  async resendOtp(req: Request, res: Response, next: NextFunction) {
-    try {
-      const token = req.cookies['employeeTemp'];
-      if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
-      }
 
-      const decodedData = await this.jwt.verifyToken(token);
-      const { email } = decodedData;
-      console.log(email);
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-      await this.emailService.sendOTP(email, otp);
-      const otpData = { otp, email };
-      await this.interactor.saveOtp(otpData);
-    } catch (error) {
-      next(error);
-    }
-  }
-  // async employeeByOrganization(req: Request, res: Response, next: NextFunction) {
-  //   try {
-  //     const token = req.cookies['jwt'];
-  //     if (!token) {
-  //       return res.status(401).json({ message: 'No token provided' });
-  //     }
-
-  //     const decodedData = await this.jwt.verifyToken(token);
-  //     const { user } = decodedData;
-  //     const organization = user.organization;
-  //     await this.interactor.getEmployee(organization);;
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
+ 
   async employeeByOrganization(
     req: Request,
     res: Response,

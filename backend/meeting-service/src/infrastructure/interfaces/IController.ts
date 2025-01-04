@@ -10,7 +10,6 @@ export default interface IController {
 // payment
 paymentHandler(req: Request, res: Response, next: NextFunction): any;
 webhookHandler(req: Request, res: Response, next: NextFunction): any;
-listDriveFiles(req: Request, res: Response, next: NextFunction): any;
 
 
 } 

@@ -3,9 +3,6 @@
 import { Model } from 'mongoose';
 import { injectable } from 'inversify';
 
-import ITeam from '../../infrastructure/interfaces/ITeam';
-import ITeamRepository from '../../infrastructure/interfaces/ITeamRepository';
-import { TeamModel } from '../model/teamModel';
 import IProject from '../../infrastructure/interfaces/IProject';
 import { ProjectModel } from '../model/projectModel';
 import IProjectRepository from '../../infrastructure/interfaces/IProjectRepository';

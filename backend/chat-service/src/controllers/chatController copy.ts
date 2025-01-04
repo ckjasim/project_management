@@ -70,10 +70,7 @@ class ChatController implements IChatController {
       }
 
       try {
-        // Optional: Use chatInteractor for user registration logic if needed
-        // await this.chatInteractor.registerUser(userId);
 
-        // Store user's socket connection
         (socket as any).userId = userId;
         socket.join(userId);
 

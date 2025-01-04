@@ -7,9 +7,7 @@ export default interface IUserController {
     refreshToken(req: Request, res: Response,next:NextFunction): Promise<any>;
     resendOtp(req: Request, res: Response,next:NextFunction): Promise<any>;
     logoutHandler(req: Request, res: Response,next:NextFunction): Promise<any>;
-    authRole(req: Request, res: Response,next:NextFunction): Promise<any>;
     updateSubscriptionHandler(req: Request, res: Response,next:NextFunction): Promise<any>;
-    getAccessTokenHandler(req: Request, res: Response,next:NextFunction): Promise<any>;
     checkPremiumHandler(req: Request, res: Response,next:NextFunction): Promise<any>;
 
 }

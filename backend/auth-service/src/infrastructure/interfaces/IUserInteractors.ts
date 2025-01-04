@@ -1,4 +1,4 @@
-import IDrive from './IDrive';
+
 import IOrganization from './IOrganization';
 import IOtp from './IOtp';
 import IRefreshToken from './IRefreshToken';
@@ -17,7 +17,6 @@ export interface IUserInteractor {
   compareOtp(otp:string,hashOtp:string):Promise<boolean>; 
   execute(refreshToken: string): Promise<string>
   updateSubscription(email: string): Promise<IOrganization | null>;
-  findDriveByEmail(email: string): Promise<IDrive | null>;
-  createDriveEntry(data: Partial<IDrive>): Promise<void>;
-  updateDriveTokens(email: string, tokens: { accessToken: string; refreshToken: string }): Promise<void>;
+
+ 
 }

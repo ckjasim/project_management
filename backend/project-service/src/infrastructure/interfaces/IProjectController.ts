@@ -6,7 +6,6 @@ export default interface IProjectController {
   getTeamsByProjectHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
   getTeamMembersByTeamIdHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
   
-  getProjectByProjectCodeHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
   updateProjectHandler(req: Request, res: Response, next: NextFunction): Promise<any>;
   deleteProjectHandler(req: Request, res: Response, next: NextFunction): Promise<void>;
   

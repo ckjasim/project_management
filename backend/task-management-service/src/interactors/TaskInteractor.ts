@@ -4,7 +4,6 @@ import ITaskRepository from '../infrastructure/interfaces/ITaskRepository';
 import INTERFACE_TYPES from '../infrastructure/constants/inversify';
 import { ITaskInteractor } from '../infrastructure/interfaces/ITaskInteractors';
 import ITask from '../infrastructure/interfaces/ITask';
-import IRefreshToken from '../infrastructure/interfaces/IRefreshToken';
 import IJwt from '../infrastructure/interfaces/IJwt';
 import IProjectRepository from '../infrastructure/interfaces/IProjectRepository';
 import ITeamRepository from '../infrastructure/interfaces/ITeamRepository';
@@ -83,16 +82,6 @@ export default class TaskInteractor implements ITaskInteractor {
 
 
 
-
-
-
-
-
-
-
-
-
-
   async updateTaskStatus(taskId: string,status:string): Promise<ITask[] | null> {
     try {
       return await this.repository.updateTaskStatus(taskId,status);
@@ -101,17 +90,6 @@ export default class TaskInteractor implements ITaskInteractor {
       throw error;
     }
   }
-
-
-
-  createRefreshToken(data: Partial<IRefreshToken>): Promise<IRefreshToken> {
-    throw new Error('Method not implemented.');
-  }
-
-  execute(refreshToken: string): Promise<string> {
-    throw new Error('Method not implemented.');
-  }
-
 
 
   async updateTask(id: string,data:Partial<ITask>): Promise<any> {

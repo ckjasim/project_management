@@ -8,11 +8,10 @@ import { COOKIE_MAXAGE } from '../infrastructure/constants/timeAndDuration';
 import IEmailService from '../infrastructure/interfaces/IEmailService';
 import { validationResult } from 'express-validator';
 import IUser from '../infrastructure/interfaces/IUser';
-import {Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { UserCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
 import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
 import { Producer } from 'kafkajs';
-
 
 @injectable()
 class userAuthController implements IUserController {
@@ -29,24 +28,6 @@ class userAuthController implements IUserController {
     this.jwt = jwt;
     this.emailService = emailServ;
   }
-  async authRole(req: Request, res: Response, next: NextFunction) {
-    try {
-      const token = req.cookies['jwt'];
-      if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
-      }
-
-      const decodedData = await this.jwt.verifyToken(token);
-      const { role } = decodedData;
-      if (role) {
-        res.json({ role });
-      } else {
-        res.status(401).json({ message: 'Role not found' });
-      }
-    } catch (error) {
-      next(error);
-    }
-  }
 
   async loginHandler(req: Request, res: Response, next: NextFunction) {
     try {
@@ -58,7 +39,7 @@ class userAuthController implements IUserController {
           .status(400)
           .json({ message: 'User not found, please create an account' });
       }
-      if (user && user.isBlock===true) {
+      if (user && user.isBlock === true) {
         res.status(403);
         throw new Error('You are blocked ');
       }
@@ -166,32 +147,35 @@ class userAuthController implements IUserController {
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
       }
-  
+
       const decodedData = await this.jwt.verifyToken(token);
       const { email, name, password, role, organization } = decodedData;
-  
+
       const { otp } = req.body;
       if (!otp) {
         return res.status(400).json({ message: 'OTP is required' });
       }
-  
+
       const storedOtp = await this.interactor.getOtp(email);
       if (!storedOtp) {
         return res.status(400).json({ message: 'No OTP found for the user' });
       }
-  
-      const isOtpValid = await this.interactor.compareOtp(otp, storedOtp.otp.toString());
+
+      const isOtpValid = await this.interactor.compareOtp(
+        otp,
+        storedOtp.otp.toString()
+      );
       if (!isOtpValid) {
         return res.status(400).json({ message: 'Invalid OTP' });
       }
-  
+
       const tenant = {
         name: organization,
         email,
         subscriptionTier: 'basic',
       };
       const newOrganization = await this.interactor.createOrganization(tenant);
-  
+
       const userData: Partial<IUser> = {
         email,
         name,
@@ -200,9 +184,11 @@ class userAuthController implements IUserController {
         organization: newOrganization._id as Types.ObjectId,
       };
       const newUser = await this.interactor.createUser(userData);
-  
+
       if (newUser) {
-        await new UserCreatedPublisher(kafkaWrapper.producer as Producer).produce({
+        await new UserCreatedPublisher(
+          kafkaWrapper.producer as Producer
+        ).produce({
           _id: newUser._id! as string,
           name: name as string,
           email: email as string,
@@ -211,7 +197,7 @@ class userAuthController implements IUserController {
           password: newUser.password,
         });
       }
-  
+
       const tokenData = {
         _id: newUser._id,
         email,
@@ -222,20 +208,20 @@ class userAuthController implements IUserController {
       const refreshToken = this.jwt.generateRefreshToken(tokenData);
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
-  
+
       const refreshData = {
         email,
         token: refreshToken,
         expiresAt,
       };
       await this.interactor.createRefreshToken(refreshData);
-  
+
       res.cookie('jwt', refreshToken, {
         httpOnly: true,
         maxAge: COOKIE_MAXAGE,
         path: '/',
       });
-  
+
       return res.status(200).json({
         message: 'Successfully logged in',
         data: { newUser, token: accessToken },
@@ -244,11 +230,9 @@ class userAuthController implements IUserController {
       next(error);
     }
   }
-  
 
   async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-      
       const { jwt: refreshToken } = req.cookies;
       if (!refreshToken) {
         return res
@@ -298,18 +282,20 @@ class userAuthController implements IUserController {
       next(error);
     }
   }
-  async updateSubscriptionHandler(req: Request, res: Response, next: NextFunction) {
+  async updateSubscriptionHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-  console.log('jsssssssddd')
+      console.log('jsssssssddd');
       const email = Object.keys(req.body)[0];
-    
 
-      const updateSub = await this.interactor.updateSubscription(email) 
+      const updateSub = await this.interactor.updateSubscription(email);
 
       // if (!updateSub) {
       //   return res.status(404).json({ message: 'Organization not found' });
       // }
-  
 
       return res.status(200).json({
         message: 'Subscription updated successfully',
@@ -325,39 +311,39 @@ class userAuthController implements IUserController {
       if (!token) {
         return res.status(401).json({ message: 'No token provided' });
       }
-  
+
       let decodedData;
       try {
         decodedData = await this.jwt.verifyRefreshToken(token);
       } catch (error) {
         return res.status(401).json({ message: 'Invalid or expired token' });
       }
-  
-      const { organization } = decodedData.user;
-  
 
-      const organizationData =await this.interactor.getOrganizationById(organization)
-      // await OrganizationModel.findOne({ _id: organization });
-  
+      const { organization } = decodedData.user;
+
+      const organizationData = await this.interactor.getOrganizationById(
+        organization
+      );
+
       if (!organizationData) {
         return res.status(404).json({ message: 'Organization not found' });
       }
-  
+
       const today = new Date();
-  console.log(organizationData,'org-------------------------')
+      console.log(organizationData, 'org-------------------------');
       if (
         organizationData.subscriptionTier === 'premium' &&
         organizationData.billingInfo &&
         organizationData.billingInfo.renewalDate &&
-        new Date(organizationData.billingInfo.renewalDate).getTime() > today.getTime()
+        new Date(organizationData.billingInfo.renewalDate).getTime() >
+          today.getTime()
       ) {
         return res.status(200).json({
           message: 'Premium member',
           premium: true,
         });
       }
-      
-  
+
       return res.status(200).json({
         message: 'Not a premium member or subscription expired',
         premium: false,
@@ -366,25 +352,6 @@ class userAuthController implements IUserController {
       next(error);
     }
   }
-  async getAccessTokenHandler(req: Request, res: Response, next: NextFunction) {
-    // try {
-    //   const {organization}=req.body
-  
-            
-    //     const resp = await DriveModel.findOne({organization})
-    //     console.log(resp)
-  
-    //   return res.status(200).json({
-    //     message: 'Not a premium member or subscription expired',
-    //     accessToken: resp?.accessToken,
-    //   });
-    // } catch (error) {
-    //   next(error);
-    // }
-  }
-  
-  
-  
 }
 
 export default userAuthController;

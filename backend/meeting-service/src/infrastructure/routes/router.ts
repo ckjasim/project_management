@@ -18,7 +18,6 @@ router.route('/meeting')
     .get(all, controller.getMeetingsHandler.bind(controller)) 
     .delete(userAuth, controller.deleteMeetingHandler.bind(controller))
 
-router.get('/files',userAuth,controller.listDriveFiles.bind(controller))
 router.get('/payment',userAuth,controller.paymentHandler.bind(controller))
 
 router.post(

@@ -13,7 +13,6 @@ import IJwt from '../infrastructure/interfaces/IJwt';
 import IOrganizationRepository from '../infrastructure/interfaces/IOrganizationRepository';
 import IOrganization from '../infrastructure/interfaces/IOrganization';
 import { DriveModel } from '../database/model/driveModel';
-import IDrive from '../infrastructure/interfaces/IDrive';
 
 @injectable()
 export default class UserInteractor implements IUserInteractor {
@@ -141,22 +140,6 @@ export default class UserInteractor implements IUserInteractor {
     }
   } 
 
-  async findDriveByEmail(email: string) {
-    try {
-      return await DriveModel.findOne({ email });
-    } catch (error) {
-      console.error('Error comparing otp:', error);
-      throw error;
-    }
-  }
 
-  async updateDriveTokens(email: string, tokens: { accessToken: string; refreshToken: string }): Promise<void> {
-    await DriveModel.updateOne({ email }, { $set: tokens });
-  }
-
-  async createDriveEntry(data: IDrive): Promise<void> {
-    const driveEntry = new DriveModel(data);
-    await driveEntry.save();
-  }
 
 }

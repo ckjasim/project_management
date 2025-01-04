@@ -1,10 +1,9 @@
-// infrastructure/interactors/UserInteractor.ts
+
 import { inject, injectable } from 'inversify';
 
 import INTERFACE_TYPES from '../infrastructure/constants/inversify';
 import { IProjectInteractor } from '../infrastructure/interfaces/IProjectInteractor';
 import IProject from '../infrastructure/interfaces/IProject';
-import IRefreshToken from '../infrastructure/interfaces/IRefreshToken';
 import IJwt from '../infrastructure/interfaces/IJwt';
 import IProjectRepository from '../infrastructure/interfaces/IProjectRepository';
 import ITeamRepository from '../infrastructure/interfaces/ITeamRepository';
@@ -56,16 +55,7 @@ export default class ProjectInteractor implements IProjectInteractor {
       throw error;
     }
   }
-  async getProjectsByProjectCode(projectCode:string): Promise<any> {
-    try {
-      return await this.repository.findByProjectCode(projectCode);
-     
-    } catch (error) {
-      console.error('Error finding tasks by project code:', error);
-      throw error;
-    }
-  }
- 
+
  async updateProject(id: string, data: Partial<IProject>): Promise<void> {
     try {
       console.log('0000000000000000000000000')

@@ -15,9 +15,6 @@ export interface IEmployeeInteractor {
 
 
   comparePassword(password:string,hashPassword:string):Promise<boolean>; 
-  saveOtp(data:Partial<IOtp>):Promise<IOtp>; 
-  getOtp(email:string):Promise<IOtp>
-  compareOtp(otp:string,hashOtp:string):Promise<boolean>; 
   createRefreshToken(data: Partial<IRefreshToken>): Promise<IRefreshToken>; 
   
   getEmployee(organization: string): Promise<IEmployee>;

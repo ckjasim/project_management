@@ -49,9 +49,5 @@ export const employeeRegisterValidation = [
     body('jobRole')
     .isString()
     .withMessage('Job role must be a string'),
-    body('projectCode')
-    .isString()
-    .isLength({ min: 5, max: 5})
-    .withMessage('enter a valid 5 digit project code'),
     body('img').optional().isString().withMessage('Image URL must be a string'),
 ];
