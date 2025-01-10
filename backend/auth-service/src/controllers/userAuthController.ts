@@ -6,12 +6,12 @@ import IUserController from '../infrastructure/interfaces/IUserController';
 import IJwt from '../infrastructure/interfaces/IJwt';
 import { COOKIE_MAXAGE } from '../infrastructure/constants/timeAndDuration';
 import IEmailService from '../infrastructure/interfaces/IEmailService';
-import { validationResult } from 'express-validator';
 import IUser from '../infrastructure/interfaces/IUser';
 import { Types } from 'mongoose';
 import { UserCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
 import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
 import { Producer } from 'kafkajs';
+import { HttpStatus } from '../infrastructure/constants/enum';
 
 @injectable()
 class userAuthController implements IUserController {
@@ -28,6 +28,7 @@ class userAuthController implements IUserController {
     this.jwt = jwt;
     this.emailService = emailServ;
   }
+  
 
   async loginHandler(req: Request, res: Response, next: NextFunction) {
     try {
@@ -36,11 +37,11 @@ class userAuthController implements IUserController {
       const user = await this.interactor.findUserByEmail(email);
       if (!user) {
         return res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ message: 'User not found, please create an account' });
       }
       if (user && user.isBlock === true) {
-        res.status(403);
+        res.status(HttpStatus.FORBIDDEN);
         throw new Error('You are blocked ');
       }
 
@@ -49,7 +50,7 @@ class userAuthController implements IUserController {
         user.password
       );
       if (!comparePassword) {
-        return res.status(400).json({ message: 'Invalid password' });
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Invalid password' });
       }
 
       const data = {
@@ -82,7 +83,7 @@ class userAuthController implements IUserController {
       });
 
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ message: 'Successfully logged in', data: { user, token } });
     } catch (error) {
       next(error);
@@ -95,19 +96,13 @@ class userAuthController implements IUserController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        res
-          .status(400)
-          .json({ message: 'validation error', errors: errors.array() });
-        return;
-      }
+   
 
       const { name, email, password, organization } = req.body;
       const user = await this.interactor.findUserByEmail(email);
       if (user) {
         res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ message: 'already have an account, please login' });
         return;
       }
@@ -135,30 +130,87 @@ class userAuthController implements IUserController {
         path: '/',
       });
 
-      res.status(201).json({ message: 'OTP sent to your email', otp });
+      res.status(HttpStatus.OK).json({ message: 'OTP sent to your email', otp });
     } catch (error) {
       next(error);
     }
   }
+  async recoverPasswordHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+   
 
-  async verifyOtpHandler(req: Request, res: Response, next: NextFunction) {
+      const {  email } = req.body;
+      const user = await this.interactor.findUserByEmail(email);
+      if (user) {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        await this.emailService.sendOTP(email, otp);
+  
+        const otpData = { otp, email };
+        await this.interactor.saveOtp(otpData);
+        const tempToken = this.jwt.generateToken(email, '10m');
+        res.cookie('tempJwt', tempToken, {
+          httpOnly: true,
+          maxAge: 10 * 60 * 1000,
+          path: '/',
+        });
+        res.status(HttpStatus.OK).json({ message: 'OTP sent to your email' });
+      }
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ message: 'Dont have an account, please Register' });
+      return;
+
+     
+    } catch (error) {
+      next(error);
+    }
+  }
+ async submitPasswordHandler(req: Request, res: Response, next: NextFunction): Promise<any> {
     try {
       const token = req.cookies['tempJwt'];
       if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'No token provided' });
       }
 
       const decodedData = await this.jwt.verifyToken(token);
-      const { email, name, password, role, organization } = decodedData;
+      const { id} = decodedData;
+console.log(decodedData,'lllllllllllllllllllllllll')
+      const { password } = req.body;
+     
+console.log(id,'klk')
+const payload={password,email:id}
+      const newUser = await this.interactor.updatePassword(payload);
 
-      const { otp } = req.body;
-      if (!otp) {
-        return res.status(400).json({ message: 'OTP is required' });
+
+      return res.status(HttpStatus.OK).json({
+        message: 'Successfully verified',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+ async recoverOtpHandler(req: Request, res: Response, next: NextFunction): Promise<any> {
+    try {
+      const token = req.cookies['tempJwt'];
+      if (!token) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'No token provided' });
       }
 
-      const storedOtp = await this.interactor.getOtp(email);
+      const decodedData = await this.jwt.verifyToken(token);
+      const { id} = decodedData;
+console.log(decodedData,'lllllllllllllllllllllllll')
+      const { otp } = req.body;
+      if (!otp) {
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'OTP is required' });
+      }
+
+      const storedOtp = await this.interactor.getOtp(id);
       if (!storedOtp) {
-        return res.status(400).json({ message: 'No OTP found for the user' });
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'No OTP found for the user' });
       }
 
       const isOtpValid = await this.interactor.compareOtp(
@@ -166,7 +218,43 @@ class userAuthController implements IUserController {
         storedOtp.otp.toString()
       );
       if (!isOtpValid) {
-        return res.status(400).json({ message: 'Invalid OTP' });
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Invalid OTP' });
+      }
+
+
+      return res.status(HttpStatus.OK).json({
+        message: 'Successfully verified',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async verifyOtpHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+      const token = req.cookies['tempJwt'];
+      if (!token) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'No token provided' });
+      }
+
+      const decodedData = await this.jwt.verifyToken(token);
+      const { email, name, password, role, organization } = decodedData;
+
+      const { otp } = req.body;
+      if (!otp) {
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'OTP is required' });
+      }
+
+      const storedOtp = await this.interactor.getOtp(email);
+      if (!storedOtp) {
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'No OTP found for the user' });
+      }
+
+      const isOtpValid = await this.interactor.compareOtp(
+        otp,
+        storedOtp.otp.toString()
+      );
+      if (!isOtpValid) {
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Invalid OTP' });
       }
 
       const tenant = {
@@ -222,7 +310,7 @@ class userAuthController implements IUserController {
         path: '/',
       });
 
-      return res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         message: 'Successfully logged in',
         data: { newUser, token: accessToken },
       });
@@ -236,12 +324,12 @@ class userAuthController implements IUserController {
       const { jwt: refreshToken } = req.cookies;
       if (!refreshToken) {
         return res
-          .status(401)
+          .status(HttpStatus.UNAUTHORIZED)
           .json({ message: 'Refresh token is missing or invalid' });
       }
 
       const accessToken = await this.interactor.execute(refreshToken);
-      res.status(200).json(accessToken);
+      res.status(HttpStatus.OK).json(accessToken);
     } catch (error) {
       next(error);
     }
@@ -250,7 +338,7 @@ class userAuthController implements IUserController {
     try {
       const token = req.cookies['tempJwt'];
       if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'No token provided' });
       }
 
       const decodedData = await this.jwt.verifyToken(token);
@@ -269,7 +357,7 @@ class userAuthController implements IUserController {
       const token = req.cookies.jwt;
       console.log('looggggggggouuuuuuuuuuuuttttttttt');
       if (!token) {
-        return res.status(401).json({ message: 'No active session found' });
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'No active session found' });
       }
 
       res.clearCookie('jwt', {
@@ -277,7 +365,7 @@ class userAuthController implements IUserController {
         path: '/',
       });
 
-      return res.status(200).json({ message: 'Logged out successfully' });
+      return res.status(HttpStatus.OK).json({ message: 'Logged out successfully' });
     } catch (error) {
       next(error);
     }
@@ -288,7 +376,6 @@ class userAuthController implements IUserController {
     next: NextFunction
   ) {
     try {
-      console.log('jsssssssddd');
       const email = Object.keys(req.body)[0];
 
       const updateSub = await this.interactor.updateSubscription(email);
@@ -297,7 +384,7 @@ class userAuthController implements IUserController {
       //   return res.status(404).json({ message: 'Organization not found' });
       // }
 
-      return res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         message: 'Subscription updated successfully',
         updatedDetails: updateSub,
       });
@@ -309,14 +396,14 @@ class userAuthController implements IUserController {
     try {
       const token = req.cookies['jwt'];
       if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'No token provided' });
       }
 
       let decodedData;
       try {
         decodedData = await this.jwt.verifyRefreshToken(token);
       } catch (error) {
-        return res.status(401).json({ message: 'Invalid or expired token' });
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Invalid or expired token' });
       }
 
       const { organization } = decodedData.user;
@@ -326,7 +413,7 @@ class userAuthController implements IUserController {
       );
 
       if (!organizationData) {
-        return res.status(404).json({ message: 'Organization not found' });
+        return res.status(HttpStatus.NOT_FOUND).json({ message: 'Organization not found' });
       }
 
       const today = new Date();
@@ -338,13 +425,13 @@ class userAuthController implements IUserController {
         new Date(organizationData.billingInfo.renewalDate).getTime() >
           today.getTime()
       ) {
-        return res.status(200).json({
+        return res.status(HttpStatus.OK).json({
           message: 'Premium member',
           premium: true,
         });
       }
 
-      return res.status(200).json({
+      return res.status(HttpStatus.OK).json({
         message: 'Not a premium member or subscription expired',
         premium: false,
       });

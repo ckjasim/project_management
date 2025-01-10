@@ -93,6 +93,14 @@ export default class UserInteractor implements IUserInteractor {
       throw error;
     }
   }
+  async updatePassword(data: string): Promise<IUser> {
+    try {
+      return await this.repository.updatePassword(data);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
   async createRefreshToken(data: IRefreshToken): Promise<IRefreshToken> {
     try {
       return await this.refreshRepo.create(data);

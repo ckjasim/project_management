@@ -46,6 +46,14 @@ export default class TaskInteractor implements ITaskInteractor {
       throw error;
     }
   }
+  async getAllTasks(): Promise<ITask[] | null> {
+    try {
+      return await this.repository.getAllTasks();
+    } catch (error) {
+      console.error('Error finding tasks by project code:', error);
+      throw error;
+    }
+  }
   async getTaskByProjectId(projectId: string,teamId:string): Promise<ITask[] | null> {
     try {
       return await this.repository.findByProjectId(projectId,teamId);

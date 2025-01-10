@@ -14,6 +14,7 @@ const all = auth.Auth(['project manager', 'admin','employee']);
 
 router.post('/createTask',userAuth,taskController.createTaskHandler.bind(taskController))
 router.post('/getTaskByTeam',all,taskController.getTasksByTeamHandler.bind(taskController))
+router.get('/getAllTasks',all,taskController.getAllTasksHandler.bind(taskController))
 
 router.get('/projectByTeam',all,taskController.getProjectByTeamHandler.bind(taskController))
 router.post('/taskByProjectId',all,taskController.getTaskByProjectIdHandler.bind(taskController))

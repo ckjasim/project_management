@@ -6,6 +6,7 @@ import IUser from './IUser';
 
 export interface IUserInteractor {
   createUser(data: Partial<IUser>): Promise<IUser>; 
+  updatePassword(data: any): Promise<IUser>; 
   createOrganization(data: Partial<IOrganization>): Promise<IOrganization>; 
   getOrganizationById(id: string): Promise<IOrganization | null> ; 
   createRefreshToken(data: Partial<IRefreshToken>): Promise<IRefreshToken>; 

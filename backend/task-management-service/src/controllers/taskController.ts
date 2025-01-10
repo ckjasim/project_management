@@ -125,6 +125,19 @@ class TaskController implements ITaskController {
       next(error);
     }
   }
+  async getAllTasksHandler(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+     
+      const tasks = await this.interactor.getAllTasks();
+      res.status(200).send({ message: 'Tasks successfully found', tasks });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   async getTaskByProjectIdHandler(
     req: Request,

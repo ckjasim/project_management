@@ -4,6 +4,7 @@ import ITask from './ITask';
 export interface ITaskInteractor {
   createTask(data: Partial<ITask>): Promise<ITask>; 
   getTasksByTeam(teamId: string,projectId:string): Promise<ITask[] | null>; 
+  getAllTasks(): Promise<ITask[] | null>; 
   getTaskByProjectId(projectId: string,teamId:string): Promise<ITask[] | null>; 
   addComment(taskId: string,payload:any): Promise<ITask[] | null>; 
 

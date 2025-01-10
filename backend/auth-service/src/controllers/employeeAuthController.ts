@@ -11,6 +11,7 @@ import CloudinaryV2 from '../infrastructure/util/cloudinary';
 import { EmployeeCreatedPublisher } from '../infrastructure/util/kafka/producer/producer';
 import kafkaWrapper from '../infrastructure/util/kafka/kafkaWrapper';
 import { Producer } from 'kafkajs';
+import { HttpStatus } from '../infrastructure/constants/enum';
    
 @injectable()
 class EmployeeAuthController implements IEmployeeController {
@@ -39,7 +40,7 @@ class EmployeeAuthController implements IEmployeeController {
     console.log(invitation);
 
     if (!invitation) {
-      return res.status(400).json({
+      return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Invalid or expired invitation',
       });
     }
@@ -53,13 +54,13 @@ class EmployeeAuthController implements IEmployeeController {
     const { name, jobRole, email } = req.body;
     const token = req.cookies['jwt'];
     if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'No token provided' });
     }
     let decodedData;
     try {
       decodedData = await this.jwt.verifyRefreshToken(token);
     } catch (error) {
-      return res.status(401).json({ message: 'Invalid or expired token' });
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Invalid or expired token' });
     }
 
     const { user } = decodedData;
@@ -70,7 +71,7 @@ class EmployeeAuthController implements IEmployeeController {
     );
 
     if (existingEmployee) {
-      return res.status(400).json({
+      return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Employee with this email already exists in your organization',
       });
     }
@@ -80,7 +81,7 @@ class EmployeeAuthController implements IEmployeeController {
       user.organization
     );
     if (existingInvitation) {
-      return res.status(400).json({
+      return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Invitation is already send to this email',
       });
     }
@@ -118,11 +119,11 @@ class EmployeeAuthController implements IEmployeeController {
       const { email, password } = req.body;
       const user = await this.interactor.findUserByEmailForLogin(email);
       if (!user) {
-        res.status(400);
+        res.status(HttpStatus.BAD_REQUEST);
         throw new Error('User not found , Please create an account');
       }
       if (user && user.isBlock===true) {
-        res.status(403);
+        res.status(HttpStatus.FORBIDDEN);
         throw new Error('You are blocked ');
       }
      
@@ -133,7 +134,7 @@ class EmployeeAuthController implements IEmployeeController {
       );
       console.log(comparePassword);
       if (!comparePassword) {
-        res.status(400);
+        res.status(HttpStatus.BAD_REQUEST);
         throw new Error('invalid password');
       }
 
@@ -161,7 +162,7 @@ class EmployeeAuthController implements IEmployeeController {
         path: '/',
       });
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ message: 'Successfully logged in', data: { user, token } });
     } catch (error) {
       next(error);
@@ -176,7 +177,7 @@ class EmployeeAuthController implements IEmployeeController {
       const invitation = await this.interactor.findInvitation(token);
 
       if (!invitation) {
-        return res.status(400).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
           message: 'Invalid or expired invitation',
         });
       }
@@ -186,7 +187,7 @@ class EmployeeAuthController implements IEmployeeController {
         invitation?.organization?._id.toString()
       );
       if (existingEmployee) {
-        res.status(400);
+        res.status(HttpStatus.BAD_REQUEST);
         throw new Error('already have an account please login');
       }
 
@@ -254,7 +255,7 @@ class EmployeeAuthController implements IEmployeeController {
       });
 
       return res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({
           message: 'Successfully logged in',
           data: { newUser, token: accessToken },
@@ -274,14 +275,14 @@ class EmployeeAuthController implements IEmployeeController {
 
       const token = req.cookies['jwt'];
       if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'No token provided' });
       }
 
       let decodedData;
       try {
         decodedData = await this.jwt.verifyRefreshToken(token);
       } catch (error) {
-        return res.status(401).json({ message: 'Invalid or expired token' });
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Invalid or expired token' });
       }
 
       const { user } = decodedData;
@@ -304,7 +305,7 @@ class EmployeeAuthController implements IEmployeeController {
       }
 
 
-      res.status(200).send({ message: 'employees successfully found', all });
+      res.status(HttpStatus.OK).send({ message: 'employees successfully found', all });
     } catch (error) {
       next(error);
     }

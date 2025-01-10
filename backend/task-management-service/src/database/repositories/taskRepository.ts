@@ -44,6 +44,9 @@ export default class TaskRepository implements ITaskRepository {
   async findById(id: string) {
     return await this.db.findById(id);
   }
+  async getAllTasks() {
+    return await this.db.find().populate('assignedTo');
+  }
 
   async updateTaskStatus(taskId: string, status: string) {
     const objectId = new ObjectId(taskId);

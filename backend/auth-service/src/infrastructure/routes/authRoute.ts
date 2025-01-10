@@ -38,11 +38,15 @@ router.post('/employeeLogin', employeeController.loginHandler.bind(employeeContr
 router.post('/employeeRegister', employeeRegisterValidation, employeeController.registerHandler.bind(employeeController));
 router.get('/employeesByOrg',all, employeeController.employeeByOrganization.bind(employeeController));
 
+router.post('/recoverPassword', userController.recoverPasswordHandler.bind(userController));
+router.post('/recoverOtp', userController.recoverOtpHandler.bind(userController));
+router.post('/submitPassword', userController.submitPasswordHandler.bind(userController));
 
 
 router.post('/adminLogin', adminController.loginHandler.bind(adminController));
 router.get('/usersList',adminAuth, adminController.getAllUsers.bind(adminController));
 router.get('/employeesList',adminAuth, adminController.getAllEmployees.bind(adminController));
+router.get('/organizationList',adminAuth, adminController.getAllOrganization.bind(adminController));
 router.post('/userManage', adminAuth,adminController.manageUser.bind(adminController));
 router.post('/employeeManage',adminAuth, adminController.manageEmployee.bind(adminController));
 

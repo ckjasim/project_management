@@ -8,8 +8,8 @@ class KafkaWrapper {
     constructor() {
         this._kafka = new Kafka({
             clientId: 'auth-service',
-            brokers: ['localhost:9092'],
-            // logLevel:logLevel.INFO
+            brokers: [process.env.KAFKA_SERVER!],
+       
         })
     }
 

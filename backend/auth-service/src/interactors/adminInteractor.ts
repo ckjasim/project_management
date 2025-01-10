@@ -12,27 +12,43 @@ import IEmployeeRepository from '../infrastructure/interfaces/IEmployeeRepositor
 import IEmployee from '../infrastructure/interfaces/IEmployee';
 import IRefreshToken from '../infrastructure/interfaces/IRefreshToken';
 import IRefreshTokenRepository from '../infrastructure/interfaces/IRefreshTokenRepository';
+import IOrganizationRepository from '../infrastructure/interfaces/IOrganizationRepository';
+import IOrganization from '../infrastructure/interfaces/IOrganization';
 
 @injectable()
 export default class AdminInteractor implements IAdminInteractor {
   private userRepo: IUserRepository;
   private employeeRepo: IEmployeeRepository;
   private refreshRepo: IRefreshTokenRepository;
+  private orgRepo: IOrganizationRepository;
 
   constructor(
     @inject(INTERFACE_TYPES.RefreshTokenRepository) refreshRepo: IRefreshTokenRepository,
     @inject(INTERFACE_TYPES.UserRepository) userRepo: IUserRepository,
     @inject(INTERFACE_TYPES.EmployeeRepository)
-    employeeRepo: IEmployeeRepository
+    employeeRepo: IEmployeeRepository,
+    @inject(INTERFACE_TYPES.OrganizatonRepository) orgRepo: IOrganizationRepository,
+
   ) {
     this.userRepo = userRepo;
     this.employeeRepo = employeeRepo;
     this.refreshRepo = refreshRepo;
+    this.orgRepo = orgRepo;
+
   }
 
   async getAllUsers(): Promise<IUser[] | null> {
     try {
       return await this.userRepo.find();
+    } catch (error) {
+      console.error('Error finding user by email:', error);
+      throw error;
+    }
+  }
+
+  async getAllOrganization(): Promise<IOrganization[] | null> {
+    try {
+      return await this.orgRepo.find();
     } catch (error) {
       console.error('Error finding user by email:', error);
       throw error;

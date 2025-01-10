@@ -82,6 +82,20 @@ class adminAuthController implements IAdminController {
       next(error);
     }
   }
+  async getAllOrganization(req: Request, res: Response, next: NextFunction) {
+    try {
+      console.log('jjjjjjjjjjjjjjjjjjjjjjj')
+      const users = await this.interactor.getAllOrganization();
+      if (!users) {
+        res.status(400);
+        throw new Error('no users found');
+      }
+
+      res.status(201).json({ message: 'organization List', users });
+    } catch (error) {
+      next(error);
+    }
+  }
   async getAllEmployees(req: Request, res: Response, next: NextFunction) {
     try {
       const employees = await this.interactor.getAllEmployees();
